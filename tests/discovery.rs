@@ -343,4 +343,26 @@ fn an_extension_may_be_written_in_any_case() {
     );
 }
 
+#[test]
+fn both_spellings_of_the_stem_are_found() {
+    let directory = fixture(&["LICENCE"]);
+    let evidence = Discovery::new().search(&package(directory.path()));
+
+    assert_eq!(
+        evidence.found.len(),
+        1,
+        "this project spells it LICENCE, and a tool that could not find its \
+         own licence file would be a poor advertisement for itself"
+    );
+
+    let american = fixture(&["LICENSE"]);
+    let other = Discovery::new().search(&package(american.path()));
+
+    assert_eq!(
+        evidence.found[0].role, other.found[0].role,
+        "neither spelling may be privileged over the other"
+    );
+    assert_eq!(evidence.found[0].identifier, other.found[0].identifier);
+}
+
 /******************************************************************************/

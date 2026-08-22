@@ -38,6 +38,8 @@ description = "Embed verbatim dependency licences into a Rust binary."
 repository = "https://github.com/kevinmatthes/list-my-licence"
 license = "GPL-3.0-or-later"
 authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
+# Both spellings are listed deliberately, so that a crates.io search finds
+# this crate whichever one is used.
 keywords = ["attribution", "compliance", "licence", "license", "spdx"]
 categories = ["development-tools::build-utils"]
 readme = "README.md"

@@ -66,8 +66,31 @@ fn main() {
 `markdown()` for a file, and the packages can be walked directly for anything
 else.
 
-In continuous integration, add `.checking(true)` to make a stale
-`THIRDPARTY.md` fail the build instead of being rewritten.
+### Keeping the committed file honest
+
+Left alone, the build **refreshes** `THIRDPARTY.md` whenever the graph moves.
+That is what you want locally:  the change shows up as a diff, to be reviewed
+and committed like any other.
+
+In continuous integration you want the opposite — a build that **refuses** to
+proceed while the committed file disagrees with the graph, so that a dependency
+whose licence changed cannot be merged unnoticed:
+
+```rust
+fn main() {
+    let checking = std::env::var_os("CI").is_some();
+
+    list_my_licence::build::Builder::new()
+        .publish("THIRDPARTY.md")
+        .checking(checking)
+        .run()
+        .unwrap_or_else(|error| panic!("{error}"));
+}
+```
+
+With `checking(true)` nothing is written:  the build fails if `THIRDPARTY.md`
+is missing or would differ, and the fix is to run the build locally, review the
+diff, and commit it.
 
 ### With clap
 

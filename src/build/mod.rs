@@ -23,10 +23,12 @@
 //! binary.  It is gated behind the `build` feature so that the runtime half of
 //! the crate keeps its empty dependency list.
 
+mod copyleft;
 mod coverage;
 mod discovery;
 mod graph;
 
+pub use copyleft::{Copyleft, Finding, Strength, Survey};
 pub use coverage::{
     Attribution, Classification, Classifier, Coverage, Problem, Provenance,
 };

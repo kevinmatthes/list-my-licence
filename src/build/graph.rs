@@ -382,10 +382,10 @@ impl Resolver {
                     continue;
                 }
 
-                if let Some((id, _)) = nodes.get_key_value(&dependency.pkg) {
-                    if seen.insert(*id) {
-                        queue.push_back(*id);
-                    }
+                if let Some((id, _)) = nodes.get_key_value(&dependency.pkg)
+                    && seen.insert(*id)
+                {
+                    queue.push_back(*id);
                 }
             }
         }

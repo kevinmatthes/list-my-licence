@@ -20,15 +20,16 @@
 ################################################################################
 ##
 ##  AUTHOR      Kevin Matthes
-##  BRIEF       The files not to be tracked by Git.
+##  BRIEF       Settings for Clippy.
 ##  COPYRIGHT   GPL-3.0
 ##  DATE        2026
-##  FILE        .gitignore
+##  FILE        .clippy.toml
 ##  NOTE        See `LICENSE' for full license.
 ##              See `README.md' for project details.
 ##
 ################################################################################
 
-/target
+# The minimal supported Rust version.
+msrv = "1.86.0"
 
 ################################################################################

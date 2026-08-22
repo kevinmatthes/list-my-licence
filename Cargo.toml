@@ -1,9 +1,40 @@
+######################## GNU General Public License 3.0 ########################
+##                                                                            ##
+## Copyright (C) 2026 Kevin Matthes                                           ##
+##                                                                            ##
+## This program is free software: you can redistribute it and/or modify       ##
+## it under the terms of the GNU General Public License as published by       ##
+## the Free Software Foundation, either version 3 of the License, or          ##
+## (at your option) any later version.                                        ##
+##                                                                            ##
+## This program is distributed in the hope that it will be useful,            ##
+## but WITHOUT ANY WARRANTY; without even the implied warranty of             ##
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              ##
+## GNU General Public License for more details.                               ##
+##                                                                            ##
+## You should have received a copy of the GNU General Public License          ##
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.     ##
+##                                                                            ##
+################################################################################
+
+################################################################################
+##
+##  AUTHOR      Kevin Matthes
+##  BRIEF       The project manifest.
+##  COPYRIGHT   GPL-3.0
+##  DATE        2026
+##  FILE        Cargo.toml
+##  NOTE        See `LICENSE' for full license.
+##              See `README.md' for project details.
+##
+################################################################################
+
 [package]
 name = "list-my-licence"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.86"
-description = "Embed the verbatim licences of a crate and its dependencies into the binary."
+description = "Embed verbatim dependency licences into a Rust binary."
 repository = "https://github.com/kevinmatthes/list-my-licence"
 license = "GPL-3.0-or-later"
 authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
@@ -24,12 +55,7 @@ spdx = { version = "0.13.5", optional = true }
 default = []
 build = ["dep:cargo_metadata", "dep:license", "dep:spdx"]
 
-[lints.rust]
-missing_docs = "warn"
-unsafe_code = "forbid"
-
-[lints.clippy]
-pedantic = { level = "warn", priority = -1 }
-
 [dev-dependencies]
 tempfile = "3.27.0"
+
+################################################################################

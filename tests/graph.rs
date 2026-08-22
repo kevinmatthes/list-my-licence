@@ -1,3 +1,22 @@
+/*********************** GNU General Public License 3.0 ***********************\
+|                                                                              |
+|  Copyright (C) 2026 Kevin Matthes                                            |
+|                                                                              |
+|  This program is free software: you can redistribute it and/or modify        |
+|  it under the terms of the GNU General Public License as published by        |
+|  the Free Software Foundation, either version 3 of the License, or           |
+|  (at your option) any later version.                                         |
+|                                                                              |
+|  This program is distributed in the hope that it will be useful,             |
+|  but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+|  GNU General Public License for more details.                                |
+|                                                                              |
+|  You should have received a copy of the GNU General Public License           |
+|  along with this program.  If not, see <https://www.gnu.org/licenses/>.      |
+|                                                                              |
+\******************************************************************************/
+
 //! Integration tests for dependency graph resolution.
 //!
 //! These resolve *this* crate's own graph, which makes them self-checking:
@@ -25,7 +44,8 @@ fn resolves_own_shipping_dependencies() {
     for expected in ["cargo_metadata", "license", "spdx"] {
         assert!(
             names.iter().any(|name| name == expected),
-            "{expected} is a dependency of the build feature and must be resolved, got {names:?}"
+            "{expected} is a dependency of the build feature and must \
+             be resolved, got {names:?}"
         );
     }
 }
@@ -37,21 +57,22 @@ fn optional_dependencies_are_absent_without_their_feature() {
     for gated in ["cargo_metadata", "license", "spdx"] {
         assert!(
             !names.iter().any(|name| name == gated),
-            "{gated} is gated behind the build feature and must not be resolved \
-             when that feature is off, got {names:?}"
+            "{gated} is gated behind the build feature and must not \
+             be resolved when that feature is off, got {names:?}"
         );
     }
 }
 
 #[test]
 fn feature_selection_changes_the_resolved_set() {
-    let without = resolve_names(&Resolver::new().features(Vec::<String>::new()));
+    let without =
+        resolve_names(&Resolver::new().features(Vec::<String>::new()));
     let with = resolve_names(&Resolver::new().features(["build"]));
 
     assert!(
         with.len() > without.len(),
-        "enabling a feature that pulls optional dependencies must widen the graph; \
-         without = {without:?}, with = {with:?}"
+        "enabling a feature that pulls optional dependencies must widen \
+         the graph; without = {without:?}, with = {with:?}"
     );
 }
 
@@ -61,7 +82,8 @@ fn excludes_dev_dependencies() {
 
     assert!(
         !names.iter().any(|name| name == "tempfile"),
-        "tempfile is a dev-dependency and never ships, so it must not be resolved, got {names:?}"
+        "tempfile is a dev-dependency and never ships, so it must not \
+         be resolved, got {names:?}"
     );
 }
 
@@ -134,13 +156,15 @@ fn resolves_against_the_host_triple() {
         .arg("-vV")
         .output()
         .expect("rustc must be runnable to learn the host triple");
-    let verbose = String::from_utf8(rustc.stdout).expect("rustc -vV emits UTF-8");
+    let verbose =
+        String::from_utf8(rustc.stdout).expect("rustc -vV emits UTF-8");
     let host = verbose
         .lines()
         .find_map(|line| line.strip_prefix("host: "))
         .expect("rustc -vV reports a host triple");
 
-    let filtered = resolve_names(&Resolver::new().features(["build"]).target(host));
+    let filtered =
+        resolve_names(&Resolver::new().features(["build"]).target(host));
     let unfiltered = resolve_names(&Resolver::new().features(["build"]));
 
     assert!(
@@ -154,6 +178,9 @@ fn resolves_against_the_host_triple() {
     );
     assert!(
         filtered.iter().any(|name| name == "cargo_metadata"),
-        "a dependency of every platform must survive filtering, got {filtered:?}"
+        "a dependency of every platform must survive filtering, \
+         got {filtered:?}"
     );
 }
+
+/******************************************************************************/

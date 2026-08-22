@@ -1,3 +1,22 @@
+/*********************** GNU General Public License 3.0 ***********************\
+|                                                                              |
+|  Copyright (C) 2026 Kevin Matthes                                            |
+|                                                                              |
+|  This program is free software: you can redistribute it and/or modify        |
+|  it under the terms of the GNU General Public License as published by        |
+|  the Free Software Foundation, either version 3 of the License, or           |
+|  (at your option) any later version.                                         |
+|                                                                              |
+|  This program is distributed in the hope that it will be useful,             |
+|  but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+|  GNU General Public License for more details.                                |
+|                                                                              |
+|  You should have received a copy of the GNU General Public License           |
+|  along with this program.  If not, see <https://www.gnu.org/licenses/>.      |
+|                                                                              |
+\******************************************************************************/
+
 //! Resolution of the dependency graph that actually ships.
 //!
 //! The set of packages whose licences must be reproduced is narrower than
@@ -10,7 +29,9 @@
 //! both restricted to the target platform actually being compiled for, and
 //! **not** dev-dependencies, which never leave the developer's machine.
 
-use cargo_metadata::{DependencyKind, Metadata, MetadataCommand, Node, Package, PackageId};
+use cargo_metadata::{
+    DependencyKind, Metadata, MetadataCommand, Node, Package, PackageId,
+};
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     fmt,
@@ -37,8 +58,12 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Metadata(e) => write!(f, "could not read cargo metadata: {e}"),
-            Self::NoResolve => f.write_str("cargo metadata returned no resolved dependency graph"),
+            Self::Metadata(e) => {
+                write!(f, "could not read cargo metadata: {e}")
+            }
+            Self::NoResolve => f.write_str(
+                "cargo metadata returned no resolved dependency graph",
+            ),
             Self::NoRootPackage => f.write_str(
                 "cargo metadata named no root package; \
                  virtual workspace manifests are not supported",
@@ -137,7 +162,7 @@ impl Default for Resolver {
 impl Resolver {
     /// A resolver for the current directory, every target, root included.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             manifest_path: None,
             target: None,
@@ -168,7 +193,8 @@ impl Resolver {
         let mut resolver = Self::new();
 
         if let Ok(dir) = std::env::var("CARGO_MANIFEST_DIR") {
-            resolver.manifest_path = Some(PathBuf::from(dir).join("Cargo.toml"));
+            resolver.manifest_path =
+                Some(PathBuf::from(dir).join("Cargo.toml"));
         }
 
         if let Ok(target) = std::env::var("TARGET") {
@@ -194,7 +220,9 @@ impl Resolver {
         }
 
         let enabled: BTreeSet<String> = std::env::vars()
-            .filter_map(|(key, _)| key.strip_prefix("CARGO_FEATURE_").map(ToOwned::to_owned))
+            .filter_map(|(key, _)| {
+                key.strip_prefix("CARGO_FEATURE_").map(ToOwned::to_owned)
+            })
             .collect();
 
         if enabled.is_empty() {
@@ -257,7 +285,7 @@ impl Resolver {
     /// Defaults to `true`:  an application must reproduce its own licence just
     /// as much as its dependencies'.
     #[must_use]
-    pub fn include_root(mut self, include: bool) -> Self {
+    pub const fn include_root(mut self, include: bool) -> Self {
         self.include_root = include;
         self
     }
@@ -374,18 +402,20 @@ impl Resolver {
     /// field, and over-reporting a licence is the safe failure direction.
     fn ships(dependency: &cargo_metadata::NodeDep) -> bool {
         dependency.dep_kinds.is_empty()
-            || dependency
-                .dep_kinds
-                .iter()
-                .any(|kind| matches!(kind.kind, DependencyKind::Normal | DependencyKind::Build))
+            || dependency.dep_kinds.iter().any(|kind| {
+                matches!(
+                    kind.kind,
+                    DependencyKind::Normal | DependencyKind::Build
+                )
+            })
     }
 
     /// Reduces a Cargo package to the fields harvesting needs.
     fn describe(package: &Package) -> ResolvedPackage {
-        let manifest_dir = package
-            .manifest_path
-            .parent()
-            .map_or_else(|| PathBuf::from("."), |dir| dir.as_std_path().to_path_buf());
+        let manifest_dir = package.manifest_path.parent().map_or_else(
+            || PathBuf::from("."),
+            |dir| dir.as_std_path().to_path_buf(),
+        );
 
         let licence_file = package
             .license_file
@@ -403,3 +433,5 @@ impl Resolver {
         }
     }
 }
+
+/******************************************************************************/

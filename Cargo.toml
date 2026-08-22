@@ -17,18 +17,6 @@
 ##                                                                            ##
 ################################################################################
 
-################################################################################
-##
-##  AUTHOR      Kevin Matthes
-##  BRIEF       The project manifest.
-##  COPYRIGHT   GPL-3.0
-##  DATE        2026
-##  FILE        Cargo.toml
-##  NOTE        See `LICENCE' for full licence.
-##              See `README.md' for project details.
-##
-################################################################################
-
 [package]
 name = "list-my-licence"
 version = "0.1.0"

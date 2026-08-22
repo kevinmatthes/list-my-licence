@@ -17,18 +17,6 @@
 ##                                                                            ##
 ################################################################################
 
-################################################################################
-##
-##  AUTHOR      Kevin Matthes
-##  BRIEF       Settings for rustfmt.
-##  COPYRIGHT   GPL-3.0
-##  DATE        2026
-##  FILE        .rustfmt.toml
-##  NOTE        See `LICENCE' for full licence.
-##              See `README.md' for project details.
-##
-################################################################################
-
 # Line width settings.
 max_width = 80
 

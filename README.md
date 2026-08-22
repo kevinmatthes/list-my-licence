@@ -5,6 +5,12 @@
 Embed the verbatim licences of a Rust application and its dependencies into
 the binary that ships them.
 
+> **Made with Anthropic Claude.**  The implementation and the documentation
+> were written by Claude Opus 5, working to the direction and review of the
+> author, with whom every design decision rests.  Each commit names the model
+> in a `Co-Authored-By` trailer, so the record is per change rather than only
+> here.
+
 <!------------------------------------------------------------------------- -->
 
 ## Summary

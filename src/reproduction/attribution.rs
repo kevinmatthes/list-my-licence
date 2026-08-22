@@ -53,8 +53,10 @@ impl Attribution {
 
     /// One package by name, if it is present.
     #[must_use]
-    pub fn package(&self, name: &str) -> Option<&crate::Package> {
-        self.packages.iter().find(|package| package.name == name)
+    pub fn package(&self, name: &str) -> Option<&'static crate::Package> {
+        let packages: &'static [crate::Package] = self.packages;
+
+        packages.iter().find(|package| package.name == name)
     }
 
     /// The packages under a given licence.

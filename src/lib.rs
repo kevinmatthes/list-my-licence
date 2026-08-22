@@ -79,6 +79,9 @@ mod reproduction;
 #[cfg(feature = "build")]
 pub mod build;
 
+#[cfg(feature = "clap")]
+pub mod cli;
+
 pub use crate::reproduction::{
     Attribution, Licence, Markdown, Origin, Package,
 };

@@ -69,6 +69,35 @@ else.
 In continuous integration, add `.checking(true)` to make a stale
 `THIRDPARTY.md` fail the build instead of being rewritten.
 
+### With clap
+
+The `clap` feature contributes licence reporting to an application's **own**
+parser, rather than replacing the call that parses it — which is what lets it
+compose with a derived `Parser` instead of fighting it.
+
+```toml
+list-my-licence = { version = "0.1", features = ["clap"] }
+```
+
+```rust
+#[derive(clap::Parser)]
+struct Arguments {
+    #[command(flatten)]
+    licences: list_my_licence::cli::LicenceArgs,
+}
+
+let arguments = Arguments::parse();
+
+arguments.licences.handle_and_exit(&LICENCES);
+```
+
+That contributes `--licences` and `--licences <CRATE>`.  Applications
+preferring `myapp licences` can flatten `cli::LicenceCommand` into their own
+subcommand enumeration instead.
+
+The feature is additive and not default:  it costs the runtime half its empty
+dependency list.
+
 <!------------------------------------------------------------------------- -->
 
 ## What it does

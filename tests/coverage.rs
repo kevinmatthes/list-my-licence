@@ -207,14 +207,21 @@ fn a_deprecated_identifier_is_understood() {
 }
 
 #[test]
-fn declaring_nothing_is_reported() {
+fn declaring_nothing_but_shipping_a_text_is_survivable() {
     let (verdict, _keep) = classify(&["LICENSE"], None);
 
-    assert_eq!(verdict.coverage, Coverage::Absent);
     assert!(
-        verdict.problems.contains(&Problem::Undeclared),
-        "an absent declaration fails silently and must be surfaced: {:?}",
+        !verdict.is_fatal(),
+        "the text is there to reproduce, so the reproduction obligation is \
+         discharged even though the licence cannot be named: {:?}",
         verdict.problems
+    );
+    assert!(
+        verdict
+            .problems
+            .iter()
+            .any(|problem| matches!(problem, Problem::Custom { .. })),
+        "but it is recorded as custom rather than passed over in silence"
     );
 }
 
@@ -323,3 +330,112 @@ fn a_general_file_beside_specific_ones_is_not_combined() {
 }
 
 /******************************************************************************/
+
+#[test]
+fn a_custom_licence_declared_by_file_is_reproduced() {
+    let directory = tempfile::tempdir().expect("a temporary directory");
+    let path = directory.path().join("LICENCE");
+    fs::write(&path, "Bespoke terms, written by the copyright holder.\n")
+        .expect("a fixture file");
+
+    let mut described = package(directory.path(), None);
+    described.licence_file = Some(path.clone());
+    described.name = "my_crate".to_owned();
+
+    let evidence = Discovery::new().search(&described);
+    let verdict = Classifier::new().classify(&described, &evidence);
+
+    assert!(
+        !verdict.is_fatal(),
+        "a copyright holder may write their own terms, and Cargo's way of \
+         saying so is license-file with no license: {:?}",
+        verdict.problems
+    );
+    assert_eq!(verdict.attributions.len(), 1, "the text must be reproduced");
+    assert_eq!(
+        verdict.attributions[0].identifier, "LicenseRef-my-crate",
+        "an underscore is not admissible in an SPDX reference"
+    );
+    assert!(
+        verdict.attributions[0].text.contains("Bespoke terms"),
+        "and the text must be the author's own, not a canonical stand-in"
+    );
+    assert!(
+        verdict
+            .problems
+            .iter()
+            .any(|problem| matches!(problem, Problem::Custom { .. })),
+        "recorded as custom, since no canonical text exists to check it against"
+    );
+}
+
+#[test]
+fn a_declared_licence_reference_is_reproduced() {
+    let (verdict, _keep) =
+        classify(&["LICENCE"], Some("LicenseRef-Acme-Proprietary"));
+
+    assert!(!verdict.is_fatal(), "{:?}", verdict.problems);
+    assert_eq!(verdict.attributions.len(), 1);
+    assert_eq!(
+        verdict.attributions[0].identifier, "LicenseRef-Acme-Proprietary",
+        "the reference the author chose must be preserved verbatim"
+    );
+    assert!(verdict.problems.iter().any(|problem| matches!(
+        problem,
+        Problem::Custom { identifier }
+            if identifier == "LicenseRef-Acme-Proprietary"
+    )));
+}
+
+#[test]
+fn a_custom_licence_without_its_text_is_fatal() {
+    let (verdict, _keep) = classify(&[], Some("LicenseRef-Acme-Proprietary"));
+
+    assert!(
+        verdict.is_fatal(),
+        "no canonical text can ever exist for a custom licence, so the \
+         distributed copy is the only possible source: {:?}",
+        verdict.problems
+    );
+}
+
+#[test]
+fn a_custom_branch_does_not_spoil_a_standard_one() {
+    let (verdict, _keep) =
+        classify(&["LICENSE-MIT"], Some("MIT OR LicenseRef-Acme"));
+
+    assert!(
+        !verdict.is_fatal(),
+        "the MIT branch is fully discharged by the shipped file: {:?}",
+        verdict.problems
+    );
+    assert_eq!(verdict.attributions[0].identifier, "MIT");
+}
+
+#[test]
+fn declaring_nothing_and_shipping_nothing_is_fatal() {
+    let (verdict, _keep) = classify(&["README.md"], None);
+
+    assert!(
+        verdict.problems.contains(&Problem::Undeclared),
+        "{:?}",
+        verdict.problems
+    );
+    assert!(
+        verdict.is_fatal(),
+        "the obligation cannot even be identified, so nothing is reproduced \
+         and there is nothing to object to — the quietest failure of all"
+    );
+}
+
+#[test]
+fn an_unparsable_declaration_is_fatal() {
+    let (verdict, _keep) = classify(&["LICENSE"], Some("banana"));
+
+    assert!(
+        verdict.is_fatal(),
+        "lenient parsing already accepts every real-world quirk, so what is \
+         left is genuinely unreadable: {:?}",
+        verdict.problems
+    );
+}

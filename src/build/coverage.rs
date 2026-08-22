@@ -124,11 +124,26 @@ pub enum Coverage {
 /// Something standing between a package and a discharged obligation.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Problem {
-    /// The manifest declares no licence whatsoever.
+    /// The manifest declares no licence, and the package ships no text
+    /// either.
     ///
-    /// More dangerous than a copyleft declaration, because it fails silently:
-    /// there is nothing to reproduce and nothing to object to.
+    /// The most dangerous case of all, because it fails silently:  the
+    /// obligation cannot even be identified, so nothing is reproduced and
+    /// there is nothing to object to.
     Undeclared,
+
+    /// The licence is a custom one:  either declared as an SPDX `LicenseRef`,
+    /// or not declared at all while a text is nonetheless shipped.
+    ///
+    /// Not a fault.  A copyright holder is entitled to write their own terms,
+    /// and this crate's business is reproducing them faithfully, not insisting
+    /// they be drawn from a list.  It is recorded so that the output can say
+    /// the licence was not identifiable, since no canonical text exists to
+    /// check it against.
+    Custom {
+        /// What the licence is called, as declared or as invented for it.
+        identifier: String,
+    },
 
     /// The declared expression could not be parsed, even leniently.
     Unparsable {
@@ -169,14 +184,25 @@ impl Problem {
     /// the human must look.
     #[must_use]
     pub const fn is_fatal(&self) -> bool {
-        matches!(self, Self::Unattributed { .. } | Self::Unsatisfiable { .. })
+        matches!(
+            self,
+            Self::Undeclared
+                | Self::Unparsable { .. }
+                | Self::Unattributed { .. }
+                | Self::Unsatisfiable { .. }
+        )
     }
 }
 
 impl fmt::Display for Problem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Undeclared => f.write_str("declares no licence at all"),
+            Self::Undeclared => {
+                f.write_str("declares no licence and ships no licence text")
+            }
+            Self::Custom { identifier } => {
+                write!(f, "is under the custom licence {identifier}")
+            }
             Self::Unparsable { expression } => {
                 write!(
                     f,
@@ -273,7 +299,9 @@ impl Classifier {
 
         let notices = evidence.notices().cloned().collect();
 
-        let Some(expression) = Self::declaration(package, &mut problems) else {
+        let Some(expression) =
+            Self::declaration(package, evidence, &mut problems)
+        else {
             return Classification {
                 coverage: Coverage::Absent,
                 attributions: Vec::new(),
@@ -294,10 +322,7 @@ impl Classifier {
         // satisfied without it, which is why this is checked against the whole
         // expression rather than term by term.
         let satisfied = expression.evaluate(|requirement| {
-            requirement
-                .license
-                .id()
-                .is_some_and(|id| discharged.contains(id.name))
+            discharged.contains(&Self::name(&requirement.license))
         });
 
         if satisfied {
@@ -329,24 +354,81 @@ impl Classifier {
     /// author's own cache write `MIT/Apache-2.0`.
     fn declaration(
         package: &ResolvedPackage,
+        evidence: &Evidence,
         problems: &mut Vec<Problem>,
     ) -> Option<spdx::Expression> {
-        let Some(declared) = package.licence.as_deref() else {
-            problems.push(Problem::Undeclared);
+        let synthesised;
 
-            return None;
+        let declared = match package.licence.as_deref() {
+            Some(declared) => declared,
+
+            // Cargo's own way of saying "my terms are not on any list":  set
+            // `license-file` and leave `license` empty.  A copyright holder is
+            // entitled to write their own licence, so this is not a fault —
+            // but SPDX has no identifier for it, and one is needed before the
+            // rest of the classifier can treat it like any other term.  The
+            // reference SPDX reserves for exactly this purpose is invented
+            // from the package's own name.
+            None if !evidence.is_empty() || package.licence_file.is_some() => {
+                synthesised = Self::reference(&package.name);
+
+                problems.push(Problem::Custom {
+                    identifier: synthesised.clone(),
+                });
+
+                &synthesised
+            }
+
+            None => {
+                problems.push(Problem::Undeclared);
+
+                return None;
+            }
         };
 
         let parsed =
             spdx::Expression::parse_mode(declared, spdx::ParseMode::LAX).ok();
 
-        if parsed.is_none() {
-            problems.push(Problem::Unparsable {
+        match &parsed {
+            None => problems.push(Problem::Unparsable {
                 expression: declared.to_owned(),
-            });
+            }),
+
+            // A declared `LicenseRef` is custom too, and is noted for the same
+            // reason:  no canonical text exists to check it against.
+            Some(expression) => problems.extend(
+                expression
+                    .requirements()
+                    .filter(|requirement| {
+                        requirement.req.license.id().is_none()
+                    })
+                    .map(|requirement| Problem::Custom {
+                        identifier: Self::name(&requirement.req.license),
+                    }),
+            ),
         }
 
         parsed
+    }
+
+    /// Invents the SPDX reference for a package's own custom licence.
+    ///
+    /// An SPDX reference admits letters, digits, full stops and hyphens only,
+    /// so anything else in the package name — an underscore, most commonly —
+    /// becomes a hyphen.
+    fn reference(name: &str) -> String {
+        let sanitised: String = name
+            .chars()
+            .map(|character| {
+                if character.is_ascii_alphanumeric() || character == '.' {
+                    character
+                } else {
+                    '-'
+                }
+            })
+            .collect();
+
+        format!("LicenseRef-{sanitised}")
     }
 
     /// Finds a text for every declared term.
@@ -439,15 +521,24 @@ impl Classifier {
     }
 
     /// The licence identifiers a parsed expression names, in order.
+    ///
+    /// A custom licence carries no SPDX identifier, so it is named by its
+    /// reference instead — `LicenseRef-Whatever`.  Naming it is what lets the
+    /// rest of the classifier treat it like any other term.
     fn terms(expression: &spdx::Expression) -> Vec<String> {
         let mut terms: Vec<String> = expression
             .requirements()
-            .filter_map(|requirement| requirement.req.license.id())
-            .map(|id| id.name.to_owned())
+            .map(|requirement| Self::name(&requirement.req.license))
             .collect();
 
         terms.dedup();
         terms
+    }
+
+    /// What one licence item of an expression is called.
+    fn name(item: &spdx::LicenseItem) -> String {
+        item.id()
+            .map_or_else(|| item.to_string(), |id| id.name.to_owned())
     }
 
     /// The shipped file naming a given licence, if there is one.

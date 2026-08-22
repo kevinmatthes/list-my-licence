@@ -37,13 +37,6 @@
 //! rendered file against the committed one, and any instability would make it
 //! fail at random.
 
-use super::{Classification, Provenance, ResolvedPackage};
-use std::{
-    collections::BTreeMap,
-    fmt, fs, io,
-    path::{Path, PathBuf},
-};
-
 /// The generated Rust source, relative to `OUT_DIR`.
 const GENERATED: &str = "list-my-licence.rs";
 
@@ -56,10 +49,10 @@ pub enum Error {
     /// A file could not be written.
     Write {
         /// Where it should have gone.
-        path: PathBuf,
+        path: std::path::PathBuf,
 
         /// Why it did not.
-        reason: io::Error,
+        reason: std::io::Error,
     },
 
     /// The committed attribution is out of date.
@@ -68,12 +61,12 @@ pub enum Error {
     /// failure exists so that a stale file cannot be merged unnoticed.
     Stale {
         /// The file that no longer matches what the graph would produce.
-        path: PathBuf,
+        path: std::path::PathBuf,
     },
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Write { path, reason } => {
                 write!(f, "could not write {}:  {reason}", path.display())
@@ -98,18 +91,21 @@ impl std::error::Error for Error {
 }
 
 /// One package as it will be reproduced.
-pub type Reproduced<'a> = (&'a ResolvedPackage, &'a Classification);
+pub type Reproduced<'a> = (
+    &'a crate::build::ResolvedPackage,
+    &'a crate::build::Classification,
+);
 
 /// Writes the attribution, and checks a committed copy against it.
 #[derive(Clone, Debug)]
 pub struct Emitter {
-    out_dir: PathBuf,
+    out_dir: std::path::PathBuf,
 }
 
 impl Emitter {
     /// An emitter writing into the given directory.
     #[must_use]
-    pub fn new(out_dir: impl Into<PathBuf>) -> Self {
+    pub fn new(out_dir: impl Into<std::path::PathBuf>) -> Self {
         Self {
             out_dir: out_dir.into(),
         }
@@ -123,9 +119,9 @@ impl Emitter {
     /// not running as a build script.
     pub fn from_build_env() -> Result<Self, Error> {
         std::env::var_os("OUT_DIR").map(Self::new).ok_or_else(|| Error::Write {
-            path: PathBuf::from("OUT_DIR"),
-            reason: io::Error::new(
-                io::ErrorKind::NotFound,
+            path: std::path::PathBuf::from("OUT_DIR"),
+            reason: std::io::Error::new(
+                std::io::ErrorKind::NotFound,
                 "OUT_DIR is unset, so this is not running as a build script",
             ),
         })
@@ -159,10 +155,10 @@ impl Emitter {
     /// keeps the binary a reasonable size and makes the output depend only on
     /// the set of texts, not on how many packages happen to share one.
     fn intern(
-        directory: &Path,
+        directory: &std::path::Path,
         packages: &[Reproduced<'_>],
-    ) -> Result<BTreeMap<String, String>, Error> {
-        let mut files = BTreeMap::new();
+    ) -> Result<std::collections::BTreeMap<String, String>, Error> {
+        let mut files = std::collections::BTreeMap::new();
 
         let texts = packages.iter().flat_map(|(_, verdict)| {
             verdict
@@ -208,7 +204,7 @@ impl Emitter {
     ///
     /// Returns [`Error::Write`] if it cannot be written.
     pub fn publish(
-        path: &Path,
+        path: &std::path::Path,
         packages: &[Reproduced<'_>],
     ) -> Result<(), Error> {
         Self::write(path, &Self::markdown(packages))
@@ -225,12 +221,12 @@ impl Emitter {
     ///
     /// Returns [`Error::Stale`] if the file differs or is missing.
     pub fn check(
-        path: &Path,
+        path: &std::path::Path,
         packages: &[Reproduced<'_>],
     ) -> Result<(), Error> {
         let expected = Self::markdown(packages);
 
-        match fs::read_to_string(path) {
+        match std::fs::read_to_string(path) {
             Ok(found) if found == expected => Ok(()),
             _ => Err(Error::Stale {
                 path: path.to_path_buf(),
@@ -239,28 +235,32 @@ impl Emitter {
     }
 
     /// The runtime spelling of a provenance.
-    fn origin(provenance: &Provenance) -> String {
+    fn origin(provenance: &crate::build::Provenance) -> String {
         match provenance {
-            Provenance::Distributed(path) => {
+            crate::build::Provenance::Distributed(path) => {
                 format!("Origin::Distributed({:?})", Self::name(path))
             }
-            Provenance::Combined(path) => {
+            crate::build::Provenance::Combined(path) => {
                 format!("Origin::Combined({:?})", Self::name(path))
             }
-            Provenance::Canonical => "Origin::Canonical".to_owned(),
+            crate::build::Provenance::Canonical => {
+                "Origin::Canonical".to_owned()
+            }
         }
     }
 
     /// The human-readable spelling of a provenance.
-    fn origin_text(provenance: &Provenance) -> String {
+    fn origin_text(provenance: &crate::build::Provenance) -> String {
         match provenance {
-            Provenance::Distributed(path) => {
+            crate::build::Provenance::Distributed(path) => {
                 format!("as distributed, in {}", Self::name(path))
             }
-            Provenance::Combined(path) => {
+            crate::build::Provenance::Combined(path) => {
                 format!("as distributed, shared in {}", Self::name(path))
             }
-            Provenance::Canonical => "canonical SPDX text".to_owned(),
+            crate::build::Provenance::Canonical => {
+                "canonical SPDX text".to_owned()
+            }
         }
     }
 
@@ -269,23 +269,23 @@ impl Emitter {
     /// The full path names a directory in whoever built it, which has no place
     /// in a shipped artefact and would make the committed file differ between
     /// machines.
-    fn name(path: &Path) -> String {
+    fn name(path: &std::path::Path) -> String {
         path.file_name().map_or_else(String::new, |name| {
             name.to_string_lossy().into_owned()
         })
     }
 
     /// Creates a directory, reporting where it failed.
-    fn create(path: &Path) -> Result<(), Error> {
-        fs::create_dir_all(path).map_err(|reason| Error::Write {
+    fn create(path: &std::path::Path) -> Result<(), Error> {
+        std::fs::create_dir_all(path).map_err(|reason| Error::Write {
             path: path.to_path_buf(),
             reason,
         })
     }
 
     /// Writes a file, reporting where it failed.
-    fn write(path: &Path, contents: &str) -> Result<(), Error> {
-        fs::write(path, contents).map_err(|reason| Error::Write {
+    fn write(path: &std::path::Path, contents: &str) -> Result<(), Error> {
+        std::fs::write(path, contents).map_err(|reason| Error::Write {
             path: path.to_path_buf(),
             reason,
         })
@@ -296,8 +296,8 @@ impl Emitter {
 #[derive(Clone, Copy, Debug)]
 struct Markdown<'a>(&'a [Reproduced<'a>]);
 
-impl fmt::Display for Markdown<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Markdown<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("# Third party licences\n")?;
 
         for (package, verdict) in self.0 {
@@ -341,11 +341,11 @@ impl fmt::Display for Markdown<'_> {
 #[derive(Clone, Copy, Debug)]
 struct Generated<'a> {
     packages: &'a [Reproduced<'a>],
-    files: &'a BTreeMap<String, String>,
+    files: &'a std::collections::BTreeMap<String, String>,
 }
 
-impl fmt::Display for Generated<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Generated<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("Attribution { packages: &[\n")?;
 
         for (package, verdict) in self.packages {

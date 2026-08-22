@@ -42,9 +42,6 @@
 //! the files beside it.  Every report below therefore says what a package
 //! *declares*, never what it is.
 
-use super::{Classification, ResolvedPackage};
-use std::{collections::BTreeSet, fmt};
-
 /// Licences whose copyleft reaches only the files they cover.
 const WEAK: [&str; 8] = [
     "CDDL-1.0", "CDDL-1.1", "CPL-1.0", "EPL-1.0", "EPL-2.0", "MPL-1.1",
@@ -138,8 +135,8 @@ impl Strength {
     }
 }
 
-impl fmt::Display for Strength {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Strength {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
             Self::Permissive => "permissive",
             Self::Weak => "weak copyleft",
@@ -173,8 +170,8 @@ pub struct Finding {
     pub source: Option<String>,
 }
 
-impl fmt::Display for Finding {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Finding {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{} {} declares {} ({}):  {}",
@@ -278,8 +275,12 @@ impl Survey {
     /// `MIT OR GPL-3.0` imposes no copyleft on anyone who takes the MIT
     /// branch, and warning about it would be crying wolf — the surest way to
     /// have a real warning ignored later.
-    pub fn add(&mut self, package: &ResolvedPackage, verdict: &Classification) {
-        let discharged: BTreeSet<&str> = verdict
+    pub fn add(
+        &mut self,
+        package: &crate::build::ResolvedPackage,
+        verdict: &crate::build::Classification,
+    ) {
+        let discharged: std::collections::BTreeSet<&str> = verdict
             .attributions
             .iter()
             .map(|attribution| attribution.identifier.as_str())
@@ -328,7 +329,7 @@ impl Survey {
     /// warn about.
     fn avoidable(
         expression: Option<&spdx::Expression>,
-        discharged: &BTreeSet<&str>,
+        discharged: &std::collections::BTreeSet<&str>,
         identifier: &str,
     ) -> bool {
         expression.is_some_and(|expression| {
@@ -348,7 +349,7 @@ impl Survey {
     /// The repository the manifest names, qualified by the exact version, so
     /// that the pointer identifies the code actually used rather than whatever
     /// the default branch holds today.
-    fn source(package: &ResolvedPackage) -> Option<String> {
+    fn source(package: &crate::build::ResolvedPackage) -> Option<String> {
         package.repository.as_ref().map(|repository| {
             format!("{repository} at version {}", package.version)
         })

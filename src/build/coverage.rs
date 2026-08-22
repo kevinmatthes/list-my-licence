@@ -40,10 +40,6 @@
 //! canonical text genuinely suffices.  Only the first kind can make a build
 //! fail.
 
-use super::{Evidence, Found, ResolvedPackage, Skipped};
-use license::License;
-use std::{collections::BTreeSet, fmt, path::PathBuf};
-
 /// Licences whose canonical text discharges the obligation on its own.
 ///
 /// Every entry has a holder-independent body:  reproducing it verbatim from
@@ -83,10 +79,10 @@ const STANDARD_TEXT: [&str; 17] = [
 pub enum Provenance {
     /// The copy the author actually distributed, which is what a licence
     /// requiring its own copyright line needs.
-    Distributed(PathBuf),
+    Distributed(std::path::PathBuf),
 
     /// One file covering several licence terms at once.
-    Combined(PathBuf),
+    Combined(std::path::PathBuf),
 
     /// The canonical SPDX text, used because the package shipped none.
     Canonical,
@@ -167,10 +163,10 @@ pub enum Problem {
     /// A file was found but could not be read.
     Unreadable {
         /// Where it is.
-        path: PathBuf,
+        path: std::path::PathBuf,
 
         /// Why it was refused.
-        reason: Skipped,
+        reason: crate::build::Skipped,
     },
 }
 
@@ -194,8 +190,8 @@ impl Problem {
     }
 }
 
-impl fmt::Display for Problem {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Problem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Undeclared => {
                 f.write_str("declares no licence and ships no licence text")
@@ -237,7 +233,7 @@ pub struct Classification {
     pub attributions: Vec<Attribution>,
 
     /// Apache-2.0 notices, which are reproduced alongside rather than instead.
-    pub notices: Vec<Found>,
+    pub notices: Vec<crate::build::Found>,
 
     /// Everything that stood in the way, fatal or not.
     pub problems: Vec<Problem>,
@@ -285,8 +281,8 @@ impl Classifier {
     #[must_use]
     pub fn classify(
         &self,
-        package: &ResolvedPackage,
-        evidence: &Evidence,
+        package: &crate::build::ResolvedPackage,
+        evidence: &crate::build::Evidence,
     ) -> Classification {
         let mut problems: Vec<Problem> = evidence
             .skipped
@@ -353,8 +349,8 @@ impl Classifier {
     /// convenience:  four of the twelve licence-less crates measured in the
     /// author's own cache write `MIT/Apache-2.0`.
     fn declaration(
-        package: &ResolvedPackage,
-        evidence: &Evidence,
+        package: &crate::build::ResolvedPackage,
+        evidence: &crate::build::Evidence,
         problems: &mut Vec<Problem>,
     ) -> Option<spdx::Expression> {
         let synthesised;
@@ -437,13 +433,13 @@ impl Classifier {
     /// more than one term leaned on the same general file.
     fn attribute(
         terms: &[String],
-        evidence: &Evidence,
+        evidence: &crate::build::Evidence,
         problems: &mut Vec<Problem>,
-    ) -> (Vec<Attribution>, BTreeSet<String>, bool) {
+    ) -> (Vec<Attribution>, std::collections::BTreeSet<String>, bool) {
         let general = Self::general_files(evidence);
 
         let mut attributions = Vec::new();
-        let mut discharged = BTreeSet::new();
+        let mut discharged = std::collections::BTreeSet::new();
 
         // Which attributions fell back to a general file.  A file is only
         // *combined* if more than one term actually leans on it;  a package
@@ -502,7 +498,7 @@ impl Classifier {
 
     /// Restates shared general files as such.
     fn mark_combined(attributions: &mut [Attribution]) {
-        let shared: Vec<PathBuf> = attributions
+        let shared: Vec<std::path::PathBuf> = attributions
             .iter()
             .filter_map(|attribution| match &attribution.provenance {
                 Provenance::Distributed(path) => Some(path.clone()),
@@ -542,7 +538,10 @@ impl Classifier {
     }
 
     /// The shipped file naming a given licence, if there is one.
-    fn specific<'a>(evidence: &'a Evidence, term: &str) -> Option<&'a Found> {
+    fn specific<'a>(
+        evidence: &'a crate::build::Evidence,
+        term: &str,
+    ) -> Option<&'a crate::build::Found> {
         evidence.licences().find(|file| {
             file.identifier.as_deref().is_some_and(|identifier| {
                 identifier == term
@@ -561,7 +560,9 @@ impl Classifier {
     }
 
     /// The shipped licence files that name no particular licence.
-    fn general_files(evidence: &Evidence) -> Vec<&Found> {
+    fn general_files(
+        evidence: &crate::build::Evidence,
+    ) -> Vec<&crate::build::Found> {
         evidence
             .licences()
             .filter(|file| file.identifier.is_none())
@@ -571,9 +572,9 @@ impl Classifier {
     /// The canonical SPDX text of a licence, if the list carries one.
     fn canonical(identifier: &str) -> Option<String> {
         identifier
-            .parse::<&dyn License>()
+            .parse::<&dyn license::License>()
             .ok()
-            .map(|licence| licence.text().to_owned())
+            .map(|licence| license::License::text(licence).to_owned())
     }
 
     /// Whether a licence's canonical text discharges it without a copyright
@@ -584,7 +585,7 @@ impl Classifier {
 
     /// How completely the evidence covered the declaration.
     fn coverage(
-        evidence: &Evidence,
+        evidence: &crate::build::Evidence,
         attributions: &[Attribution],
         combined: bool,
     ) -> Coverage {

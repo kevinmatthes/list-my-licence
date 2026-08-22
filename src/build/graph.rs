@@ -29,15 +29,6 @@
 //! both restricted to the target platform actually being compiled for, and
 //! **not** dev-dependencies, which never leave the developer's machine.
 
-use cargo_metadata::{
-    DependencyKind, Metadata, MetadataCommand, Node, Package, PackageId,
-};
-use std::{
-    collections::{BTreeMap, BTreeSet, VecDeque},
-    fmt,
-    path::PathBuf,
-};
-
 /// Anything that can go wrong while resolving the graph.
 #[derive(Debug)]
 pub enum Error {
@@ -55,8 +46,8 @@ pub enum Error {
     NoRootPackage,
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Metadata(e) => {
                 write!(f, "could not read cargo metadata:  {e}")
@@ -107,7 +98,7 @@ pub struct ResolvedPackage {
     /// begins.  For registry dependencies it points into
     /// `~/.cargo/registry/src/`; for path and workspace members it points at
     /// the source tree.
-    pub manifest_dir: PathBuf,
+    pub manifest_dir: std::path::PathBuf,
 
     /// The SPDX expression the package *declares*, verbatim from its
     /// `license` field.
@@ -120,7 +111,7 @@ pub struct ResolvedPackage {
     /// The package's `license-file` field, resolved against
     /// [`Self::manifest_dir`], for packages that point at a file instead of
     /// naming an expression.
-    pub licence_file: Option<PathBuf>,
+    pub licence_file: Option<std::path::PathBuf>,
 
     /// The declared authors, used to recover a copyright line where no
     /// licence file carries one.
@@ -147,7 +138,7 @@ pub struct ResolvedPackage {
 /// ```
 #[derive(Clone, Debug)]
 pub struct Resolver {
-    manifest_path: Option<PathBuf>,
+    manifest_path: Option<std::path::PathBuf>,
     target: Option<String>,
     include_root: bool,
     features: Option<Vec<String>>,
@@ -194,7 +185,7 @@ impl Resolver {
 
         if let Ok(dir) = std::env::var("CARGO_MANIFEST_DIR") {
             resolver.manifest_path =
-                Some(PathBuf::from(dir).join("Cargo.toml"));
+                Some(std::path::PathBuf::from(dir).join("Cargo.toml"));
         }
 
         if let Ok(target) = std::env::var("TARGET") {
@@ -219,7 +210,7 @@ impl Resolver {
             name.to_uppercase().replace('-', "_")
         }
 
-        let enabled: BTreeSet<String> = std::env::vars()
+        let enabled: std::collections::BTreeSet<String> = std::env::vars()
             .filter_map(|(key, _)| {
                 key.strip_prefix("CARGO_FEATURE_").map(ToOwned::to_owned)
             })
@@ -229,7 +220,7 @@ impl Resolver {
             return Ok(Vec::new());
         }
 
-        let mut command = MetadataCommand::new();
+        let mut command = cargo_metadata::MetadataCommand::new();
         command.no_deps();
 
         if let Some(path) = &self.manifest_path {
@@ -249,7 +240,10 @@ impl Resolver {
 
     /// Overrides the manifest to resolve.
     #[must_use]
-    pub fn manifest_path(mut self, path: impl Into<PathBuf>) -> Self {
+    pub fn manifest_path(
+        mut self,
+        path: impl Into<std::path::PathBuf>,
+    ) -> Self {
         self.manifest_path = Some(path.into());
         self
     }
@@ -305,10 +299,14 @@ impl Resolver {
         let resolve = metadata.resolve.as_ref().ok_or(Error::NoResolve)?;
         let root = resolve.root.as_ref().ok_or(Error::NoRootPackage)?;
 
-        let nodes: BTreeMap<&PackageId, &Node> =
-            resolve.nodes.iter().map(|node| (&node.id, node)).collect();
-        let packages: BTreeMap<&PackageId, &Package> =
-            metadata.packages.iter().map(|pkg| (&pkg.id, pkg)).collect();
+        let nodes: std::collections::BTreeMap<
+            &cargo_metadata::PackageId,
+            &cargo_metadata::Node,
+        > = resolve.nodes.iter().map(|node| (&node.id, node)).collect();
+        let packages: std::collections::BTreeMap<
+            &cargo_metadata::PackageId,
+            &cargo_metadata::Package,
+        > = metadata.packages.iter().map(|pkg| (&pkg.id, pkg)).collect();
 
         let reachable = Self::walk(root, &nodes);
 
@@ -325,8 +323,8 @@ impl Resolver {
     }
 
     /// Runs `cargo metadata`, restricted to the configured target.
-    fn metadata(&self) -> Result<Metadata, Error> {
-        let mut command = MetadataCommand::new();
+    fn metadata(&self) -> Result<cargo_metadata::Metadata, Error> {
+        let mut command = cargo_metadata::MetadataCommand::new();
 
         if let Some(path) = &self.manifest_path {
             command.manifest_path(path);
@@ -363,11 +361,14 @@ impl Resolver {
     /// followed nowhere, including from the root, because a test-only crate is
     /// never distributed.
     fn walk<'id>(
-        root: &'id PackageId,
-        nodes: &BTreeMap<&'id PackageId, &'id Node>,
-    ) -> BTreeSet<&'id PackageId> {
-        let mut seen = BTreeSet::new();
-        let mut queue = VecDeque::new();
+        root: &'id cargo_metadata::PackageId,
+        nodes: &std::collections::BTreeMap<
+            &'id cargo_metadata::PackageId,
+            &'id cargo_metadata::Node,
+        >,
+    ) -> std::collections::BTreeSet<&'id cargo_metadata::PackageId> {
+        let mut seen = std::collections::BTreeSet::new();
+        let mut queue = std::collections::VecDeque::new();
 
         seen.insert(root);
         queue.push_back(root);
@@ -405,15 +406,16 @@ impl Resolver {
             || dependency.dep_kinds.iter().any(|kind| {
                 matches!(
                     kind.kind,
-                    DependencyKind::Normal | DependencyKind::Build
+                    cargo_metadata::DependencyKind::Normal
+                        | cargo_metadata::DependencyKind::Build
                 )
             })
     }
 
     /// Reduces a Cargo package to the fields harvesting needs.
-    fn describe(package: &Package) -> ResolvedPackage {
+    fn describe(package: &cargo_metadata::Package) -> ResolvedPackage {
         let manifest_dir = package.manifest_path.parent().map_or_else(
-            || PathBuf::from("."),
+            || std::path::PathBuf::from("."),
             |dir| dir.as_std_path().to_path_buf(),
         );
 

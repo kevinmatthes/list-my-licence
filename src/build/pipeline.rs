@@ -25,20 +25,14 @@
 //! script wants the obligation discharged and the build stopped if it cannot
 //! be.  That is what this is.
 
-use super::{
-    Classification, Classifier, Copyleft, Discovery, EmitError, Emitter,
-    Reproduced, ResolveError, ResolvedPackage, Survey,
-};
-use std::{fmt, path::PathBuf};
-
 /// Anything that stops a build script.
 #[derive(Debug)]
 pub enum Error {
     /// The dependency graph could not be resolved.
-    Resolve(ResolveError),
+    Resolve(crate::build::ResolveError),
 
     /// The attribution could not be written, or the committed copy is stale.
-    Emit(EmitError),
+    Emit(crate::build::EmitError),
 
     /// One or more packages carry an obligation that cannot be discharged.
     ///
@@ -47,8 +41,8 @@ pub enum Error {
     Undischargeable(Vec<String>),
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Resolve(error) => write!(f, "{error}"),
             Self::Emit(error) => write!(f, "{error}"),
@@ -80,14 +74,14 @@ impl std::error::Error for Error {
     }
 }
 
-impl From<ResolveError> for Error {
-    fn from(error: ResolveError) -> Self {
+impl From<crate::build::ResolveError> for Error {
+    fn from(error: crate::build::ResolveError) -> Self {
         Self::Resolve(error)
     }
 }
 
-impl From<EmitError> for Error {
-    fn from(error: EmitError) -> Self {
+impl From<crate::build::EmitError> for Error {
+    fn from(error: crate::build::EmitError) -> Self {
         Self::Emit(error)
     }
 }
@@ -96,10 +90,11 @@ impl From<EmitError> for Error {
 #[derive(Clone, Debug)]
 pub struct Outcome {
     /// Every package examined, with its verdict.
-    pub packages: Vec<(ResolvedPackage, Classification)>,
+    pub packages:
+        Vec<(crate::build::ResolvedPackage, crate::build::Classification)>,
 
     /// The copyleft obligations found, if any.
-    pub survey: Survey,
+    pub survey: crate::build::Survey,
 }
 
 impl Outcome {
@@ -139,7 +134,7 @@ impl Outcome {
 /// ```
 #[derive(Clone, Debug, Default)]
 pub struct Build {
-    published: Option<PathBuf>,
+    published: Option<std::path::PathBuf>,
     checking: bool,
 }
 
@@ -152,7 +147,7 @@ impl Build {
 
     /// Also writes the human-readable attribution to `path`.
     #[must_use]
-    pub fn publish(mut self, path: impl Into<PathBuf>) -> Self {
+    pub fn publish(mut self, path: impl Into<std::path::PathBuf>) -> Self {
         self.published = Some(path.into());
         self
     }
@@ -180,12 +175,12 @@ impl Build {
     pub fn run(&self) -> Result<Outcome, Error> {
         println!("cargo::rerun-if-changed=Cargo.lock");
 
-        let resolver = super::Resolver::from_build_env()?;
-        let discovery = Discovery::new();
-        let classifier = Classifier::new();
+        let resolver = crate::build::Resolver::from_build_env()?;
+        let discovery = crate::build::Discovery::new();
+        let classifier = crate::build::Classifier::new();
 
         let mut packages = Vec::new();
-        let mut survey = Copyleft::new().survey();
+        let mut survey = crate::build::Copyleft::new().survey();
         let mut undischargeable = Vec::new();
 
         for package in resolver.resolve()? {
@@ -216,18 +211,18 @@ impl Build {
             return Err(Error::Undischargeable(undischargeable));
         }
 
-        let borrowed: Vec<Reproduced<'_>> = packages
+        let borrowed: Vec<crate::build::Reproduced<'_>> = packages
             .iter()
             .map(|(package, verdict)| (package, verdict))
             .collect();
 
-        Emitter::from_build_env()?.embed(&borrowed)?;
+        crate::build::Emitter::from_build_env()?.embed(&borrowed)?;
 
         if let Some(path) = &self.published {
             if self.checking {
-                Emitter::check(path, &borrowed)?;
+                crate::build::Emitter::check(path, &borrowed)?;
             } else {
-                Emitter::publish(path, &borrowed)?;
+                crate::build::Emitter::publish(path, &borrowed)?;
             }
         }
 

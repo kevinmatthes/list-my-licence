@@ -30,12 +30,6 @@
 //! prevent, so the one thing discovery must never do is quietly find less than
 //! there is.
 
-use super::ResolvedPackage;
-use std::{
-    fmt,
-    path::{Path, PathBuf},
-};
-
 /// The largest file discovery will read.
 ///
 /// Licence texts are small;  the GPL, the longest in common use, is under
@@ -97,8 +91,8 @@ pub enum Skipped {
     TooLarge(u64),
 }
 
-impl fmt::Display for Skipped {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Skipped {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Unreadable(why) => write!(f, "could not be read:  {why}"),
             Self::NotText => f.write_str("is not valid UTF-8"),
@@ -116,7 +110,7 @@ impl fmt::Display for Skipped {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Found {
     /// Where the file is.
-    pub path: PathBuf,
+    pub path: std::path::PathBuf,
 
     /// What part it plays.
     pub role: Role,
@@ -142,7 +136,7 @@ pub struct Evidence {
     ///
     /// Never empty without meaning:  an entry here is a licence this crate can
     /// see but not reproduce, which the caller must decide what to do about.
-    pub skipped: Vec<(PathBuf, Skipped)>,
+    pub skipped: Vec<(std::path::PathBuf, Skipped)>,
 }
 
 impl Evidence {
@@ -199,7 +193,7 @@ impl Discovery {
     /// projects keep under `tests/`, and attribute another project's licence to
     /// this one.
     #[must_use]
-    pub fn search(&self, package: &ResolvedPackage) -> Evidence {
+    pub fn search(&self, package: &crate::build::ResolvedPackage) -> Evidence {
         let mut evidence = Evidence::default();
         let mut candidates = Vec::new();
 
@@ -242,7 +236,10 @@ impl Discovery {
     }
 
     /// Adds every licence-looking file of one directory to `candidates`.
-    fn collect(directory: &Path, candidates: &mut Vec<PathBuf>) {
+    fn collect(
+        directory: &std::path::Path,
+        candidates: &mut Vec<std::path::PathBuf>,
+    ) {
         let Ok(entries) = std::fs::read_dir(directory) else {
             return;
         };
@@ -262,7 +259,10 @@ impl Discovery {
     /// holds — `LICENSES/MIT.txt`, not `LICENSES/LICENSE-MIT` — so the stem
     /// rule of [`Self::collect`] never matches there and a separate rule is
     /// needed.
-    fn collect_reuse(directory: &Path, candidates: &mut Vec<PathBuf>) {
+    fn collect_reuse(
+        directory: &std::path::Path,
+        candidates: &mut Vec<std::path::PathBuf>,
+    ) {
         let Ok(entries) = std::fs::read_dir(directory) else {
             return;
         };
@@ -277,7 +277,7 @@ impl Discovery {
     }
 
     /// The SPDX identifier a REUSE file name is, if it is one.
-    fn reuse_identifier(path: &Path) -> Option<String> {
+    fn reuse_identifier(path: &std::path::Path) -> Option<String> {
         let name = path.file_name()?.to_str()?;
         let base = Self::strip_extension(name);
 
@@ -291,7 +291,7 @@ impl Discovery {
     /// stem, so that `LICENSE`, `LICENSE.txt`, `LICENSE-MIT` and
     /// `LICENSE-Apache-2.0_WITH_LLVM-exception` are all recognised, while
     /// `licensing-policy.md` is not.
-    fn is_licence_name(path: &Path) -> bool {
+    fn is_licence_name(path: &std::path::Path) -> bool {
         Self::split_name(path).is_some()
     }
 
@@ -302,7 +302,7 @@ impl Discovery {
     /// spelling that both the SPDX identifier table and the expression parser
     /// need:  `Apache-2.0_WITH_LLVM-exception` is meaningful, whereas
     /// `apache-2.0_with_llvm-exception` parses as nothing at all.
-    fn split_name(path: &Path) -> Option<(&'static str, String)> {
+    fn split_name(path: &std::path::Path) -> Option<(&'static str, String)> {
         let name = path.file_name()?.to_str()?;
         let lowered = name.to_ascii_lowercase();
 
@@ -352,7 +352,7 @@ impl Discovery {
     }
 
     /// What part a file plays, judged by its name.
-    fn role(path: &Path) -> Role {
+    fn role(path: &std::path::Path) -> Role {
         match Self::split_name(path) {
             Some(("notice", _)) => Role::Notice,
             _ => Role::Licence,
@@ -360,9 +360,9 @@ impl Discovery {
     }
 
     /// Whether a path sits inside a REUSE `LICENSES` directory.
-    fn is_reuse(path: &Path) -> bool {
+    fn is_reuse(path: &std::path::Path) -> bool {
         path.parent()
-            .and_then(Path::file_name)
+            .and_then(std::path::Path::file_name)
             .and_then(|name| name.to_str())
             .is_some_and(|name| DIRECTORIES.contains(&name))
     }
@@ -374,7 +374,7 @@ impl Discovery {
     /// writes `LICENSE-Apache-2.0_WITH_LLVM-exception`.  Only then is the small
     /// alias table consulted.  A stem that is itself an identifier, such as
     /// `UNLICENSE`, is recognised too.
-    fn identifier(path: &Path) -> Option<String> {
+    fn identifier(path: &std::path::Path) -> Option<String> {
         if Self::is_reuse(path) {
             return Self::reuse_identifier(path);
         }
@@ -411,7 +411,7 @@ impl Discovery {
     }
 
     /// Reads a file, refusing anything too large or not textual.
-    fn read(path: &Path) -> Result<String, Skipped> {
+    fn read(path: &std::path::Path) -> Result<String, Skipped> {
         let metadata = path
             .metadata()
             .map_err(|error| Skipped::Unreadable(error.to_string()))?;

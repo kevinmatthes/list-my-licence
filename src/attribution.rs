@@ -28,8 +28,6 @@
 //! which is what lets another output format be added later without disturbing
 //! anything that already works.
 
-use std::fmt;
-
 /// Where a reproduced licence text came from.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Origin {
@@ -43,8 +41,8 @@ pub enum Origin {
     Canonical,
 }
 
-impl fmt::Display for Origin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Origin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Distributed(file) => write!(f, "as distributed, in {file}"),
             Self::Combined(file) => {
@@ -142,8 +140,8 @@ impl Attribution {
 #[derive(Clone, Copy, Debug)]
 pub struct Markdown<'a>(pub &'a Attribution);
 
-impl fmt::Display for Markdown<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Markdown<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("# Third party licences\n")?;
 
         for package in self.0.packages {
@@ -173,8 +171,8 @@ impl fmt::Display for Markdown<'_> {
 }
 
 /// Renders as plain text, for a terminal.
-impl fmt::Display for Attribution {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for Attribution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for package in self.packages {
             writeln!(f, "{} {}", package.name, package.version)?;
 

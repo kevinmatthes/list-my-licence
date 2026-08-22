@@ -149,11 +149,11 @@ fn the_report_says_what_a_package_declares() {
 
     assert!(
         warning.contains("declares"),
-        "a `license` field is a claim its author made, never a fact: {warning}"
+        "a `license` field is a claim its author made, never a fact:  {warning}"
     );
     assert!(
         warning.contains("network"),
-        "and the obligation must be named, not merely hinted at: {warning}"
+        "and the obligation must be named, not merely hinted at:  {warning}"
     );
 }
 

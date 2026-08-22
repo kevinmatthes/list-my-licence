@@ -177,7 +177,7 @@ impl fmt::Display for Finding {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{} {} declares {} ({}): {}",
+            "{} {} declares {} ({}):  {}",
             self.package,
             self.version,
             self.identifier,
@@ -186,7 +186,7 @@ impl fmt::Display for Finding {
         )?;
 
         if let Some(source) = &self.source {
-            write!(f, "  Source: {source}")?;
+            write!(f, "  Source:  {source}")?;
         }
 
         Ok(())

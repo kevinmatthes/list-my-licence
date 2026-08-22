@@ -145,7 +145,7 @@ fn a_missing_manifest_is_reported_rather_than_panicking() {
         .expect_err("a manifest that does not exist cannot resolve");
 
     assert!(
-        matches!(error, list_my_licence::build::Error::Metadata(_)),
+        matches!(error, list_my_licence::build::ResolveError::Metadata(_)),
         "expected a metadata error, got {error:?}"
     );
 }

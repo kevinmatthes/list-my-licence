@@ -100,7 +100,7 @@ pub enum Skipped {
 impl fmt::Display for Skipped {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Unreadable(why) => write!(f, "could not be read: {why}"),
+            Self::Unreadable(why) => write!(f, "could not be read:  {why}"),
             Self::NotText => f.write_str("is not valid UTF-8"),
             Self::TooLarge(size) => {
                 write!(

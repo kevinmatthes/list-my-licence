@@ -59,7 +59,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Metadata(e) => {
-                write!(f, "could not read cargo metadata: {e}")
+                write!(f, "could not read cargo metadata:  {e}")
             }
             Self::NoResolve => f.write_str(
                 "cargo metadata returned no resolved dependency graph",

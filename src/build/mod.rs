@@ -26,13 +26,17 @@
 mod copyleft;
 mod coverage;
 mod discovery;
+mod emit;
 mod graph;
+mod pipeline;
 
 pub use copyleft::{Copyleft, Finding, Strength, Survey};
 pub use coverage::{
     Attribution, Classification, Classifier, Coverage, Problem, Provenance,
 };
 pub use discovery::{Discovery, Evidence, Found, MAX_BYTES, Role, Skipped};
-pub use graph::{Error, ResolvedPackage, Resolver};
+pub use emit::{Emitter, Error as EmitError, Reproduced};
+pub use graph::{Error as ResolveError, ResolvedPackage, Resolver};
+pub use pipeline::{Build, Error, Outcome};
 
 /******************************************************************************/

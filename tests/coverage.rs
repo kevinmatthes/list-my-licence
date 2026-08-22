@@ -163,7 +163,7 @@ fn a_missing_file_is_fatal_for_a_notice_style_licence() {
             problem,
             Problem::Unattributed { identifier } if identifier == "MIT"
         )),
-        "and the report must name the licence: {:?}",
+        "and the report must name the licence:  {:?}",
         verdict.problems
     );
 }
@@ -324,7 +324,7 @@ fn a_general_file_beside_specific_ones_is_not_combined() {
             .attributions
             .iter()
             .all(|a| !matches!(a.provenance, Provenance::Combined(_))),
-        "nothing here leans on the general file: {:?}",
+        "nothing here leans on the general file:  {:?}",
         verdict.attributions
     );
 }
@@ -406,7 +406,7 @@ fn a_custom_branch_does_not_spoil_a_standard_one() {
 
     assert!(
         !verdict.is_fatal(),
-        "the MIT branch is fully discharged by the shipped file: {:?}",
+        "the MIT branch is fully discharged by the shipped file:  {:?}",
         verdict.problems
     );
     assert_eq!(verdict.attributions[0].identifier, "MIT");

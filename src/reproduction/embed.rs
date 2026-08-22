@@ -17,43 +17,22 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
+/// Pulls in the attribution the build script wrote.
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
+/// ```ignore
+/// static LICENCES: list_my_licence::Attribution = list_my_licence::embed!();
 ///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
+/// fn main() {
+///     print!("{LICENCES}");
 /// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+#[macro_export]
+macro_rules! embed {
+    () => {{
+        use $crate::{Attribution, Licence, Origin, Package};
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
-
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
-    }
+        include!(concat!(env!("OUT_DIR"), "/list-my-licence.rs"))
+    }};
 }

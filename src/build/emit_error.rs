@@ -17,43 +17,49 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// Anything that can go wrong while emitting.
+#[derive(Debug)]
+pub enum EmitError {
+    /// A file could not be written.
+    Write {
+        /// Where it should have gone.
+        path: std::path::PathBuf,
+
+        /// Why it did not.
+        reason: std::io::Error,
+    },
+
+    /// The committed attribution is out of date.
+    ///
+    /// Raised only by [`Emitter::check`].  Regenerating it is the fix;  the
+    /// failure exists so that a stale file cannot be merged unnoticed.
+    Stale {
+        /// The file that no longer matches what the graph would produce.
+        path: std::path::PathBuf,
+    },
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
+impl std::error::Error for EmitError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Write { reason, .. } => Some(reason),
+            Self::Stale { .. } => None,
+        }
     }
+}
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+impl std::fmt::Display for EmitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Write { path, reason } => {
+                write!(f, "could not write {}:  {reason}", path.display())
+            }
+            Self::Stale { path } => write!(
+                f,
+                "{} is out of date;  the dependency graph has changed since it \
+                 was written",
+                path.display()
+            ),
+        }
     }
 }

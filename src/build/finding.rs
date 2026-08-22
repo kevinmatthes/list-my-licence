@@ -17,43 +17,45 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// One dependency carrying an obligation beyond reproduction.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct Finding {
+    /// The package that declares it.
+    pub package: String,
+
+    /// Its exact version, which the source pointer needs.
+    pub version: String,
+
+    /// The licence relied upon.
+    pub identifier: String,
+
+    /// How far its obligations reach.
+    pub strength: crate::build::Strength,
+
+    /// Where the covered source can be obtained, when the manifest says.
+    ///
+    /// This discharges MPL-2.0 §3.2 by itself.  For the stronger licences it
+    /// is an ingredient rather than compliance:  knowing where upstream lives
+    /// is not the same as offering the corresponding source of *your* work.
+    pub source: Option<String>,
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+impl std::fmt::Display for Finding {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} {} declares {} ({}):  {}",
+            self.package,
+            self.version,
+            self.identifier,
+            self.strength,
+            self.strength.obligation(),
+        )?;
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+        if let Some(source) = &self.source {
+            write!(f, "  Source:  {source}")?;
+        }
+
+        Ok(())
     }
 }

@@ -17,43 +17,36 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// What one pass produced.
+#[derive(Clone, Debug)]
+pub struct Outcome {
+    /// Every package examined, with its verdict.
+    pub packages:
+        Vec<(crate::build::ResolvedPackage, crate::build::Classification)>,
+
+    /// The copyleft obligations found, if any.
+    pub survey: crate::build::Survey,
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
+impl Outcome {
+    /// The lines a build script should emit as `cargo::warning=`.
+    ///
+    /// Everything worth a human's attention that did not stop the build:  the
+    /// copyleft obligations text cannot discharge, and the survivable
+    /// complaints about individual packages.
     #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+    pub fn warnings(&self) -> Vec<String> {
+        let mut warnings: Vec<String> = self.survey.warnings().collect();
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+        for (package, verdict) in &self.packages {
+            warnings.extend(
+                verdict
+                    .problems
+                    .iter()
+                    .map(|problem| format!("{} {problem}", package.name)),
+            );
+        }
+
+        warnings
     }
 }

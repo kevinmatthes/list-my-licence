@@ -17,43 +17,18 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+/// One package of the dependency graph.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Package {
+    /// The package name.
+    pub name: &'static str,
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+    /// The exact version that shipped.
+    pub version: &'static str,
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
-    }
+    /// Its licences, one per discharged term.
+    pub licences: &'static [crate::Licence],
+
+    /// Its Apache-2.0 notices, reproduced alongside rather than instead.
+    pub notices: &'static [&'static str],
 }

@@ -17,43 +17,27 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// Where a reproduced licence text came from.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Origin {
+    /// The copy the author distributed, named by the file it was read from.
+    Distributed(&'static str),
+
+    /// One file the author distributed, covering several licences at once.
+    Combined(&'static str),
+
+    /// The canonical SPDX text, because the package shipped none of its own.
+    Canonical,
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
-
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+impl std::fmt::Display for Origin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Distributed(file) => write!(f, "as distributed, in {file}"),
+            Self::Combined(file) => {
+                write!(f, "as distributed, shared in {file}")
+            }
+            Self::Canonical => f.write_str("canonical SPDX text"),
+        }
     }
 }

@@ -17,43 +17,39 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
+/// The Markdown rendering of an [`Attribution`].
 ///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+/// A separate type rather than a method body, so that the rendering is written
+/// once against [`fmt::Write`] instead of assembling a `String` by hand.
+#[derive(Clone, Copy, Debug)]
+pub struct Markdown<'a>(pub &'a crate::Attribution);
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+impl std::fmt::Display for Markdown<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("# Third party licences\n")?;
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+        for package in self.0.packages {
+            write!(f, "\n## {} {}\n", package.name, package.version)?;
+
+            for licence in package.licences {
+                write!(
+                    f,
+                    "\n### {} ({})\n\n```text\n{}\n```\n",
+                    licence.identifier,
+                    licence.origin,
+                    licence.text.trim_end(),
+                )?;
+            }
+
+            for notice in package.notices {
+                write!(
+                    f,
+                    "\n### NOTICE\n\n```text\n{}\n```\n",
+                    notice.trim_end()
+                )?;
+            }
+        }
+
+        Ok(())
     }
 }

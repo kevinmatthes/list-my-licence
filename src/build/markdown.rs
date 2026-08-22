@@ -17,43 +17,36 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+/// The Markdown rendering of what will be reproduced.
+#[derive(Clone, Copy, Debug)]
+pub struct Markdown<'a>(pub &'a [crate::build::Reproduced<'a>]);
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+impl std::fmt::Display for Markdown<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("# Third party licences\n")?;
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+        for (package, verdict) in self.0 {
+            write!(f, "\n## {} {}\n", package.name, package.version)?;
+
+            for attribution in &verdict.attributions {
+                write!(
+                    f,
+                    "\n### {} ({})\n\n```text\n{}\n```\n",
+                    attribution.identifier,
+                    crate::build::Emitter::origin_text(&attribution.provenance),
+                    attribution.text.trim_end(),
+                )?;
+            }
+
+            for notice in &verdict.notices {
+                write!(
+                    f,
+                    "\n### NOTICE\n\n```text\n{}\n```\n",
+                    notice.text.trim_end()
+                )?;
+            }
+        }
+
+        Ok(())
     }
 }

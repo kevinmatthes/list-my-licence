@@ -17,19 +17,6 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Discovery of the licence-bearing files a package actually ships.
-//!
-//! A package's declared SPDX expression is a claim;  the files beside its
-//! manifest are the evidence.  This module gathers that evidence.  It does not
-//! judge whether the evidence covers the claim — that is the coverage model,
-//! and it comes next.
-//!
-//! Nothing is ever dropped in silence.  A file that looks like a licence but
-//! cannot be read is reported as skipped, with the reason, rather than simply
-//! omitted:  a missing attribution is the failure this crate exists to
-//! prevent, so the one thing discovery must never do is quietly find less than
-//! there is.
-
 /// The largest file discovery will read.
 ///
 /// Licence texts are small;  the GPL, the longest in common use, is under
@@ -65,98 +52,6 @@ const DIRECTORIES: [&str; 2] = ["LICENSES", "licenses"];
 const ALIASES: [(&str, &str); 2] =
     [("apache", "Apache-2.0"), ("mpl", "MPL-2.0")];
 
-/// What part a discovered file plays.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub enum Role {
-    /// The text of a licence.
-    Licence,
-
-    /// An Apache-2.0 §4(d) `NOTICE`, whose attribution notices must be carried
-    /// into every distributed derivative work.  Cargo models no such concept,
-    /// so a `NOTICE` is invisible to anything that reads only the manifest.
-    Notice,
-}
-
-/// Why a candidate file was not taken.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub enum Skipped {
-    /// The file could not be read at all.
-    Unreadable(String),
-
-    /// The file is not valid UTF-8, so its text cannot be reproduced
-    /// faithfully.
-    NotText,
-
-    /// The file is larger than [`MAX_BYTES`].
-    TooLarge(u64),
-}
-
-impl std::fmt::Display for Skipped {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Unreadable(why) => write!(f, "could not be read:  {why}"),
-            Self::NotText => f.write_str("is not valid UTF-8"),
-            Self::TooLarge(size) => {
-                write!(
-                    f,
-                    "is {size} bytes, larger than the {MAX_BYTES} byte limit"
-                )
-            }
-        }
-    }
-}
-
-/// One licence-bearing file, with its text.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub struct Found {
-    /// Where the file is.
-    pub path: std::path::PathBuf,
-
-    /// What part it plays.
-    pub role: Role,
-
-    /// The SPDX identifier its *name* points at, where the name names one.
-    ///
-    /// This is a hint drawn from the file name alone, never from the contents.
-    /// `LICENSE-MIT` yields `MIT`;  a bare `LICENSE` yields nothing, because
-    /// the name says nothing about which licence it holds.
-    pub identifier: Option<String>,
-
-    /// The file's text, reproduced exactly as distributed.
-    pub text: String,
-}
-
-/// What discovery found for one package.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct Evidence {
-    /// The files taken, sorted by path so that repeated runs agree.
-    pub found: Vec<Found>,
-
-    /// Candidates that looked right but could not be taken, with the reason.
-    ///
-    /// Never empty without meaning:  an entry here is a licence this crate can
-    /// see but not reproduce, which the caller must decide what to do about.
-    pub skipped: Vec<(std::path::PathBuf, Skipped)>,
-}
-
-impl Evidence {
-    /// Whether anything at all was found.
-    #[must_use]
-    pub const fn is_empty(&self) -> bool {
-        self.found.is_empty()
-    }
-
-    /// The files that are licence texts rather than notices.
-    pub fn licences(&self) -> impl Iterator<Item = &Found> {
-        self.found.iter().filter(|file| file.role == Role::Licence)
-    }
-
-    /// The Apache-2.0 `NOTICE` files, if any.
-    pub fn notices(&self) -> impl Iterator<Item = &Found> {
-        self.found.iter().filter(|file| file.role == Role::Notice)
-    }
-}
-
 /// Finds the licence-bearing files of a package.
 ///
 /// # Examples
@@ -178,61 +73,12 @@ pub struct Discovery {
 }
 
 impl Discovery {
-    /// A discovery with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
-
-    /// Searches one package for licence-bearing files.
-    ///
-    /// The search covers the directory holding the manifest, the `LICENSES`
-    /// directory beside it where the REUSE convention puts them, and whatever
-    /// the manifest's own `license-file` key points at.  It does **not**
-    /// recurse:  a full walk would pick up the licence fixtures that many
-    /// projects keep under `tests/`, and attribute another project's licence to
-    /// this one.
-    #[must_use]
-    pub fn search(&self, package: &crate::build::ResolvedPackage) -> Evidence {
-        let mut evidence = Evidence::default();
-        let mut candidates = Vec::new();
-
-        Self::collect(&package.manifest_dir, &mut candidates);
-
-        for directory in DIRECTORIES {
-            Self::collect_reuse(
-                &package.manifest_dir.join(directory),
-                &mut candidates,
-            );
-        }
-
-        // A `license-file` is taken on the manifest's word, whatever it is
-        // called:  the author has told us where their licence is.
-        if let Some(declared) = &package.licence_file
-            && !candidates.contains(declared)
-        {
-            candidates.push(declared.clone());
-        }
-
-        candidates.sort();
-        candidates.dedup();
-
-        for path in candidates {
-            match Self::read(&path) {
-                Ok(text) => evidence.found.push(Found {
-                    role: Self::role(&path),
-                    identifier: Self::identifier(&path),
-                    path,
-                    text,
-                }),
-                Err(why) => evidence.skipped.push((path, why)),
-            }
-        }
-
-        evidence.found.sort();
-        evidence.skipped.sort();
-
-        evidence
+    /// The canonically spelled SPDX identifier matching `name`, if any.
+    fn canonical(name: &str) -> Option<String> {
+        spdx::identifiers::LICENSES
+            .iter()
+            .find(|licence| licence.name.eq_ignore_ascii_case(name))
+            .map(|licence| licence.name.to_owned())
     }
 
     /// Adds every licence-looking file of one directory to `candidates`.
@@ -276,13 +122,39 @@ impl Discovery {
         }
     }
 
-    /// The SPDX identifier a REUSE file name is, if it is one.
-    fn reuse_identifier(path: &std::path::Path) -> Option<String> {
-        let name = path.file_name()?.to_str()?;
-        let base = Self::strip_extension(name);
+    /// The given text, if it is a valid SPDX expression.
+    fn expression(text: &str) -> Option<String> {
+        spdx::Expression::parse(text)
+            .ok()
+            .map(|parsed| parsed.to_string())
+    }
 
-        Self::canonical(&base)
-            .or_else(|| Self::expression(&base.replace('_', " ")))
+    /// The SPDX identifier a file name points at, if it points at one.
+    ///
+    /// The qualifier is tried as an SPDX identifier, then as a whole SPDX
+    /// expression with `_` read as a space, which is how the Rust ecosystem
+    /// writes `LICENSE-Apache-2.0_WITH_LLVM-exception`.  Only then is the small
+    /// alias table consulted.  A stem that is itself an identifier, such as
+    /// `UNLICENSE`, is recognised too.
+    fn identifier(path: &std::path::Path) -> Option<String> {
+        if Self::is_reuse(path) {
+            return Self::reuse_identifier(path);
+        }
+
+        let (stem, qualifier) = Self::split_name(path)?;
+
+        if qualifier.is_empty() {
+            return Self::canonical(stem);
+        }
+
+        Self::canonical(&qualifier)
+            .or_else(|| Self::expression(&qualifier.replace('_', " ")))
+            .or_else(|| {
+                ALIASES
+                    .iter()
+                    .find(|(alias, _)| qualifier.eq_ignore_ascii_case(alias))
+                    .map(|(_, identifier)| (*identifier).to_owned())
+            })
     }
 
     /// Whether a file name marks it as licence-bearing.
@@ -293,6 +165,108 @@ impl Discovery {
     /// `licensing-policy.md` is not.
     fn is_licence_name(path: &std::path::Path) -> bool {
         Self::split_name(path).is_some()
+    }
+
+    /// Whether a path sits inside a REUSE `LICENSES` directory.
+    fn is_reuse(path: &std::path::Path) -> bool {
+        path.parent()
+            .and_then(std::path::Path::file_name)
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| DIRECTORIES.contains(&name))
+    }
+
+    /// A discovery with the default settings.
+    #[must_use]
+    pub const fn new() -> Self {
+        Self { _private: () }
+    }
+
+    /// Reads a file, refusing anything too large or not textual.
+    fn read(path: &std::path::Path) -> Result<String, crate::build::Skipped> {
+        let metadata = path.metadata().map_err(|error| {
+            crate::build::Skipped::Unreadable(error.to_string())
+        })?;
+
+        if metadata.len() > crate::build::MAX_BYTES {
+            return Err(crate::build::Skipped::TooLarge(metadata.len()));
+        }
+
+        let bytes = std::fs::read(path).map_err(|error| {
+            crate::build::Skipped::Unreadable(error.to_string())
+        })?;
+
+        String::from_utf8(bytes).map_err(|_| crate::build::Skipped::NotText)
+    }
+
+    /// The SPDX identifier a REUSE file name is, if it is one.
+    fn reuse_identifier(path: &std::path::Path) -> Option<String> {
+        let name = path.file_name()?.to_str()?;
+        let base = Self::strip_extension(name);
+
+        Self::canonical(&base)
+            .or_else(|| Self::expression(&base.replace('_', " ")))
+    }
+
+    /// What part a file plays, judged by its name.
+    fn role(path: &std::path::Path) -> crate::build::Role {
+        match Self::split_name(path) {
+            Some(("notice", _)) => crate::build::Role::Notice,
+            _ => crate::build::Role::Licence,
+        }
+    }
+
+    /// Searches one package for licence-bearing files.
+    ///
+    /// The search covers the directory holding the manifest, the `LICENSES`
+    /// directory beside it where the REUSE convention puts them, and whatever
+    /// the manifest's own `license-file` key points at.  It does **not**
+    /// recurse:  a full walk would pick up the licence fixtures that many
+    /// projects keep under `tests/`, and attribute another project's licence to
+    /// this one.
+    #[must_use]
+    pub fn search(
+        &self,
+        package: &crate::build::ResolvedPackage,
+    ) -> crate::build::Evidence {
+        let mut evidence = crate::build::Evidence::default();
+        let mut candidates = Vec::new();
+
+        Self::collect(&package.manifest_dir, &mut candidates);
+
+        for directory in DIRECTORIES {
+            Self::collect_reuse(
+                &package.manifest_dir.join(directory),
+                &mut candidates,
+            );
+        }
+
+        // A `license-file` is taken on the manifest's word, whatever it is
+        // called:  the author has told us where their licence is.
+        if let Some(declared) = &package.licence_file
+            && !candidates.contains(declared)
+        {
+            candidates.push(declared.clone());
+        }
+
+        candidates.sort();
+        candidates.dedup();
+
+        for path in candidates {
+            match Self::read(&path) {
+                Ok(text) => evidence.found.push(crate::build::Found {
+                    role: Self::role(&path),
+                    identifier: Self::identifier(&path),
+                    path,
+                    text,
+                }),
+                Err(why) => evidence.skipped.push((path, why)),
+            }
+        }
+
+        evidence.found.sort();
+        evidence.skipped.sort();
+
+        evidence
     }
 
     /// Splits a file name into its stem and whatever follows it.
@@ -350,81 +324,4 @@ impl Discovery {
 
         qualifier.to_owned()
     }
-
-    /// What part a file plays, judged by its name.
-    fn role(path: &std::path::Path) -> Role {
-        match Self::split_name(path) {
-            Some(("notice", _)) => Role::Notice,
-            _ => Role::Licence,
-        }
-    }
-
-    /// Whether a path sits inside a REUSE `LICENSES` directory.
-    fn is_reuse(path: &std::path::Path) -> bool {
-        path.parent()
-            .and_then(std::path::Path::file_name)
-            .and_then(|name| name.to_str())
-            .is_some_and(|name| DIRECTORIES.contains(&name))
-    }
-
-    /// The SPDX identifier a file name points at, if it points at one.
-    ///
-    /// The qualifier is tried as an SPDX identifier, then as a whole SPDX
-    /// expression with `_` read as a space, which is how the Rust ecosystem
-    /// writes `LICENSE-Apache-2.0_WITH_LLVM-exception`.  Only then is the small
-    /// alias table consulted.  A stem that is itself an identifier, such as
-    /// `UNLICENSE`, is recognised too.
-    fn identifier(path: &std::path::Path) -> Option<String> {
-        if Self::is_reuse(path) {
-            return Self::reuse_identifier(path);
-        }
-
-        let (stem, qualifier) = Self::split_name(path)?;
-
-        if qualifier.is_empty() {
-            return Self::canonical(stem);
-        }
-
-        Self::canonical(&qualifier)
-            .or_else(|| Self::expression(&qualifier.replace('_', " ")))
-            .or_else(|| {
-                ALIASES
-                    .iter()
-                    .find(|(alias, _)| qualifier.eq_ignore_ascii_case(alias))
-                    .map(|(_, identifier)| (*identifier).to_owned())
-            })
-    }
-
-    /// The canonically spelled SPDX identifier matching `name`, if any.
-    fn canonical(name: &str) -> Option<String> {
-        spdx::identifiers::LICENSES
-            .iter()
-            .find(|licence| licence.name.eq_ignore_ascii_case(name))
-            .map(|licence| licence.name.to_owned())
-    }
-
-    /// The given text, if it is a valid SPDX expression.
-    fn expression(text: &str) -> Option<String> {
-        spdx::Expression::parse(text)
-            .ok()
-            .map(|parsed| parsed.to_string())
-    }
-
-    /// Reads a file, refusing anything too large or not textual.
-    fn read(path: &std::path::Path) -> Result<String, Skipped> {
-        let metadata = path
-            .metadata()
-            .map_err(|error| Skipped::Unreadable(error.to_string()))?;
-
-        if metadata.len() > MAX_BYTES {
-            return Err(Skipped::TooLarge(metadata.len()));
-        }
-
-        let bytes = std::fs::read(path)
-            .map_err(|error| Skipped::Unreadable(error.to_string()))?;
-
-        String::from_utf8(bytes).map_err(|_| Skipped::NotText)
-    }
 }
-
-/******************************************************************************/

@@ -17,43 +17,22 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+/// One licence-bearing file, with its text.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct Found {
+    /// Where the file is.
+    pub path: std::path::PathBuf,
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+    /// What part it plays.
+    pub role: crate::build::Role,
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
-    }
+    /// The SPDX identifier its *name* points at, where the name names one.
+    ///
+    /// This is a hint drawn from the file name alone, never from the contents.
+    /// `LICENSE-MIT` yields `MIT`;  a bare `LICENSE` yields nothing, because
+    /// the name says nothing about which licence it holds.
+    pub identifier: Option<String>,
+
+    /// The file's text, reproduced exactly as distributed.
+    pub text: String,
 }

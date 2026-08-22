@@ -17,43 +17,26 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// What one package's licences amount to.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Classification {
+    /// How completely the shipped files cover the declaration.
+    pub coverage: crate::build::Coverage,
+
+    /// The texts to reproduce, one per discharged licence term.
+    pub attributions: Vec<crate::build::Attribution>,
+
+    /// Apache-2.0 notices, which are reproduced alongside rather than instead.
+    pub notices: Vec<crate::build::Found>,
+
+    /// Everything that stood in the way, fatal or not.
+    pub problems: Vec<crate::build::Problem>,
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
+impl Classification {
+    /// Whether anything here must fail the build.
     #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
-
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+    pub fn is_fatal(&self) -> bool {
+        self.problems.iter().any(crate::build::Problem::is_fatal)
     }
 }

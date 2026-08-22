@@ -17,43 +17,37 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// What discovery found for one package.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct Evidence {
+    /// The files taken, sorted by path so that repeated runs agree.
+    pub found: Vec<crate::build::Found>,
+
+    /// Candidates that looked right but could not be taken, with the reason.
+    ///
+    /// Never empty without meaning:  an entry here is a licence this crate can
+    /// see but not reproduce, which the caller must decide what to do about.
+    pub skipped: Vec<(std::path::PathBuf, crate::build::Skipped)>,
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
+impl Evidence {
+    /// Whether anything at all was found.
     #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
+    pub const fn is_empty(&self) -> bool {
+        self.found.is_empty()
     }
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+    /// The files that are licence texts rather than notices.
+    pub fn licences(&self) -> impl Iterator<Item = &crate::build::Found> {
+        self.found
+            .iter()
+            .filter(|file| file.role == crate::build::Role::Licence)
+    }
+
+    /// The Apache-2.0 `NOTICE` files, if any.
+    pub fn notices(&self) -> impl Iterator<Item = &crate::build::Found> {
+        self.found
+            .iter()
+            .filter(|file| file.role == crate::build::Role::Notice)
     }
 }

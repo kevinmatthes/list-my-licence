@@ -74,11 +74,13 @@
 )]
 #![allow(clippy::multiple_crate_versions)]
 
-mod attribution;
+mod reproduction;
 
 #[cfg(feature = "build")]
 pub mod build;
 
-pub use attribution::{Attribution, Licence, Origin, Package};
+pub use crate::reproduction::{
+    Attribution, Licence, Markdown, Origin, Package,
+};
 
 /******************************************************************************/

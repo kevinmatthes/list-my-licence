@@ -17,26 +17,50 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Build-time harvesting.
+//! Builder-time harvesting.
 //!
-//! Everything in this module runs from a `build.rs`, never from the shipped
-//! binary.  It is gated behind the `build` feature so that the runtime half of
-//! the crate keeps its empty dependency list.
+//! Everything in this module runs from a `build.rs`, never from the
+//! shipped binary.  It is gated behind the `build` feature so that the
+//! runtime half of the crate keeps its empty dependency list.
 
+mod attribution;
+mod builder;
+mod classification;
+mod classifier;
 mod copyleft;
 mod coverage;
 mod discovery;
-mod emit;
-mod graph;
-mod pipeline;
+mod emit_error;
+mod emitter;
+mod error;
+mod evidence;
+mod finding;
+mod found;
+mod generated;
+mod markdown;
+mod outcome;
+mod problem;
+mod provenance;
+mod reproduced;
+mod resolve_error;
+mod resolved_package;
+mod resolver;
+mod role;
+mod skipped;
+mod strength;
+mod survey;
 
-pub use copyleft::{Copyleft, Finding, Strength, Survey};
-pub use coverage::{
-    Attribution, Classification, Classifier, Coverage, Problem, Provenance,
+pub use crate::build::{
+    attribution::Attribution, builder::Builder, classification::Classification,
+    classifier::Classifier, copyleft::Copyleft, coverage::Coverage,
+    discovery::Discovery, discovery::MAX_BYTES, emit_error::EmitError,
+    emitter::Emitter, error::Error, evidence::Evidence, finding::Finding,
+    found::Found, outcome::Outcome, problem::Problem, provenance::Provenance,
+    reproduced::Reproduced, resolve_error::ResolveError,
+    resolved_package::ResolvedPackage, resolver::Resolver, role::Role,
+    skipped::Skipped, strength::Strength, survey::Survey,
 };
-pub use discovery::{Discovery, Evidence, Found, MAX_BYTES, Role, Skipped};
-pub use emit::{Emitter, Error as EmitError, Reproduced};
-pub use graph::{Error as ResolveError, ResolvedPackage, Resolver};
-pub use pipeline::{Build, Error, Outcome};
+
+pub(crate) use crate::build::{generated::Generated, markdown::Markdown};
 
 /******************************************************************************/

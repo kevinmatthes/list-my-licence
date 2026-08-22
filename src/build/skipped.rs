@@ -17,43 +17,32 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
+/// Why a candidate file was not taken.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub enum Skipped {
+    /// The file could not be read at all.
+    Unreadable(String),
+
+    /// The file is not valid UTF-8, so its text cannot be reproduced
+    /// faithfully.
+    NotText,
+
+    /// The file is larger than [`MAX_BYTES`].
+    TooLarge(u64),
 }
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
-
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
+impl std::fmt::Display for Skipped {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unreadable(why) => write!(f, "could not be read:  {why}"),
+            Self::NotText => f.write_str("is not valid UTF-8"),
+            Self::TooLarge(size) => {
+                write!(
+                    f,
+                    "is {size} bytes, larger than the {} byte limit",
+                    crate::build::MAX_BYTES
+                )
+            }
+        }
     }
 }

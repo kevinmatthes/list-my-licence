@@ -17,43 +17,28 @@
 |                                                                              |
 \******************************************************************************/
 
-/// Surveys a dependency graph for obligations beyond reproduction.
-///
-/// # Examples
-///
-/// ```no_run
-/// # use list_my_licence::build::{
-/// #     Classifier, Copyleft, Discovery, Resolver,
-/// # };
-/// let mut survey = Copyleft::new().survey();
-///
-/// for package in Resolver::from_build_env()?.resolve()? {
-///     let evidence = Discovery::new().search(&package);
-///     let verdict = Classifier::new().classify(&package, &evidence);
-///
-///     survey.add(&package, &verdict);
-/// }
-///
-/// for warning in survey.warnings() {
-///     println!("cargo::warning={warning}");
-/// }
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Copyleft {
-    _private: (),
-}
+//! The embedded attribution, and how to render it.
+//!
+//! Everything here is compiled into the shipped binary, so it carries
+//! **no dependencies whatsoever** — not even for parsing.  The build
+//! half writes Rust source, which the compiler then checks;  there is
+//! no format to get wrong at runtime and no failure mode for reading it
+//! back.
+//!
+//! The types are deliberately plain data.  A renderer is a function
+//! over them, which is what lets another output format be added later
+//! without disturbing anything that already works.
 
-impl Copyleft {
-    /// A survey with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self { _private: () }
-    }
+mod attribution;
+mod embed;
+mod licence;
+mod markdown;
+mod origin;
+mod package;
 
-    /// An empty survey, to be filled package by package.
-    #[must_use]
-    pub fn survey(&self) -> crate::build::Survey {
-        crate::build::Survey::default()
-    }
-}
+pub use crate::reproduction::{
+    attribution::Attribution, licence::Licence, markdown::Markdown,
+    origin::Origin, package::Package,
+};
+
+/******************************************************************************/

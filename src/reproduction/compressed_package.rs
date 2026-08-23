@@ -17,43 +17,26 @@
 |                                                                              |
 \******************************************************************************/
 
-//! The embedded attribution, and how to render it.
-//!
-//! Everything here is compiled into the shipped binary, so it carries
-//! **no dependencies whatsoever** — not even for parsing.  The build
-//! half writes Rust source, which the compiler then checks;  there is
-//! no format to get wrong at runtime and no failure mode for reading it
-//! back.
-//!
-//! The types are deliberately plain data.  A renderer is a function
-//! over them, which is what lets another output format be added later
-//! without disturbing anything that already works.
+/// One package of the dependency graph, with its licences held compressed.
+///
+/// The counterpart of [`Package`](crate::Package) for
+/// [`embed_compressed!`](crate::embed_compressed).
+///
+/// **Notices are not compressed.**  An Apache-2.0 `NOTICE` is a few lines
+/// where a licence is tens of kilobytes, so compressing them would double
+/// this type's surface to save almost nothing.  They stay plain, and stay
+/// directly readable.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CompressedPackage {
+    /// The package name.
+    pub name: &'static str,
 
-mod attribution;
-#[cfg(feature = "compression")]
-mod compressed_attribution;
-#[cfg(feature = "compression")]
-mod compressed_licence;
-#[cfg(feature = "compression")]
-mod compressed_package;
-mod embed;
-#[cfg(feature = "compression")]
-mod embed_compressed;
-mod licence;
-mod markdown;
-mod origin;
-mod package;
+    /// The exact version that shipped.
+    pub version: &'static str,
 
-pub use crate::reproduction::{
-    attribution::Attribution, licence::Licence, markdown::Markdown,
-    origin::Origin, package::Package,
-};
+    /// Its licences, one per discharged term.
+    pub licences: &'static [crate::CompressedLicence],
 
-#[cfg(feature = "compression")]
-pub use crate::reproduction::{
-    compressed_attribution::CompressedAttribution,
-    compressed_licence::CompressedLicence,
-    compressed_package::CompressedPackage,
-};
-
-/******************************************************************************/
+    /// Its Apache-2.0 notices, reproduced alongside rather than instead.
+    pub notices: &'static [&'static str],
+}

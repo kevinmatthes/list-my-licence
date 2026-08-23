@@ -74,9 +74,9 @@ const AMERICAN_PREFIXES: [&str; 5] =
     ["artifact", "behavior", "fulfill", "license", "licensi"];
 
 /// Endings which are American wherever a word closes with them.
-const AMERICAN_SUFFIXES: [&str; 11] = [
+const AMERICAN_SUFFIXES: [&str; 12] = [
     "ization", "izations", "ize", "ized", "izer", "izes", "izing", "yze",
-    "yzed", "yzes", "yzing",
+    "yzed", "yzer", "yzes", "yzing",
 ];
 
 /// Words the endings above catch which are correct British English.

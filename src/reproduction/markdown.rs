@@ -17,10 +17,10 @@
 |                                                                              |
 \******************************************************************************/
 
-/// The Markdown rendering of an [`Attribution`].
+/// The Markdown rendering of an [`crate::reproduction::Attribution`].
 ///
 /// A separate type rather than a method body, so that the rendering is written
-/// once against [`fmt::Write`] instead of assembling a `String` by hand.
+/// once against [`std::fmt::Write`] instead of assembling a `String` by hand.
 #[derive(Clone, Copy, Debug)]
 pub struct Markdown<'a>(pub &'a crate::Attribution);
 

@@ -39,7 +39,8 @@ impl Emitter {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Stale`] if the file differs or is missing.
+    /// Returns [`crate::build::EmitError::Stale`] if the file differs or is
+    /// missing.
     pub fn check(
         path: &std::path::Path,
         packages: &[crate::build::Reproduced<'_>],
@@ -68,7 +69,8 @@ impl Emitter {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Write`] if anything cannot be written.
+    /// Returns [`crate::build::EmitError::Write`] if anything cannot be
+    /// written.
     pub fn embed(
         &self,
         packages: &[crate::build::Reproduced<'_>],
@@ -93,8 +95,8 @@ impl Emitter {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Write`] if `OUT_DIR` is not set, which means this is
-    /// not running as a build script.
+    /// Returns [`crate::build::EmitError::Write`] if `OUT_DIR` is not set,
+    /// which means this is not running as a build script.
     pub fn from_build_env() -> Result<Self, crate::build::EmitError> {
         std::env::var_os("OUT_DIR").map(Self::new).ok_or_else(|| {
             crate::build::EmitError::Write {
@@ -215,7 +217,7 @@ impl Emitter {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Write`] if it cannot be written.
+    /// Returns [`crate::build::EmitError::Write`] if it cannot be written.
     pub fn publish(
         path: &std::path::Path,
         packages: &[crate::build::Reproduced<'_>],

@@ -65,10 +65,11 @@ impl Builder {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Undischargeable`] if any package carries an obligation
-    /// that cannot be discharged, [`Error::Resolve`] if the graph cannot be
-    /// read, and [`Error::Emit`] if the artefacts cannot be written or the
-    /// published file is stale.
+    /// Returns [`crate::build::Error::Undischargeable`] if any package
+    /// carries an obligation that cannot be discharged,
+    /// [`crate::build::Error::Resolve`] if the graph cannot be read, and
+    /// [`crate::build::Error::Emit`] if the artefacts cannot be written or
+    /// the published file is stale.
     pub fn run(&self) -> Result<crate::build::Outcome, crate::build::Error> {
         println!("cargo::rerun-if-changed=Cargo.lock");
 

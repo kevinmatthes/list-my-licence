@@ -138,9 +138,9 @@ impl Resolver {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Metadata`] if the manifest's own feature list cannot
-    /// be read, which is needed to undo Cargo's lossy environment-variable
-    /// naming.
+    /// Returns [`crate::build::ResolveError::Metadata`] if the manifest's
+    /// own feature list cannot be read, which is needed to undo Cargo's
+    /// lossy environment-variable naming.
     pub fn from_build_env() -> Result<Self, crate::build::ResolveError> {
         let mut resolver = Self::new();
 
@@ -229,9 +229,10 @@ impl Resolver {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Metadata`] if `cargo metadata` cannot be run,
-    /// [`Error::NoResolve`] if it returns no graph, and
-    /// [`Error::NoRootPackage`] for a virtual workspace manifest.
+    /// Returns [`crate::build::ResolveError::Metadata`] if `cargo metadata`
+    /// cannot be run, [`crate::build::ResolveError::NoResolve`] if it
+    /// returns no graph, and [`crate::build::ResolveError::NoRootPackage`]
+    /// for a virtual workspace manifest.
     pub fn resolve(
         &self,
     ) -> Result<Vec<crate::build::ResolvedPackage>, crate::build::ResolveError>

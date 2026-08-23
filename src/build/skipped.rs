@@ -27,7 +27,7 @@ pub enum Skipped {
     /// faithfully.
     NotText,
 
-    /// The file is larger than [`MAX_BYTES`].
+    /// The file is larger than [`crate::build::MAX_BYTES`].
     TooLarge(u64),
 }
 

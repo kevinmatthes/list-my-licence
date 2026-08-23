@@ -31,8 +31,9 @@ pub enum EmitError {
 
     /// The committed attribution is out of date.
     ///
-    /// Raised only by [`Emitter::check`].  Regenerating it is the fix;  the
-    /// failure exists so that a stale file cannot be merged unnoticed.
+    /// Raised only by [`crate::build::Emitter::check`].  Regenerating it is
+    /// the fix;  the failure exists so that a stale file cannot be merged
+    /// unnoticed.
     Stale {
         /// The file that no longer matches what the graph would produce.
         path: std::path::PathBuf,

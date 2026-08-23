@@ -50,7 +50,7 @@ jobs:
           echo "version=$(cargo metadata --format-version 1 --no-deps |
                 jq -r '.packages[0].version')" >> "$GITHUB_OUTPUT"
 
-      - uses: softprops/action-gh-release@v2.6.2
+      - uses: softprops/action-gh-release@v3.0.2
         with:
           generate_release_notes: true
           tag_name: v${{ steps.manifest.outputs.version }}

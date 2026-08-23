@@ -104,7 +104,7 @@ jobs:
 
       - run: |
           npx -p renovate \
-              -c 'renovate-config-validator .github/renovate.json --strict' \
+              -c 'renovate-config-validator renovate.json --strict' \
               -y
 
   formatting:

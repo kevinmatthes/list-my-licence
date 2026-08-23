@@ -35,10 +35,12 @@ ships, judges whether they cover what its manifest declares, and writes two
 things — an embedded form for the binary to print, and a `THIRDPARTY.md` kept
 under version control.
 
-The second is what makes it stay true.  Because both come from the same pass, a
-dependency whose licence changed cannot reach a release without that committed
-file changing too, and a changed file is a reviewable diff rather than a silent
-difference.
+The second is what keeps it honest.  Both come from the same pass, so a
+dependency whose licence changed makes `THIRDPARTY.md` change with it, and a
+changed file is a reviewable diff rather than a silent difference.  What turns
+that into a guarantee is `checking(true)` below:  in continuous integration the
+build refuses to proceed while the committed file disagrees with the graph, so
+drift cannot be merged rather than merely being visible.
 
 <!------------------------------------------------------------------------- -->
 
@@ -200,8 +202,9 @@ with a source pointer where one can be derived.
 is [`cargo-deny`][cargo-deny]'s work, done well and at scale.
 
 **It is not an oracle.**  A `license` field is a claim its author made, not a
-fact — regularly stale, occasionally wrong, sometimes contradicted by the files
-beside it.  Every report says what a package *declares*.
+fact:  a package may declare a licence and ship no file to back it.  That is
+why coverage is classified rather than assumed, and why every report says what
+a package *declares* rather than what it is.
 
 **It is not legal advice.**  Consult somebody qualified before relying on any
 of this.
@@ -211,17 +214,25 @@ of this.
 ## Related work
 
 [`cargo-about`][cargo-about] and [`cargo-bundle-licenses`][bundle] generate
-attribution files out of process, the latter with full texts.
-[`cargo-deny`][cargo-deny] enforces licence policy.  [`license-fetcher`][fetch]
-and [`notalawyer`][notalawyer] embed texts into the binary as this crate does;
-the differences are the coverage model above, the failure policy, the drift
-check, and a runtime half with no dependencies.
+attribution files out of process, both able to carry the full texts;  the
+latter's `--check-previous` is the same idea as the drift check here.
+[`cargo-deny`][cargo-deny] enforces licence policy.
+[`license-fetcher`][fetch], [`license-retriever`][retriever] and
+[`notalawyer`][notalawyer] embed texts into the binary as this crate does, and
+the differences are the coverage model above and the failure policy.  A runtime
+half with no dependencies distinguishes this crate from `license-fetcher`,
+which carries three;  it does **not** distinguish it from `notalawyer`, whose
+runtime crate has none either.
 
-[bundle]: https://github.com/sstadick/cargo-bundle-licenses
-[cargo-about]: https://github.com/EmbarkStudios/cargo-about
-[cargo-deny]: https://github.com/EmbarkStudios/cargo-deny
-[fetch]: https://github.com/WyvernIXTL/license-fetcher
-[notalawyer]: https://github.com/arkedge/notalawyer
+Links point at crates.io rather than at a repository:  a crate can move
+between namespaces on a forge, and its registry page cannot.
+
+[bundle]: https://crates.io/crates/cargo-bundle-licenses
+[cargo-about]: https://crates.io/crates/cargo-about
+[cargo-deny]: https://crates.io/crates/cargo-deny
+[fetch]: https://crates.io/crates/license-fetcher
+[notalawyer]: https://crates.io/crates/notalawyer
+[retriever]: https://crates.io/crates/license-retriever
 
 <!------------------------------------------------------------------------- -->
 

@@ -265,7 +265,10 @@ fn the_result_is_deterministic() {
     let first = Discovery::new().search(&package(directory.path()));
     let second = Discovery::new().search(&package(directory.path()));
 
-    assert_eq!(first, second, "repeated runs must agree, or D8 cannot work");
+    assert_eq!(
+        first, second,
+        "repeated runs must agree, or the committed file cannot be checked"
+    );
     assert_eq!(
         names(directory.path()),
         vec![

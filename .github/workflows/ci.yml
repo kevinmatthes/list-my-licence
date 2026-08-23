@@ -81,6 +81,21 @@ jobs:
             cargo tree --no-default-features --edges normal | wc -l
           )" -eq 1
 
+  # The configuration this repository's dependency currency rests on.  Its
+  # predecessor in `aeruginous-rs` had drifted onto a deprecated field name
+  # without anything noticing, which is the whole argument for this job.
+  renovate-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: |
+          npx -p renovate \
+              -c 'renovate-config-validator .github/renovate.json --strict' \
+              -y
+
   formatting:
     runs-on: ubuntu-latest
     steps:
@@ -100,6 +115,7 @@ jobs:
       - cargo-features
       - dependencies
       - formatting
+      - renovate-linter
     runs-on: ubuntu-latest
     steps:
       - run: bash -c 'exit 0'

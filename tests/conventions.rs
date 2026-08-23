@@ -50,7 +50,15 @@ const NOTICE: &str = "GNU General Public License 3.0";
 const UNHEADED: [&str; 3] = ["Cargo.lock", "LICENCE", "README.md"];
 
 /// Extensions expected to carry a header;  a fixture or a datum is not.
-const HEADED: [&str; 5] = [".gitignore", ".py", ".rs", ".toml", ".yml"];
+const HEADED: [&str; 7] = [
+    ".gitattributes",
+    ".gitignore",
+    ".py",
+    ".rs",
+    ".toml",
+    ".yml",
+    "CODEOWNERS",
+];
 
 /// Files holding no prose of this project's own.
 ///

@@ -291,6 +291,12 @@ fn prose(
         return Vec::new();
     }
 
+    // JSON has no comment syntax, so a JSON file carries no prose of its own.
+    // Read as language, every `"key": "value"` reports a spacing violation.
+    if name.ends_with(".json") {
+        return Vec::new();
+    }
+
     if name.ends_with(".rs") {
         return rust(line, fenced);
     }
@@ -533,10 +539,16 @@ fn table(line: &str) -> bool {
     trimmed.starts_with('|') && trimmed.ends_with('|') && trimmed.len() > 1
 }
 
-/// Every file the repository tracks.
+/// Every file the repository knows about, staged additions included.
+///
+/// `-co --exclude-standard` is not decoration.  A file which is added but not
+/// yet committed is precisely the one whose header and width nobody has
+/// checked, and the Python original carried these flags for that reason.  The
+/// port dropped them, and twice let a red commit reach the remote because the
+/// harness could not see the file that broke it.
 fn tracked() -> Vec<PathBuf> {
     let output = Command::new("git")
-        .args(["ls-files"])
+        .args(["ls-files", "-co", "--exclude-standard"])
         .current_dir(root())
         .output()
         .expect("git ls-files must run inside the repository");

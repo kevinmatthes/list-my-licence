@@ -17,7 +17,6 @@
 ##                                                                            ##
 ################################################################################
 
-
 # Always show the diff of this file:  a lock file is generated, but the
 # versions in it are the ones the crate is actually built against.
 Cargo.lock linguist-generated=false

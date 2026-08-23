@@ -95,6 +95,13 @@ jobs:
   # The configuration this repository's dependency currency rests on.  Its
   # predecessor in `aeruginous-rs` had drifted onto a deprecated field name
   # without anything noticing, which is the whole argument for this job.
+  #
+  # It is a syntax check and nothing more.  The validator and the bot which
+  # reads the file are separate implementations, and they disagree in both
+  # directions:  Renovate rejects configurations this job passes, and accepts
+  # ones it fails.  A green run here is not a promise that updates will
+  # happen.  The evidence for that is the dependency dashboard issue, and
+  # update pull requests actually being opened.
   renovate-linter:
     runs-on: ubuntu-latest
     steps:

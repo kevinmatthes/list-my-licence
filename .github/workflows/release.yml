@@ -1,0 +1,58 @@
+######################## GNU General Public License 3.0 ########################
+##                                                                            ##
+## Copyright (C) 2026 Kevin Matthes                                           ##
+##                                                                            ##
+## This program is free software: you can redistribute it and/or modify       ##
+## it under the terms of the GNU General Public License as published by       ##
+## the Free Software Foundation, either version 3 of the License, or          ##
+## (at your option) any later version.                                        ##
+##                                                                            ##
+## This program is distributed in the hope that it will be useful,            ##
+## but WITHOUT ANY WARRANTY; without even the implied warranty of             ##
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              ##
+## GNU General Public License for more details.                               ##
+##                                                                            ##
+## You should have received a copy of the GNU General Public License          ##
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.     ##
+##                                                                            ##
+################################################################################
+
+name: release
+
+# Aeruginous releases on a push to `main` which edits its `.version` file.
+# This crate has no such file:  the manifest already records the version,
+# and a second copy of that fact would be free to drift from it.  The
+# trigger is therefore the maintainer rather than a path.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Publication to crates.io is deliberately absent.  The first release is to
+# be uploaded by hand;  the token secret, and the step which would spend it,
+# follow once that has happened.
+jobs:
+  release:
+    if: github.repository == 'kevinmatthes/list-my-licence'
+    runs-on: ubuntu-latest
+    steps:
+      - run: rustup update
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      # The manifest is the only source of the version, so the tag is read
+      # from it instead of from a file kept alongside it.
+      - id: manifest
+        run: |
+          echo "version=$(cargo metadata --format-version 1 --no-deps |
+                jq -r '.packages[0].version')" >> "$GITHUB_OUTPUT"
+
+      - uses: softprops/action-gh-release@v2.6.2
+        with:
+          generate_release_notes: true
+          tag_name: v${{ steps.manifest.outputs.version }}
+
+################################################################################

@@ -1,0 +1,76 @@
+######################## GNU General Public License 3.0 ########################
+##                                                                            ##
+## Copyright (C) 2026 Kevin Matthes                                           ##
+##                                                                            ##
+## This program is free software: you can redistribute it and/or modify       ##
+## it under the terms of the GNU General Public License as published by       ##
+## the Free Software Foundation, either version 3 of the License, or          ##
+## (at your option) any later version.                                        ##
+##                                                                            ##
+## This program is distributed in the hope that it will be useful,            ##
+## but WITHOUT ANY WARRANTY; without even the implied warranty of             ##
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              ##
+## GNU General Public License for more details.                               ##
+##                                                                            ##
+## You should have received a copy of the GNU General Public License          ##
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.     ##
+##                                                                            ##
+################################################################################
+
+[package]
+name = "list-my-licence"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98.0"
+description = "Embed verbatim dependency licences into a Rust binary."
+repository = "https://github.com/kevinmatthes/list-my-licence"
+license = "GPL-3.0-or-later"
+authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
+# Both spellings are listed deliberately, so that a crates.io search finds
+# this crate whichever one is used.
+keywords = ["attribution", "compliance", "licence", "license", "spdx"]
+categories = ["development-tools::build-utils"]
+readme = "README.md"
+
+# An allowlist, not a blocklist.  Cargo ignores `exclude` outright whenever
+# `include` is given, and warns that it does;  the two cannot be combined.
+# The allowlist is the better half of that choice anyway, because furniture
+# added to the root later cannot silently reach the tarball.
+#
+# `LICENCE` is here on purpose.  A crate whose subject is the reproduction of
+# licence texts should ship its own, and the terms are GPL.  `Cargo.toml`,
+# `Cargo.lock` and the two files Cargo generates come along regardless.
+#
+# `tests/` is deliberately absent;  see the note in the session report.  The
+# conventions harness shells out to `git ls-files`, so four of its six tests
+# panic outside a checkout, and the repository's own conventions are no
+# concern of anybody unpacking the tarball.  The documentation tests live in
+# `src/` and still ship.
+include = ["src/**", "README.md", "LICENCE"]
+
+# The runtime half has no dependencies at all.  Everything below is optional
+# and reachable only through the `build` feature, so a consuming crate names
+# this crate twice:  once as a build-dependency with `features = ["build"]`,
+# and once as a plain dependency.
+[dependencies]
+cargo_metadata = { version = "0.23.1", optional = true }
+license = { version = "3.8.0", optional = true }
+spdx = { version = "0.13.5", optional = true }
+
+[dependencies.clap]
+features = ["derive"]
+optional = true
+version = "4.6.6"
+
+[features]
+default = []
+build = ["dep:cargo_metadata", "dep:license", "dep:spdx"]
+
+# Command line plumbing for applications built with clap.  Additive:  it costs
+# the runtime half its empty dependency list, which is why it is not default.
+clap = ["dep:clap"]
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
+################################################################################

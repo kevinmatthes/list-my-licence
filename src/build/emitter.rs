@@ -20,6 +20,10 @@
 /// The generated Rust source, relative to `OUT_DIR`.
 const GENERATED: &str = "list-my-licence.rs";
 
+/// The generated Rust source for the compressed form.
+#[cfg(feature = "compression")]
+const GENERATED_COMPRESSED: &str = "list-my-licence-compressed.rs";
+
 /// The directory holding the reproduced texts, relative to `OUT_DIR`.
 const TEXTS: &str = "list-my-licence-texts";
 
@@ -91,6 +95,39 @@ impl Emitter {
         )
     }
 
+    /// Writes the compressed embedded form into `OUT_DIR`.
+    ///
+    /// The counterpart of [`Self::embed`], and independent of it:  a build
+    /// script may call either, or both, and the two artefacts describe the
+    /// same graph.  Licence texts are deflated;  notices are not, for the
+    /// reason [`CompressedPackage`](crate::CompressedPackage) gives.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`crate::build::EmitError::Write`] if anything cannot be
+    /// written.
+    #[cfg(feature = "compression")]
+    pub fn embed_compressed(
+        &self,
+        packages: &[crate::build::Reproduced<'_>],
+    ) -> Result<(), crate::build::EmitError> {
+        let directory = self.out_dir.join(TEXTS);
+
+        Self::create(&directory)?;
+
+        let (files, notices) = Self::intern_compressed(&directory, packages)?;
+
+        Self::write(
+            &self.out_dir.join(GENERATED_COMPRESSED),
+            &crate::build::GeneratedCompressed {
+                packages,
+                files: &files,
+                notices: &notices,
+            }
+            .to_string(),
+        )
+    }
+
     /// An emitter writing into the `OUT_DIR` Cargo gives a build script.
     ///
     /// # Errors
@@ -149,6 +186,59 @@ impl Emitter {
         }
 
         Ok(files)
+    }
+
+    /// Writes every distinct text once, deflated, and says where each went.
+    ///
+    /// Interning matters more here than in [`Self::intern`], not less:  the
+    /// same MIT text shipped by dozens of crates compresses to the same bytes
+    /// dozens of times over, and storing it once is what makes the saving
+    /// worth having.
+    ///
+    /// Notices are written plain, so they come back as a separate map.
+    #[cfg(feature = "compression")]
+    fn intern_compressed(
+        directory: &std::path::Path,
+        packages: &[crate::build::Reproduced<'_>],
+    ) -> Result<crate::build::Interned, crate::build::EmitError> {
+        let mut files = std::collections::BTreeMap::new();
+        let mut notices = std::collections::BTreeMap::new();
+
+        for (_, verdict) in packages {
+            for attribution in &verdict.attributions {
+                if files.contains_key(&attribution.text) {
+                    continue;
+                }
+
+                let name = format!("{TEXTS}/text-{:04}.deflate", files.len());
+                let leaf = format!("text-{:04}.deflate", files.len());
+
+                Self::write_bytes(
+                    &directory.join(leaf),
+                    &miniz_oxide::deflate::compress_to_vec(
+                        attribution.text.as_bytes(),
+                        10,
+                    ),
+                )?;
+                files.insert(attribution.text.clone(), name);
+            }
+
+            for notice in &verdict.notices {
+                if notices.contains_key(&notice.text) {
+                    continue;
+                }
+
+                let name = format!("{TEXTS}/notice-{:04}.txt", notices.len());
+
+                Self::write(
+                    &directory.join(format!("notice-{:04}.txt", notices.len())),
+                    &notice.text,
+                )?;
+                notices.insert(notice.text.clone(), name);
+            }
+        }
+
+        Ok((files, notices))
     }
 
     /// Renders the human-readable attribution.
@@ -234,6 +324,27 @@ impl Emitter {
     pub fn write(
         path: &std::path::Path,
         contents: &str,
+    ) -> Result<(), crate::build::EmitError> {
+        std::fs::write(path, contents).map_err(|reason| {
+            crate::build::EmitError::Write {
+                path: path.to_path_buf(),
+                reason,
+            }
+        })
+    }
+
+    /// Writes a file of bytes, reporting where it failed.
+    ///
+    /// [`Self::write`] takes a string, which compressed text is not.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`crate::build::EmitError::Write`] if the file cannot be
+    /// written.
+    #[cfg(feature = "compression")]
+    pub fn write_bytes(
+        path: &std::path::Path,
+        contents: &[u8],
     ) -> Result<(), crate::build::EmitError> {
         std::fs::write(path, contents).map_err(|reason| {
             crate::build::EmitError::Write {

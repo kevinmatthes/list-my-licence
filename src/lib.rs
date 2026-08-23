@@ -86,4 +86,9 @@ pub use crate::reproduction::{
     Attribution, Licence, Markdown, Origin, Package,
 };
 
+#[cfg(feature = "compression")]
+pub use crate::reproduction::{
+    CompressedAttribution, CompressedLicence, CompressedPackage,
+};
+
 /******************************************************************************/

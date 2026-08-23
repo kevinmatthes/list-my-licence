@@ -17,43 +17,30 @@
 |                                                                              |
 \******************************************************************************/
 
-//! The embedded attribution, and how to render it.
-//!
-//! Everything here is compiled into the shipped binary, so it carries
-//! **no dependencies whatsoever** — not even for parsing.  The build
-//! half writes Rust source, which the compiler then checks;  there is
-//! no format to get wrong at runtime and no failure mode for reading it
-//! back.
-//!
-//! The types are deliberately plain data.  A renderer is a function
-//! over them, which is what lets another output format be added later
-//! without disturbing anything that already works.
+/// Pulls in the compressed attribution the build script wrote.
+///
+/// The counterpart of [`embed!`](crate::embed).  Requires the build half to
+/// have called `Emitter::embed_compressed`, which lives behind the `build`
+/// feature — deliberately not linked, since that feature need not be enabled
+/// wherever this macro is read.
+///
+/// # Examples
+///
+/// ```text
+/// static LICENCES: list_my_licence::CompressedAttribution =
+///     list_my_licence::embed_compressed!();
+///
+/// fn main() {
+///     print!("{LICENCES}");
+/// }
+/// ```
+#[macro_export]
+macro_rules! embed_compressed {
+    () => {{
+        use $crate::{
+            CompressedAttribution, CompressedLicence, CompressedPackage, Origin,
+        };
 
-mod attribution;
-#[cfg(feature = "compression")]
-mod compressed_attribution;
-#[cfg(feature = "compression")]
-mod compressed_licence;
-#[cfg(feature = "compression")]
-mod compressed_package;
-mod embed;
-#[cfg(feature = "compression")]
-mod embed_compressed;
-mod licence;
-mod markdown;
-mod origin;
-mod package;
-
-pub use crate::reproduction::{
-    attribution::Attribution, licence::Licence, markdown::Markdown,
-    origin::Origin, package::Package,
-};
-
-#[cfg(feature = "compression")]
-pub use crate::reproduction::{
-    compressed_attribution::CompressedAttribution,
-    compressed_licence::CompressedLicence,
-    compressed_package::CompressedPackage,
-};
-
-/******************************************************************************/
+        include!(concat!(env!("OUT_DIR"), "/list-my-licence-compressed.rs"))
+    }};
+}

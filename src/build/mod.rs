@@ -37,6 +37,10 @@ mod evidence;
 mod finding;
 mod found;
 mod generated;
+#[cfg(feature = "compression")]
+mod generated_compressed;
+#[cfg(feature = "compression")]
+mod interned;
 mod markdown;
 mod outcome;
 mod problem;
@@ -62,5 +66,10 @@ pub use crate::build::{
 };
 
 pub(crate) use crate::build::{generated::Generated, markdown::Markdown};
+
+#[cfg(feature = "compression")]
+pub(crate) use crate::build::{
+    generated_compressed::GeneratedCompressed, interned::Interned,
+};
 
 /******************************************************************************/

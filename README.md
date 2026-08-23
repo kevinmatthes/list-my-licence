@@ -137,6 +137,37 @@ subcommand enumeration instead.
 The feature is additive and not default:  it costs the runtime half its empty
 dependency list.
 
+### Compressed
+
+The `compression` feature stores the licence texts deflated and inflates them
+on demand.  Licence texts compress well — they are long, English, and highly
+repetitive — so a binary shipping many of them carries considerably less.
+
+```toml
+list-my-licence = { version = "0.1", features = ["compression"] }
+```
+
+```rust
+static LICENCES: list_my_licence::CompressedAttribution =
+    list_my_licence::embed_compressed!();
+
+print!("{LICENCES}");
+```
+
+The build script calls `embed_compressed` where it would have called `embed`.
+Both may be called;  the two artefacts describe the same graph.
+
+This is a **parallel path, not a replacement**.  `embed!`, `Attribution` and
+`Licence` are untouched, and a build without the feature keeps its plain text
+and its empty dependency list.  That is deliberate:  a Cargo feature may not
+change a public type, since two crates in one dependency graph disagreeing
+about it would break.
+
+Two things follow from the trade.  Printing costs what the compression saved,
+so a binary which never shows its licences never pays it;  and notices stay
+uncompressed, an Apache-2.0 `NOTICE` being a few lines where a licence is tens
+of kilobytes.
+
 <!------------------------------------------------------------------------- -->
 
 ## What it does

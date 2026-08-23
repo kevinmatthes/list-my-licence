@@ -58,7 +58,9 @@ jobs:
           - ''
           - --features build
           - --features clap
+          - --features compression
           - --features build,clap
+          - --all-features
         subcommand:
           - build
           - clippy --all-targets

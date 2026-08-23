@@ -17,43 +17,12 @@
 |                                                                              |
 \******************************************************************************/
 
-//! The embedded attribution, and how to render it.
-//!
-//! Everything here is compiled into the shipped binary, so it carries
-//! **no dependencies whatsoever** — not even for parsing.  The build
-//! half writes Rust source, which the compiler then checks;  there is
-//! no format to get wrong at runtime and no failure mode for reading it
-//! back.
-//!
-//! The types are deliberately plain data.  A renderer is a function
-//! over them, which is what lets another output format be added later
-//! without disturbing anything that already works.
-
-mod attribution;
-#[cfg(feature = "compression")]
-mod compressed_attribution;
-#[cfg(feature = "compression")]
-mod compressed_licence;
-#[cfg(feature = "compression")]
-mod compressed_package;
-mod embed;
-#[cfg(feature = "compression")]
-mod embed_compressed;
-mod licence;
-mod markdown;
-mod origin;
-mod package;
-
-pub use crate::reproduction::{
-    attribution::Attribution, licence::Licence, markdown::Markdown,
-    origin::Origin, package::Package,
-};
-
-#[cfg(feature = "compression")]
-pub use crate::reproduction::{
-    compressed_attribution::CompressedAttribution,
-    compressed_licence::CompressedLicence,
-    compressed_package::CompressedPackage,
-};
-
-/******************************************************************************/
+/// Where every interned text went, licences first and notices second.
+///
+/// Licence texts are deflated and notices are not, so the two cannot share a
+/// map:  the file names differ in extension and the generated source reads
+/// them with different macros.
+pub type Interned = (
+    std::collections::BTreeMap<String, String>,
+    std::collections::BTreeMap<String, String>,
+);

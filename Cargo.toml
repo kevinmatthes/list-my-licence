@@ -32,6 +32,22 @@ keywords = ["attribution", "compliance", "licence", "license", "spdx"]
 categories = ["development-tools::build-utils"]
 readme = "README.md"
 
+# An allowlist, not a blocklist.  Cargo ignores `exclude` outright whenever
+# `include` is given, and warns that it does;  the two cannot be combined.
+# The allowlist is the better half of that choice anyway, because furniture
+# added to the root later cannot silently reach the tarball.
+#
+# `LICENCE` is here on purpose.  A crate whose subject is the reproduction of
+# licence texts should ship its own, and the terms are GPL.  `Cargo.toml`,
+# `Cargo.lock` and the two files Cargo generates come along regardless.
+#
+# `tests/` is deliberately absent;  see the note in the session report.  The
+# conventions harness shells out to `git ls-files`, so four of its six tests
+# panic outside a checkout, and the repository's own conventions are no
+# concern of anybody unpacking the tarball.  The documentation tests live in
+# `src/` and still ship.
+include = ["src/**", "README.md", "LICENCE"]
+
 # The runtime half has no dependencies at all.  Everything below is optional
 # and reachable only through the `build` feature, so a consuming crate names
 # this crate twice:  once as a build-dependency with `features = ["build"]`,

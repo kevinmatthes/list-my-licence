@@ -25,6 +25,7 @@ authors:
     family-names: Matthes
     given-names: Kevin
 cff-version: 1.2.0
+date-released: 2026-08-23
 keywords:
   - Rust
   - attribution

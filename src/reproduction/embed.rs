@@ -21,7 +21,7 @@
 ///
 /// # Examples
 ///
-/// ```ignore
+/// ```text
 /// static LICENCES: list_my_licence::Attribution = list_my_licence::embed!();
 ///
 /// fn main() {

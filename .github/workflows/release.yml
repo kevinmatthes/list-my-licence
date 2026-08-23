@@ -26,12 +26,12 @@ name: release
 on:
   workflow_dispatch:
 
+# `id-token` is what lets this job prove to crates.io which repository and
+# which workflow it is;  see the publication step.
 permissions:
   contents: write
+  id-token: write
 
-# Publication to crates.io is deliberately absent.  The first release is to
-# be uploaded by hand;  the token secret, and the step which would spend it,
-# follow once that has happened.
 jobs:
   release:
     if: github.repository == 'kevinmatthes/list-my-licence'
@@ -54,5 +54,22 @@ jobs:
         with:
           generate_release_notes: true
           tag_name: v${{ steps.manifest.outputs.version }}
+
+      # Trusted Publishing, so that no crates.io token is stored anywhere.
+      # GitHub mints a short-lived assertion that this run is this repository
+      # and this workflow;  crates.io checks it against the publisher
+      # registered on the crate and hands back a token good for one upload,
+      # which the action revokes again when the job ends.  D29 deferred a
+      # `CRATES_IO` secret until the name was claimed;  the answer turned out
+      # to be that it never needs creating.
+      - id: auth
+        uses: rust-lang/crates-io-auth-action@v1.0.5
+
+      # After the release, not before.  Publication is the irreversible half
+      # — a version can be yanked but never withdrawn — so it goes last, when
+      # everything reversible has already succeeded.
+      - env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: cargo publish --locked
 
 ################################################################################

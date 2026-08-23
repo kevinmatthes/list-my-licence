@@ -50,11 +50,28 @@ const NOTICE: &str = "GNU General Public License 3.0";
 const UNHEADED: [&str; 3] = ["Cargo.lock", "LICENCE", "README.md"];
 
 /// Extensions expected to carry a header;  a fixture or a datum is not.
-const HEADED: [&str; 7] = [
+const HEADED: [&str; 8] = [
+    ".cff",
     ".gitattributes",
     ".gitignore",
     ".py",
     ".rs",
+    ".toml",
+    ".yml",
+    "CODEOWNERS",
+];
+
+/// Formats whose prose lives in hash comments.
+///
+/// Kept apart from [`HEADED`] deliberately:  whether a file must open with the
+/// notice and where its language is found are different questions, and
+/// conflating them meant a new format could only be checked for prose by also
+/// being made to carry a header.
+const HASH_COMMENTED: [&str; 7] = [
+    ".cff",
+    ".gitattributes",
+    ".gitignore",
+    ".py",
     ".toml",
     ".yml",
     "CODEOWNERS",
@@ -314,7 +331,7 @@ fn prose(
         return vec![line.to_owned()];
     }
 
-    if HEADED.iter().any(|end| name.ends_with(end)) {
+    if HASH_COMMENTED.iter().any(|end| name.ends_with(end)) {
         return match hash_comment(line) {
             Some(body) => vec![body],
             None => Vec::new(),

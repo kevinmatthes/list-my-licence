@@ -1,8 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
   "assignees": [
     "kevinmatthes"
   ],
@@ -25,6 +22,18 @@
     {
       "customType": "regex",
       "datasourceTemplate": "github-releases",
+      "depNameTemplate": "cffconvert",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "citationcff/cffconvert:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "packageNameTemplate": "citation-file-format/cffconvert"
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "github-releases",
       "depNameTemplate": "rust",
       "managerFilePatterns": [
         "/^\\.clippy\\.toml$/",
@@ -43,6 +52,9 @@
     "dependencies"
   ],
   "dependencyDashboardTitle": "[Renovate] Dependency Dashboard",
+  "extends": [
+    "config:recommended"
+  ],
   "labels": [
     "dependencies"
   ],
@@ -54,9 +66,9 @@
       "addLabels": [
         "github_actions"
       ],
-      "extractVersion": "^v(?<version>.*)$",
       "matchDepNames": [
-        "actionlint"
+        "actionlint",
+        "cffconvert"
       ],
       "matchManagers": [
         "custom.regex"
@@ -88,6 +100,12 @@
       ],
       "matchManagers": [
         "custom.regex"
+      ]
+    },
+    {
+      "extractVersion": "^v(?<version>.*)$",
+      "matchDepNames": [
+        "actionlint"
       ]
     }
   ],

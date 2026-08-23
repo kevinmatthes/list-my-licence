@@ -81,6 +81,17 @@ jobs:
             cargo tree --no-default-features --edges normal | wc -l
           )" -eq 1
 
+  cffconvert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker://citationcff/cffconvert:2.0.0
+        with:
+          args: --validate -i CITATION.cff
+
   # The configuration this repository's dependency currency rests on.  Its
   # predecessor in `aeruginous-rs` had drifted onto a deprecated field name
   # without anything noticing, which is the whole argument for this job.
@@ -113,6 +124,7 @@ jobs:
     needs:
       - actionlint
       - cargo-features
+      - cffconvert
       - dependencies
       - formatting
       - renovate-linter

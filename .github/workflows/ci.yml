@@ -1,0 +1,130 @@
+######################## GNU General Public License 3.0 ########################
+##                                                                            ##
+## Copyright (C) 2026 Kevin Matthes                                           ##
+##                                                                            ##
+## This program is free software: you can redistribute it and/or modify       ##
+## it under the terms of the GNU General Public License as published by       ##
+## the Free Software Foundation, either version 3 of the License, or          ##
+## (at your option) any later version.                                        ##
+##                                                                            ##
+## This program is distributed in the hope that it will be useful,            ##
+## but WITHOUT ANY WARRANTY; without even the implied warranty of             ##
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              ##
+## GNU General Public License for more details.                               ##
+##                                                                            ##
+## You should have received a copy of the GNU General Public License          ##
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.     ##
+##                                                                            ##
+################################################################################
+
+
+name: ci
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
+  # The lints this crate cares about are denied in `src/lib.rs` rather than
+  # on the command line, so `clippy` and `doc` fail on their own account.
+  cargo-features:
+    runs-on: ubuntu-latest
+    steps:
+      - run: rustup update
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: cargo ${{ matrix.subcommand }} ${{ matrix.feature }}
+    strategy:
+      matrix:
+        feature:
+          - ''
+          - --features build
+          - --features clap
+          - --features build,clap
+        subcommand:
+          - build
+          - clippy --all-targets
+          - doc --no-deps
+          - test
+
+  # The two conventions no cargo subcommand can check.  The self-test runs
+  # first:  a checker that reports nothing is worthless until it has been
+  # shown to report something.
+  conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: 3.14
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: ./check-language.py --self-test
+
+      - run: |
+          git ls-files -z \
+            | grep -zvE '^(LICENCE|Cargo\.lock)$' \
+            | xargs -0 ./check-language.py
+
+      - run: ./check-repository.py
+
+  # The headline claim of the runtime half, asserted rather than assumed:
+  # the crate itself is the only line `cargo tree` has to print.
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - run: rustup update
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: |
+          test "$(
+            cargo tree --no-default-features --edges normal | wc -l
+          )" -eq 1
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - run: rustup update
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: cargo fmt --check
+
+  # One check to require of a pull request, so that adding a job here does
+  # not mean editing the branch protection rule as well.
+  gate:
+    needs:
+      - actionlint
+      - cargo-features
+      - conventions
+      - dependencies
+      - formatting
+    runs-on: ubuntu-latest
+    steps:
+      - run: bash -c 'exit 0'
+
+################################################################################

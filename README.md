@@ -11,6 +11,14 @@ the binary that ships them.
 > in a `Co-Authored-By` trailer, so the record is per change rather than only
 > here.
 
+> **Depending on this crate makes your own application GPL-3.0-or-later.**
+> The runtime half is linked into the binary it serves, and it is
+> GPL-3.0-or-later like everything else here, so a program distributed with it
+> must be distributed under GPL-3.0-or-later too.  That is deliberate rather
+> than an oversight — [Licence](#licence) explains it in full, and
+> [Related work](#related-work) lists alternatives under permissive terms,
+> for projects which cannot accept it.
+
 <!------------------------------------------------------------------------- -->
 
 ## Summary
@@ -219,6 +227,28 @@ check, and a runtime half with no dependencies.
 
 ## Licence
 
-GPL-3.0-or-later.  See [`LICENCE`](LICENCE) for the full text.
+GPL-3.0-or-later, throughout.  See [`LICENCE`](LICENCE) for the full text.
+
+### What that means for your project
+
+Both halves of this crate are GPL-3.0-or-later, and the runtime half is
+**linked into the binary you ship**.  Under the GPL that makes your program and
+this crate one combined work, so distributing it obliges you to place the whole
+under GPL-3.0-or-later and to offer its corresponding source.  Building against
+it without distributing the result — a private tool, an internal service you do
+not hand to anyone — obliges nothing;  the GPL is triggered by distribution.
+
+The build half is equally GPL-3.0-or-later, but it runs in `build.rs` and is
+linked into nothing.  What it writes is your dependencies' licence texts and
+your own data:  this crate claims nothing over its output, and `THIRDPARTY.md`
+is yours, under whatever terms you choose.
+
+**This was a free choice, and it was made deliberately.**  The runtime half has
+no dependencies, so nobody else's terms constrained it and a permissive licence
+was available.  It is GPL-3.0-or-later because the author works within the GPL
+ecosystem and wanted a tool which stays there.  If your project cannot be
+GPL-3.0-or-later, [`license-fetcher`][fetch], [`notalawyer`][notalawyer] and
+[`cargo-about`][cargo-about] address much of the same problem under permissive
+terms, and [Related work](#related-work) says how they differ.
 
 <!------------------------------------------------------------------------- -->

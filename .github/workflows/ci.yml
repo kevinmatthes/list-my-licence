@@ -40,6 +40,8 @@ jobs:
 
   # The lints this crate cares about are denied in `src/lib.rs` rather than
   # on the command line, so `clippy` and `doc` fail on their own account.
+  # `test` carries the conventions harness in `tests/conventions.rs`, which
+  # is why no separate job runs a checker of its own.
   cargo-features:
     runs-on: ubuntu-latest
     steps:
@@ -62,29 +64,6 @@ jobs:
           - clippy --all-targets
           - doc --no-deps
           - test
-
-  # The two conventions no cargo subcommand can check.  The self-test runs
-  # first:  a checker that reports nothing is worthless until it has been
-  # shown to report something.
-  conventions:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-python@v5.6.0
-        with:
-          python-version: 3.14
-
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - run: ./check-language.py --self-test
-
-      - run: |
-          git ls-files -z \
-            | grep -zvE '^(LICENCE|Cargo\.lock)$' \
-            | xargs -0 ./check-language.py
-
-      - run: ./check-repository.py
 
   # The headline claim of the runtime half, asserted rather than assumed:
   # the crate itself is the only line `cargo tree` has to print.
@@ -119,7 +98,6 @@ jobs:
     needs:
       - actionlint
       - cargo-features
-      - conventions
       - dependencies
       - formatting
     runs-on: ubuntu-latest

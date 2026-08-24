@@ -36,10 +36,11 @@ pub struct Emitter {
 impl Emitter {
     /// Checks a committed attribution against what the graph would produce.
     ///
-    /// This is the whole of D8.  Because both artefacts come from one pass, a
-    /// dependency whose licence changed cannot reach a release without the
-    /// committed file changing too — and a changed file is a reviewable diff
-    /// rather than a silent difference.
+    /// This is the whole point of committing the attribution at all.
+    /// Because both artefacts come from one pass, a dependency whose licence
+    /// changed cannot reach a release without the committed file changing
+    /// too — and a changed file is a reviewable diff rather than a silent
+    /// difference.
     ///
     /// # Errors
     ///

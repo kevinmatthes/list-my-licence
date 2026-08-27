@@ -89,6 +89,14 @@ const UNCHECKED: [&str; 2] = ["Cargo.lock", "LICENCE"];
 /// language:  checking them would report exactly the findings they exist to
 /// provoke.  Keeping them out here is what lets the harness itself be checked
 /// in full, which the Python original never was.
+/// Files which carry no closing rule.
+///
+/// `Cargo.lock` is generated and `LICENCE` is somebody else's text, so
+/// neither is this project's to shape.  `renovate.json` is JSON, which has no
+/// comment syntax to write a rule in — the same standing exception the
+/// licence header makes for it.
+const UNRULED: [&str; 3] = ["Cargo.lock", "LICENCE", "renovate.json"];
+
 const FIXTURES: &str = "tests/assets/language/";
 
 /// Spellings which are American, as whole words.
@@ -201,6 +209,33 @@ fn code_licence(text: &str, start: usize) -> bool {
         || matches!(after, Some(' ' | '=') if window.contains('='))
 }
 
+/// The rule which closes this file, where its format has one.
+///
+/// Three forms, one for each comment syntax in use here, and every one of
+/// them exactly [`WIDTH`] characters:  the rule is the width, drawn.  It
+/// marks where a file ends, so nothing may follow it — appending below it is
+/// how the lint tables first went into the manifest.
+fn closing_rule(path: &Path) -> Option<String> {
+    let name = show(path);
+    let base = name.rsplit('/').next().unwrap_or(&name).to_owned();
+
+    if UNRULED.contains(&base.as_str()) || name.starts_with(FIXTURES) {
+        return None;
+    }
+
+    if base == "README.md" {
+        return Some(format!("<!--{} -->", "-".repeat(WIDTH - 8)));
+    }
+
+    if Path::new(&name).extension().is_some_and(|e| e == "rs") {
+        return Some(format!("/{}/", "*".repeat(WIDTH - 2)));
+    }
+
+    HASH_COMMENTED
+        .iter()
+        .any(|end| name.ends_with(end))
+        .then(|| "#".repeat(WIDTH))
+}
 /// Every finding in one file, as `line:  message`.
 fn findings(path: &Path, text: &str) -> Vec<String> {
     let mut found = Vec::new();
@@ -660,6 +695,42 @@ fn language_findings() -> Vec<String> {
     }
 
     found
+}
+
+#[test]
+fn every_file_closes_with_its_rule() {
+    let mut wrong = Vec::new();
+
+    for path in tracked() {
+        let Some(rule) = closing_rule(&path) else {
+            continue;
+        };
+
+        let Ok(text) = std::fs::read_to_string(root().join(&path)) else {
+            continue;
+        };
+
+        let mut lines = text.lines().rev();
+
+        if lines.next() != Some(rule.as_str()) {
+            wrong
+                .push(format!("{}  does not close with its rule", show(&path)));
+            continue;
+        }
+
+        if lines.next().is_some_and(|line| !line.trim().is_empty()) {
+            wrong.push(format!(
+                "{}  no blank line before the closing rule",
+                show(&path)
+            ));
+        }
+    }
+
+    assert!(
+        wrong.is_empty(),
+        "the closing rule must be a file's last line:\n{}",
+        wrong.join("\n")
+    );
 }
 
 #[test]

@@ -293,4 +293,4 @@ GPL-3.0-or-later, [`license-fetcher`][fetch], [`notalawyer`][notalawyer] and
 [`cargo-about`][cargo-about] address much of the same problem under permissive
 terms, and [Related work](#related-work) says how they differ.
 
-<!------------------------------------------------------------------------- -->
+<!-------------------------------------------------------------------------- -->

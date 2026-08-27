@@ -55,3 +55,5 @@ impl CompressedLicence {
         .expect("embedded licence text is not UTF-8")
     }
 }
+
+/******************************************************************************/

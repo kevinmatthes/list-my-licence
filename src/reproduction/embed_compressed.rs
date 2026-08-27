@@ -44,3 +44,5 @@ macro_rules! embed_compressed {
         include!(concat!(env!("OUT_DIR"), "/list-my-licence-compressed.rs"))
     }};
 }
+
+/******************************************************************************/

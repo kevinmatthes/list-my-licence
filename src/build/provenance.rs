@@ -30,3 +30,5 @@ pub enum Provenance {
     /// The canonical SPDX text, used because the package shipped none.
     Canonical,
 }
+
+/******************************************************************************/

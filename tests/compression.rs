@@ -220,3 +220,5 @@ fn both_forms_render_alike() {
         "and an inflated text must equal the original"
     );
 }
+
+/******************************************************************************/

@@ -22,3 +22,5 @@ pub type Reproduced<'a> = (
     &'a crate::build::ResolvedPackage,
     &'a crate::build::Classification,
 );
+
+/******************************************************************************/

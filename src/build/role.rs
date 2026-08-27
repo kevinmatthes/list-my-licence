@@ -28,3 +28,5 @@ pub enum Role {
     /// so a `NOTICE` is invisible to anything that reads only the manifest.
     Notice,
 }
+
+/******************************************************************************/

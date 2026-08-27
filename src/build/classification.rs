@@ -40,3 +40,5 @@ impl Classification {
         self.problems.iter().any(crate::build::Problem::is_fatal)
     }
 }
+
+/******************************************************************************/

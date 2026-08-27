@@ -339,7 +339,7 @@ fn a_custom_licence_declared_by_file_is_reproduced() {
         .expect("a fixture file");
 
     let mut described = package(directory.path(), None);
-    described.licence_file = Some(path.clone());
+    described.licence_file = Some(path);
     described.name = "my_crate".to_owned();
 
     let evidence = Discovery::new().search(&described);

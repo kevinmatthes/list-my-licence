@@ -310,15 +310,15 @@ fn prose(
 
     // JSON has no comment syntax, so a JSON file carries no prose of its own.
     // Read as language, every `"key": "value"` reports a spacing violation.
-    if name.ends_with(".json") {
+    if Path::new(&name).extension().is_some_and(|e| e == "json") {
         return Vec::new();
     }
 
-    if name.ends_with(".rs") {
+    if Path::new(&name).extension().is_some_and(|e| e == "rs") {
         return rust(line, fenced);
     }
 
-    if name.ends_with(".md") {
+    if Path::new(&name).extension().is_some_and(|e| e == "md") {
         if trimmed.starts_with("```") {
             *fenced = !*fenced;
             return Vec::new();
@@ -332,10 +332,7 @@ fn prose(
     }
 
     if HASH_COMMENTED.iter().any(|end| name.ends_with(end)) {
-        return match hash_comment(line) {
-            Some(body) => vec![body],
-            None => Vec::new(),
-        };
+        return hash_comment(line).map_or_else(Vec::new, |body| vec![body]);
     }
 
     vec![line.to_owned()]

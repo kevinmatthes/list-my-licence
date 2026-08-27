@@ -100,8 +100,6 @@ compression = ["dep:miniz_oxide"]
 [dev-dependencies]
 tempfile = "3.27.0"
 
-################################################################################
-
 [lints.clippy]
 all = { level = "deny", priority = -1 }
 cargo = { level = "deny", priority = -1 }
@@ -129,3 +127,5 @@ unused_variables = "deny"
 
 [lints.rustdoc]
 broken_intra_doc_links = "deny"
+
+################################################################################

@@ -256,7 +256,7 @@ fn both_renderers_agree() {
     // `packages` holds a reference to `described` for the comparison
     // below, so neither field can be moved out of it here.  Clippy's
     // nursery lint does not see the borrow and reports the clone as
-    // redundant;  removing it does not compile.
+    // redundant; removing it does not compile.
     #[allow(clippy::redundant_clone)]
     let embedded: &'static [Package] = Box::leak(Box::new([Package {
         name: Box::leak(described.name.clone().into_boxed_str()),

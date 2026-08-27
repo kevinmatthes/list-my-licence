@@ -49,7 +49,6 @@
 //! texts out of the shipped binary entirely:  only the harvested result
 //! crosses over.
 
-
 mod reproduction;
 
 #[cfg(feature = "build")]

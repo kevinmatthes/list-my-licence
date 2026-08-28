@@ -32,3 +32,5 @@ pub struct Package {
     /// Its Apache-2.0 notices, reproduced alongside rather than instead.
     pub notices: &'static [&'static str],
 }
+
+/******************************************************************************/

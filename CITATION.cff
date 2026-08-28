@@ -39,4 +39,6 @@ repository-artifact: https://crates.io/crates/list-my-licence
 repository-code: https://github.com/kevinmatthes/list-my-licence
 title: list-my-licence
 url: https://github.com/kevinmatthes/list-my-licence
-version: 0.1.0
+version: 0.1.1
+
+################################################################################

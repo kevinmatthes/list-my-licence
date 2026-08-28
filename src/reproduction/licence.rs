@@ -29,3 +29,5 @@ pub struct Licence {
     /// Where that text came from, so the reader can judge it.
     pub origin: crate::Origin,
 }
+
+/******************************************************************************/

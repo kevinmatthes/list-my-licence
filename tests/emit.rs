@@ -124,7 +124,7 @@ fn the_generated_source_compiles_and_runs() {
 }
 
 /// A minimal stand-in for the runtime types the generated source names.
-fn stand_in() -> &'static str {
+const fn stand_in() -> &'static str {
     "
     pub enum Origin {
         Distributed(&'static str),
@@ -253,6 +253,11 @@ fn both_renderers_agree() {
         text: Box::leak(verdict.attributions[0].text.clone().into_boxed_str()),
         origin: Origin::Distributed("LICENSE-MIT"),
     }]));
+    // `packages` holds a reference to `described` for the comparison
+    // below, so neither field can be moved out of it here.  Clippy's
+    // nursery lint does not see the borrow and reports the clone as
+    // redundant; removing it does not compile.
+    #[allow(clippy::redundant_clone)]
     let embedded: &'static [Package] = Box::leak(Box::new([Package {
         name: Box::leak(described.name.clone().into_boxed_str()),
         version: Box::leak(described.version.clone().into_boxed_str()),

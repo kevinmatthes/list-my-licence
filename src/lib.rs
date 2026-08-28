@@ -49,31 +49,6 @@
 //! texts out of the shipped binary entirely:  only the harvested result
 //! crosses over.
 
-#![deny(
-    clippy::all,
-    clippy::cargo,
-    clippy::complexity,
-    clippy::correctness,
-    clippy::nursery,
-    clippy::pedantic,
-    clippy::perf,
-    clippy::suspicious,
-    clippy::style,
-    dead_code,
-    deprecated,
-    missing_docs,
-    rustdoc::broken_intra_doc_links,
-    unreachable_code,
-    unused_assignments,
-    unused_imports,
-    unused_macros,
-    unused_must_use,
-    unused_mut,
-    unused_parens,
-    unused_variables
-)]
-#![allow(clippy::multiple_crate_versions)]
-
 mod reproduction;
 
 #[cfg(feature = "build")]

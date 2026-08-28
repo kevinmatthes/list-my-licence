@@ -60,3 +60,5 @@ pub struct ResolvedPackage {
     /// obligation and is a useful ingredient elsewhere.
     pub repository: Option<String>,
 }
+
+/******************************************************************************/

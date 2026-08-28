@@ -32,3 +32,5 @@ pub enum Coverage {
     /// The package ships no licence file at all.
     Absent,
 }
+
+/******************************************************************************/

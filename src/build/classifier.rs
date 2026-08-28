@@ -93,10 +93,6 @@ impl Classifier {
         let mut attributions = Vec::new();
         let mut discharged = std::collections::BTreeSet::new();
 
-        // Which attributions fell back to a general file.  A file is only
-        // *combined* if more than one term actually leans on it;  a package
-        // shipping `COPYING` beside `LICENSE-MIT` and `UNLICENSE` has a
-        // general file, but each term still has its own text.
         let mut leaning = Vec::new();
 
         for term in terms {
@@ -124,8 +120,6 @@ impl Classifier {
                 continue;
             };
 
-            // A canonical text discharges nothing for a licence that needs its
-            // own copyright line.
             if provenance == crate::build::Provenance::Canonical
                 && !Self::is_standard_text(term)
             {
@@ -193,10 +187,6 @@ impl Classifier {
             Self::mark_combined(&mut attributions);
         }
 
-        // An `OR` needs only one of its branches.  A term that could not be
-        // discharged therefore matters only if the expression cannot be
-        // satisfied without it, which is why this is checked against the whole
-        // expression rather than term by term.
         let satisfied = expression.evaluate(|requirement| {
             discharged.contains(&Self::name(&requirement.license))
         });
@@ -262,13 +252,6 @@ impl Classifier {
         let declared = match package.licence.as_deref() {
             Some(declared) => declared,
 
-            // Cargo's own way of saying "my terms are not on any list":  set
-            // `license-file` and leave `license` empty.  A copyright holder is
-            // entitled to write their own licence, so this is not a fault —
-            // but SPDX has no identifier for it, and one is needed before the
-            // rest of the classifier can treat it like any other term.  The
-            // reference SPDX reserves for exactly this purpose is invented
-            // from the package's own name.
             None if !evidence.is_empty() || package.licence_file.is_some() => {
                 synthesised = Self::reference(&package.name);
 
@@ -294,8 +277,6 @@ impl Classifier {
                 expression: declared.to_owned(),
             }),
 
-            // A declared `LicenseRef` is custom too, and is noted for the same
-            // reason:  no canonical text exists to check it against.
             Some(expression) => problems.extend(
                 expression
                     .requirements()

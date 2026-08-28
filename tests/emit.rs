@@ -75,10 +75,6 @@ fn the_generated_source_compiles_and_runs() {
         .embed(&packages)
         .expect("emission must succeed");
 
-    // The real arrangement:  `include!` pulls the generated file in, exactly
-    // as `embed!` does.  Doing it any other way would not answer the question
-    // this test exists for — whether a relative `include_str!` inside the
-    // generated file resolves against that file's directory.
     let driver = work.path().join("driver.rs");
     fs::write(
         &driver,
@@ -245,7 +241,6 @@ fn both_renderers_agree() {
     let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");
     let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
 
-    // The same content, expressed as the runtime half would hold it.
     let licences: &'static [Licence] = Box::leak(Box::new([Licence {
         identifier: Box::leak(
             verdict.attributions[0].identifier.clone().into_boxed_str(),
@@ -253,10 +248,6 @@ fn both_renderers_agree() {
         text: Box::leak(verdict.attributions[0].text.clone().into_boxed_str()),
         origin: Origin::Distributed("LICENSE-MIT"),
     }]));
-    // `packages` holds a reference to `described` for the comparison
-    // below, so neither field can be moved out of it here.  Clippy's
-    // nursery lint does not see the borrow and reports the clone as
-    // redundant; removing it does not compile.
     #[allow(clippy::redundant_clone)]
     let embedded: &'static [Package] = Box::leak(Box::new([Package {
         name: Box::leak(described.name.clone().into_boxed_str()),

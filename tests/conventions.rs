@@ -200,8 +200,6 @@ fn code_licence(text: &str, start: usize) -> bool {
         return true;
     }
 
-    // `license =`, `"license`, `.license`, `/license` and `` `LICENSE' ``:
-    // the word carrying a punctuation mark which only code puts there.
     let before = text[..start].chars().next_back();
     let after = text[start..].chars().nth("license".len());
 
@@ -278,7 +276,6 @@ fn header_end(lines: &[&str]) -> Option<usize> {
             && (line.starts_with('#') || line.starts_with('/'))
     })?;
 
-    // A shebang and the blank line after it may precede the notice.
     if opening > 2 {
         return None;
     }
@@ -319,11 +316,6 @@ fn prose(
     let name = show(path);
     let trimmed = line.trim_start();
 
-    // The notice is a verbatim quotation and must never be reworded.  It is
-    // recognised by its own text rather than by line number:  a positional
-    // rule would silently swallow real prose in any file whose header is
-    // shorter or absent, which is precisely what the original's self-test
-    // exposed.
     if line.contains(NOTICE)
         && (trimmed.starts_with('/') || trimmed.starts_with('#'))
     {
@@ -343,8 +335,6 @@ fn prose(
         return Vec::new();
     }
 
-    // JSON has no comment syntax, so a JSON file carries no prose of its own.
-    // Read as language, every `"key": "value"` reports a spacing violation.
     if Path::new(&name).extension().is_some_and(|e| e == "json") {
         return Vec::new();
     }
@@ -396,9 +386,6 @@ fn proper_name(text: &str, start: usize, length: usize) -> bool {
         return true;
     }
 
-    // A capitalised word immediately before `License` makes it a title.
-    // Punctuation may stand between the two — `"Apache License 2.0"` opens
-    // with a quotation mark — so the word is read through it.
     window.match_indices("License").any(|(at, _)| {
         let before = window[..at].trim_end();
 
@@ -440,8 +427,6 @@ fn rust(line: &str, fenced: &mut bool) -> Vec<String> {
         if let Some(body) = trimmed.strip_prefix(marker) {
             let body = body.strip_prefix(' ').unwrap_or(body);
 
-            // A fenced block inside a documentation comment is an example
-            // written in Rust, and Rust is not governed by these rules.
             if body.trim_start().starts_with("```") {
                 *fenced = !*fenced;
                 return Vec::new();
@@ -475,7 +460,6 @@ fn spacing(text: &str) -> Vec<String> {
             continue;
         }
 
-        // A decimal point and an ellipsis close nothing.
         let previous = text[..index].chars().next_back();
 
         if previous.is_some_and(|c| c == '.' || c.is_ascii_digit()) {
@@ -560,9 +544,6 @@ fn strip(text: &str) -> String {
         inside = !inside;
     }
 
-    // Whitespace is never collapsed here.  English Spacing is a statement
-    // about how many spaces follow a full stop, so a pass which tidied them
-    // away would silently answer the question it exists to ask.
     let mut result = String::new();
     let mut rest = spanless.as_str();
 

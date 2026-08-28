@@ -21,7 +21,7 @@
 //!
 //! Everything here is compiled into the shipped binary, so it carries
 //! **no dependencies whatsoever** — not even for parsing.  The build
-//! half writes Rust source, which the compiler then checks;  there is
+//! half writes Rust source, which the compiler then checks; there is
 //! no format to get wrong at runtime and no failure mode for reading it
 //! back.
 //!

@@ -39,7 +39,7 @@ impl Builder {
     /// Fails instead of rewriting the published file when it is out of date.
     ///
     /// This is the whole of the drift check.  Left off, a build refreshes the
-    /// committed attribution;  turned on, in continuous integration, it
+    /// committed attribution; turned on, in continuous integration, it
     /// refuses to proceed while that file disagrees with the graph — so a
     /// dependency whose licence changed cannot be merged unnoticed.
     #[must_use]

@@ -22,7 +22,7 @@
 /// The counterpart of [`Generated`](crate::build::Generated), and subject to
 /// the same two constraints:  paths in `include_bytes!` are **relative** to
 /// the generated file, so no directory belonging to whoever built the binary
-/// ends up inside it;  and the type names are written bare, because `$crate`
+/// ends up inside it; and the type names are written bare, because `$crate`
 /// is substituted while a macro's body is expanded and these tokens come
 /// from a file read at that point.
 /// [`embed_compressed!`](crate::embed_compressed) brings the names into

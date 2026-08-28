@@ -32,7 +32,7 @@ pub enum EmitError {
     /// The committed attribution is out of date.
     ///
     /// Raised only by [`crate::build::Emitter::check`].  Regenerating it is
-    /// the fix;  the failure exists so that a stale file cannot be merged
+    /// the fix; the failure exists so that a stale file cannot be merged
     /// unnoticed.
     Stale {
         /// The file that no longer matches what the graph would produce.
@@ -57,7 +57,7 @@ impl std::fmt::Display for EmitError {
             }
             Self::Stale { path } => write!(
                 f,
-                "{} is out of date;  the dependency graph has changed since it \
+                "{} is out of date; the dependency graph has changed since it \
                  was written",
                 path.display()
             ),

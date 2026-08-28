@@ -100,7 +100,7 @@ impl Emitter {
     ///
     /// The counterpart of [`Self::embed`], and independent of it:  a build
     /// script may call either, or both, and the two artefacts describe the
-    /// same graph.  Licence texts are deflated;  notices are not, for the
+    /// same graph.  Licence texts are deflated; notices are not, for the
     /// reason [`CompressedPackage`](crate::CompressedPackage) gives.
     ///
     /// # Errors

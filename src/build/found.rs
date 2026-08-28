@@ -29,7 +29,7 @@ pub struct Found {
     /// The SPDX identifier its *name* points at, where the name names one.
     ///
     /// This is a hint drawn from the file name alone, never from the contents.
-    /// `LICENSE-MIT` yields `MIT`;  a bare `LICENSE` yields nothing, because
+    /// `LICENSE-MIT` yields `MIT`; a bare `LICENSE` yields nothing, because
     /// the name says nothing about which licence it holds.
     pub identifier: Option<String>,
 

@@ -40,7 +40,7 @@
 ///     Licence(list_my_licence::cli::LicenceCommand),
 /// }
 ///
-/// // In an application this comes from `list_my_licence::embed!()`;  it is
+/// // In an application this comes from `list_my_licence::embed!()`; it is
 /// // written out here so that the example compiles on its own.
 /// static LICENCES: list_my_licence::Attribution =
 ///     list_my_licence::Attribution { packages: &[] };

@@ -69,7 +69,7 @@ impl Strength {
             Self::Permissive => "nothing beyond the reproduction already done",
             Self::Weak => {
                 "recipients must be told where the source of the covered files \
-                 is;  the pointer below does that"
+                 is; the pointer below does that"
             }
             Self::Library => {
                 "recipients must be able to relink against a modified library, \

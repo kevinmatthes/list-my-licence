@@ -311,7 +311,7 @@ fn a_general_file_beside_specific_ones_is_not_combined() {
     assert_eq!(
         verdict.coverage,
         Coverage::Complete,
-        "six crates in the measured cache ship exactly this trio;  each term \
+        "six crates in the measured cache ship exactly this trio; each term \
          has its own text, so the presence of a general file does not make \
          anything shared"
     );

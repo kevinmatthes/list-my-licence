@@ -25,7 +25,7 @@
 ///
 /// There is deliberately no `markdown` here.  Rendering Markdown means
 /// inflating every text anyway, at which point the plain
-/// [`Attribution`](crate::Attribution) is the better shape;  this type exists
+/// [`Attribution`](crate::Attribution) is the better shape; this type exists
 /// to keep a binary small, not to render from.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CompressedAttribution {

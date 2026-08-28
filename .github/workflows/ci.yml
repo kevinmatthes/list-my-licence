@@ -114,6 +114,122 @@ jobs:
 
       - run: cargo fmt --check
 
+  release-level:
+    runs-on: ubuntu-latest
+    steps:
+      - run: rustup update
+
+      - name: checkout w/ tags
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: taiki-e/install-action@v2.87.0
+        with:
+          tool: cargo-semver-checks@0.50.0
+
+      - run: |
+          set -euo pipefail
+
+          field() {
+            awk -F'"' -v want="$1" '/^\[/ { s = $0 }
+                 s == want && /^version = / { print $2; exit }'
+          }
+
+          level='patch'
+
+          raise() {
+            case "$1" in
+              major) level=major ;;
+              minor) [ "$level" = major ] || level=minor ;;
+            esac
+          }
+
+          LAST="$(git describe --tags --abbrev=0)"
+          BASE="${LAST#v}"
+          echo "the baseline is $LAST"
+
+          combos=(
+            '--default-features'
+            '--only-explicit-features --features clap'
+            '--only-explicit-features --features compression'
+            '--only-explicit-features --features clap,compression'
+            '--only-explicit-features'
+          )
+
+          for combo in "${combos[@]}"; do
+            echo "::group::cargo-semver-checks $combo"
+            # shellcheck disable=SC2086
+            report="$(cargo semver-checks --baseline-rev "$LAST" $combo \
+                      2>&1 || true)"
+            echo "$report"
+            echo '::endgroup::'
+
+            case "$report" in
+              *'requires new major version'*) raise major ;;
+              *'requires new minor version'*) raise minor ;;
+              *'no semver update required'*) ;;
+              *) echo 'no verdict from cargo-semver-checks'; exit 1 ;;
+            esac
+          done
+
+          OLD_MSRV="$(git show "$LAST:Cargo.toml" |
+                      awk -F'"' '/^rust-version = / { print $2; exit }')"
+          NEW_MSRV="$(awk -F'"' '/^rust-version = / { print $2; exit }' \
+                      Cargo.toml)"
+
+          if [ "$OLD_MSRV" != "$NEW_MSRV" ] &&
+             [ "$(printf '%s\n%s\n' "$OLD_MSRV" "$NEW_MSRV" |
+                  sort -V | tail -1)" = "$NEW_MSRV" ]
+          then
+            echo "the minimum toolchain rose from $OLD_MSRV to $NEW_MSRV"
+            raise minor
+          fi
+
+          OLD_CLAP="$(git show "$LAST:Cargo.toml" |
+                      field '[dependencies.clap]' | cut -d. -f1 |
+                      tr -cd '0-9')"
+          NEW_CLAP="$(field '[dependencies.clap]' < Cargo.toml |
+                      cut -d. -f1 | tr -cd '0-9')"
+
+          if [ -n "$OLD_CLAP" ] && [ -n "$NEW_CLAP" ] &&
+             [ "$NEW_CLAP" -gt "$OLD_CLAP" ]
+          then
+            echo "clap is required at $NEW_CLAP, was $OLD_CLAP"
+            raise major
+          fi
+
+          IFS=. read -r MAJ MIN PAT <<< "$BASE"
+
+          if [ "$MAJ" -eq 0 ]; then
+            case "$level" in
+              major) EXPECTED="0.$((MIN + 1)).0" ;;
+              *) EXPECTED="0.$MIN.$((PAT + 1))" ;;
+            esac
+          else
+            case "$level" in
+              major) EXPECTED="$((MAJ + 1)).0.0" ;;
+              minor) EXPECTED="$MAJ.$((MIN + 1)).0" ;;
+              *) EXPECTED="$MAJ.$MIN.$((PAT + 1))" ;;
+            esac
+          fi
+
+          ACTUAL="$(field '[package]' < Cargo.toml)"
+          echo "$LAST plus a $level step is $EXPECTED; the manifest says"
+          echo "$ACTUAL"
+
+          if [ "$ACTUAL" = "$EXPECTED" ] || [ "$ACTUAL" = 1.0.0 ]; then
+            exit 0
+          fi
+
+          echo "This change asks for a $level release over $BASE, so the"
+          echo "manifest has to say $EXPECTED and says $ACTUAL instead."
+          echo "Set the version of the package in Cargo.toml, the"
+          echo "list-my-licence entry in Cargo.lock and the version field"
+          echo "of CITATION.cff to $EXPECTED."
+          exit 1
+
   gate:
     needs:
       - actionlint
@@ -121,6 +237,7 @@ jobs:
       - cffconvert
       - dependencies
       - formatting
+      - release-level
       - renovate-linter
     runs-on: ubuntu-latest
     steps:

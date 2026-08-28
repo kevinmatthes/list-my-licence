@@ -155,7 +155,9 @@ jobs:
                { print }' Cargo.lock > Cargo.lock.next
           mv Cargo.lock.next Cargo.lock
 
-          sed -i -E "s/^version: .+/version: $next/" CITATION.cff
+          today=$(date -u +%F)
+          sed -i -E "s/^version: .+/version: $VERSION/" CITATION.cff
+          sed -i -E "s/^date-released: .+/date-released: $today/" CITATION.cff
 
           git switch -c "$branch"
           git commit -am "$subject"

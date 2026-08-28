@@ -46,7 +46,7 @@ drift cannot be merged rather than merely being visible.
 
 ## Usage
 
-Name the crate twice.  The build half does the work;  the runtime half holds
+Name the crate twice.  The build half does the work; the runtime half holds
 the result and **has no dependencies at all**.
 
 ```toml
@@ -155,7 +155,7 @@ print!("{LICENCES}");
 ```
 
 The build script calls `embed_compressed` where it would have called `embed`.
-Both may be called;  the two artefacts describe the same graph.
+Both may be called; the two artefacts describe the same graph.
 
 This is a **parallel path, not a replacement**.  `embed!`, `Attribution` and
 `Licence` are untouched, and a build without the feature keeps its plain text
@@ -164,7 +164,7 @@ change a public type, since two crates in one dependency graph disagreeing
 about it would break.
 
 Two things follow from the trade.  Printing costs what the compression saved,
-so a binary which never shows its licences never pays it;  and notices stay
+so a binary which never shows its licences never pays it; and notices stay
 uncompressed, an Apache-2.0 `NOTICE` being a few lines where a licence is tens
 of kilobytes.
 
@@ -174,7 +174,7 @@ of kilobytes.
 
 **Only what ships.**  Normal and build dependencies, at every level, for the
 target triple actually being compiled and the features actually enabled.
-Dev-dependencies are followed nowhere;  a test-only crate is never distributed.
+Dev-dependencies are followed nowhere; a test-only crate is never distributed.
 
 **The copy the author distributed**, wherever there is one.  MIT and BSD
 require *the* copyright line, which no canonical text carries, so a licence
@@ -245,14 +245,14 @@ of this.
 ## Related work
 
 [`cargo-about`][cargo-about] and [`cargo-bundle-licenses`][bundle] generate
-attribution files out of process, both able to carry the full texts;  the
+attribution files out of process, both able to carry the full texts; the
 latter's `--check-previous` is the same idea as the drift check here.
 [`cargo-deny`][cargo-deny] enforces licence policy.
 [`license-fetcher`][fetch], [`license-retriever`][retriever] and
 [`notalawyer`][notalawyer] embed texts into the binary as this crate does, and
 the differences are the coverage model above and the failure policy.  A runtime
 half with no dependencies distinguishes this crate from `license-fetcher`,
-which carries three;  it does **not** distinguish it from `notalawyer`, whose
+which carries three; it does **not** distinguish it from `notalawyer`, whose
 runtime crate has none either.
 
 Links point at crates.io rather than at a repository:  a crate can move
@@ -278,7 +278,7 @@ Both halves of this crate are GPL-3.0-or-later, and the runtime half is
 this crate one combined work, so distributing it obliges you to place the whole
 under GPL-3.0-or-later and to offer its corresponding source.  Building against
 it without distributing the result — a private tool, an internal service you do
-not hand to anyone — obliges nothing;  the GPL is triggered by distribution.
+not hand to anyone — obliges nothing; the GPL is triggered by distribution.
 
 The build half is equally GPL-3.0-or-later, but it runs in `build.rs` and is
 linked into nothing.  What it writes is your dependencies' licence texts and

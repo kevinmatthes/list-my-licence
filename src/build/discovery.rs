@@ -19,7 +19,7 @@
 
 /// The largest file discovery will read.
 ///
-/// Licence texts are small;  the GPL, the longest in common use, is under
+/// Licence texts are small; the GPL, the longest in common use, is under
 /// 40 KiB.  The limit exists to stop a package whose `LICENSE` is a symlink to
 /// something enormous from being read into memory.
 pub const MAX_BYTES: u64 = 1 << 20;

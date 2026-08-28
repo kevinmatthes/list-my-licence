@@ -19,10 +19,12 @@
 
 //! The conventions no cargo subcommand can check.
 //!
-//! Three of them:  eighty characters a line, the licence header on every
-//! hand-written file, and prose written in British English with English
-//! Spacing.  They were enforced by two Python scripts until 2026-08-23;  a
-//! Rust repository should hold Rust, so they are a test harness now.
+//! Several of them:  eighty characters a line, the licence header on every
+//! hand-written file, prose written in British English with English Spacing,
+//! exactly one space after a semicolon, a category opening every commit
+//! subject, and the version examples matching the manifest.  The prose rules
+//! were enforced by two Python scripts until 2026-08-23; a Rust repository
+//! should hold Rust, so they are a test harness now.
 //!
 //! Two of these tests check the checker rather than the repository.  A
 //! checker which reports nothing is worthless until it has been shown to
@@ -30,8 +32,8 @@
 //!
 //! Prose living outside the repository — the session reports — is held to the
 //! same conventions by naming it in `CONVENTIONS_EXTRA_PROSE`, colon
-//! separated.  Only the language check reads it;  a report's tables are wider
-//! than eighty characters by nature.
+//! separated.  Only the language check reads it; a report's tables are wider
+//! than eighty characters by nature, and its semicolons are its own affair.
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
@@ -40,7 +42,7 @@ use std::process::Command;
 /// The longest line this project allows, in characters rather than bytes.
 ///
 /// `awk`'s `length` counts bytes, which over-reports every line carrying an
-/// em dash;  that once cost a change to a line which did not need one.
+/// em dash; that once cost a change to a line which did not need one.
 const WIDTH: usize = 80;
 
 /// The first line of the licence header, by which the header is recognised.
@@ -49,7 +51,7 @@ const NOTICE: &str = "GNU General Public License 3.0";
 /// Files carrying no licence header:  generated, or the notice itself.
 const UNHEADED: [&str; 3] = ["Cargo.lock", "LICENCE", "README.md"];
 
-/// Extensions expected to carry a header;  a fixture or a datum is not.
+/// Extensions expected to carry a header; a fixture or a datum is not.
 const HEADED: [&str; 8] = [
     ".cff",
     ".gitattributes",
@@ -153,6 +155,19 @@ const CODE_LICENCE: [&str; 9] = [
 const CODE_LITERAL: [&str; 6] =
     ["&[", "::", "fn ", "include_str!", "pub ", "{{"];
 
+/// The categories a commit subject may open with.
+///
+/// A squash-merged pull request keeps its title as the subject, so the same
+/// set governs both:  `[<category>] <something>`, with an optional trailing
+/// ` (#123)` that the forge appends.
+const COMMIT_CATEGORIES: &[&str] = &[
+    "Renovate",
+    "GitHub Actions",
+    "Bugfix",
+    "Documentation",
+    "Enhancement",
+];
+
 /// Whether `word` is one of this project's accepted exceptions.
 fn accepted(word: &str) -> bool {
     INNOCENT.contains(&word) || FOREIGN.contains(&word)
@@ -235,7 +250,13 @@ fn closing_rule(path: &Path) -> Option<String> {
         .then(|| "#".repeat(WIDTH))
 }
 /// Every finding in one file, as `line:  message`.
-fn findings(path: &Path, text: &str) -> Vec<String> {
+///
+/// `semicolons` asks for the one-space-after-a-semicolon rule as well.  It is
+/// off for the language fixtures and for the prose named in
+/// `CONVENTIONS_EXTRA_PROSE`:  a session report's semicolons are its own
+/// concern, and a fixture is deliberately incorrect language rather than this
+/// project's prose.
+fn findings(path: &Path, text: &str, semicolons: bool) -> Vec<String> {
     let mut found = Vec::new();
     let mut fenced = false;
     let mut heading = false;
@@ -259,6 +280,16 @@ fn findings(path: &Path, text: &str) -> Vec<String> {
 
             for finding in spacing(trimmed) {
                 found.push(format!("{}:{}  {finding}", show(path), number + 1));
+            }
+
+            if semicolons {
+                for finding in semicolon(trimmed) {
+                    found.push(format!(
+                        "{}:{}  {finding}",
+                        show(path),
+                        number + 1
+                    ));
+                }
             }
         }
     }
@@ -488,6 +519,30 @@ fn spacing(text: &str) -> Vec<String> {
     findings
 }
 
+/// Every semicolon-spacing finding in one fragment.
+///
+/// A semicolon joins two clauses rather than closing a sentence, so English
+/// Spacing does not double the space after it:  exactly one follows, and two
+/// or more are the finding.
+fn semicolon(text: &str) -> Vec<String> {
+    let bytes = text.as_bytes();
+    let mut findings = Vec::new();
+
+    for (index, character) in text.char_indices() {
+        if character != ';' {
+            continue;
+        }
+
+        if bytes.get(index + 1) == Some(&b' ')
+            && bytes.get(index + 2) == Some(&b' ')
+        {
+            findings.push("[SEMICOLON] two spaces after ';'".to_owned());
+        }
+    }
+
+    findings
+}
+
 /// Substantial string literals of one line of Rust.
 ///
 /// Short ones are identifiers and separators rather than sentences.
@@ -659,7 +714,7 @@ fn language_findings() -> Vec<String> {
         let full = root().join(&path);
 
         if let Ok(text) = std::fs::read_to_string(&full) {
-            found.extend(findings(&path, &text));
+            found.extend(findings(&path, &text, true));
         }
     }
 
@@ -672,7 +727,7 @@ fn language_findings() -> Vec<String> {
         let text = std::fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("cannot read {extra}"));
 
-        found.extend(findings(&path, &text));
+        found.extend(findings(&path, &text, false));
     }
 
     found
@@ -812,7 +867,7 @@ fn the_prose_is_british_english_with_english_spacing() {
 #[test]
 fn the_language_check_reports_a_known_bad_fixture() {
     let bad = fixture("bad.txt");
-    let found = findings(Path::new("bad.rs"), &bad);
+    let found = findings(Path::new("bad.rs"), &bad, false);
     let kinds: BTreeSet<_> = found
         .iter()
         .map(|finding| finding.split_once("  ").unwrap().1.to_owned())
@@ -826,9 +881,149 @@ fn the_language_check_reports_a_known_bad_fixture() {
 #[test]
 fn the_language_check_accepts_a_known_good_fixture() {
     let good = fixture("good.txt");
-    let found = findings(Path::new("good.rs"), &good);
+    let found = findings(Path::new("good.rs"), &good, false);
 
     assert!(found.is_empty(), "expected nothing, got:\n{found:#?}");
+}
+
+/// The commit subjects since the most recent tag, or nothing where there is
+/// no tag to measure from.
+///
+/// A shallow clone carries no tags — `actions/checkout` fetches none without
+/// `fetch-depth: 0` — and a fresh fork may have none at all.  Neither is a
+/// convention being broken, so the check steps aside rather than failing.
+fn commit_subjects() -> Option<Vec<String>> {
+    let tag = Command::new("git")
+        .args(["describe", "--tags", "--abbrev=0"])
+        .current_dir(root())
+        .output()
+        .expect("git describe must run inside the repository");
+
+    let tag = String::from_utf8(tag.stdout)
+        .expect("git describe must return UTF-8")
+        .trim()
+        .to_owned();
+
+    if tag.is_empty() {
+        return None;
+    }
+
+    let log = Command::new("git")
+        .args(["log", "--format=%s", "--no-merges", &format!("{tag}..HEAD")])
+        .current_dir(root())
+        .output()
+        .expect("git log must run inside the repository");
+
+    assert!(log.status.success(), "git log failed");
+
+    Some(
+        String::from_utf8(log.stdout)
+            .expect("git log must return UTF-8")
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(str::to_owned)
+            .collect(),
+    )
+}
+
+/// Whether a commit subject opens with `[<category>] ` and then a word.
+fn subject_names_a_category(subject: &str) -> bool {
+    COMMIT_CATEGORIES.iter().any(|category| {
+        subject
+            .strip_prefix(&format!("[{category}] "))
+            .is_some_and(|rest| rest.starts_with(|c: char| !c.is_whitespace()))
+    })
+}
+
+/// The version the examples must quote, from the crate's own manifest.
+///
+/// `major` alone once it reaches 1, `major.minor` before then:  an example
+/// pinned to `0.1` keeps working across every `0.1.z`, and the rule stops it
+/// going stale at the 1.0.0 boundary rather than one release before.
+fn example_version() -> String {
+    let version = env!("CARGO_PKG_VERSION");
+    let mut parts = version.split('.');
+    let major = parts.next().expect("a version has a major component");
+    let minor = parts.next().expect("a version has a minor component");
+
+    if major
+        .parse::<u64>()
+        .expect("the major component is a number")
+        >= 1
+    {
+        major.to_owned()
+    } else {
+        format!("{major}.{minor}")
+    }
+}
+
+/// The version quoted by a `list-my-licence = …` example, if it carries one.
+///
+/// Both the bare string and the `{ version = "…", … }` table are read.
+fn quoted_version(rest: &str) -> Option<String> {
+    let rest = rest.trim_start();
+
+    let tail = if let Some(bare) = rest.strip_prefix('"') {
+        bare
+    } else {
+        let marker = "version = \"";
+        &rest[rest.find(marker)? + marker.len()..]
+    };
+
+    tail.split('"').next().map(str::to_owned)
+}
+
+#[test]
+fn every_commit_since_the_last_tag_names_a_category() {
+    let Some(subjects) = commit_subjects() else {
+        eprintln!("no tag to measure from; skipping the commit-category check");
+        return;
+    };
+
+    let wrong: Vec<_> = subjects
+        .into_iter()
+        .filter(|subject| !subject_names_a_category(subject))
+        .collect();
+
+    assert!(
+        wrong.is_empty(),
+        "a commit subject must open with one of {COMMIT_CATEGORIES:?}:\n{}",
+        wrong.join("\n")
+    );
+}
+
+#[test]
+fn every_version_example_matches_the_manifest() {
+    let want = example_version();
+    let mut wrong = Vec::new();
+
+    for file in ["README.md", "src/lib.rs"] {
+        let text = std::fs::read_to_string(root().join(file))
+            .unwrap_or_else(|_| panic!("cannot read {file}"));
+
+        for (number, line) in text.lines().enumerate() {
+            let Some((_, rest)) = line.split_once("list-my-licence = ") else {
+                continue;
+            };
+
+            let Some(found) = quoted_version(rest) else {
+                continue;
+            };
+
+            if found != want {
+                wrong.push(format!(
+                    "{file}:{}  quotes {found:?}, manifest wants {want:?}",
+                    number + 1
+                ));
+            }
+        }
+    }
+
+    assert!(
+        wrong.is_empty(),
+        "the version examples have drifted from the manifest:\n{}",
+        wrong.join("\n")
+    );
 }
 
 /******************************************************************************/

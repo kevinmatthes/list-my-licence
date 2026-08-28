@@ -43,8 +43,10 @@ jobs:
     steps:
       - run: rustup update
 
-      - uses: actions/checkout@v7.0.1
+      - name: checkout w/ tags
+        uses: actions/checkout@v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - run: cargo ${{ matrix.subcommand }} ${{ matrix.feature }}

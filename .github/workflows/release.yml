@@ -19,15 +19,9 @@
 
 name: release
 
-# Aeruginous releases on a push to `main` which edits its `.version` file.
-# This crate has no such file:  the manifest already records the version,
-# and a second copy of that fact would be free to drift from it.  The
-# trigger is therefore the maintainer rather than a path.
 on:
   workflow_dispatch:
 
-# `id-token` is what lets this job prove to crates.io which repository and
-# which workflow it is;  see the publication step.
 permissions:
   contents: write
   id-token: write
@@ -43,9 +37,8 @@ jobs:
         with:
           persist-credentials: false
 
-      # The manifest is the only source of the version, so the tag is read
-      # from it instead of from a file kept alongside it.
-      - id: manifest
+      - name: read version from manifest
+        id: manifest
         run: |
           echo "version=$(cargo metadata --format-version 1 --no-deps |
                 jq -r '.packages[0].version')" >> "$GITHUB_OUTPUT"
@@ -55,19 +48,9 @@ jobs:
           generate_release_notes: true
           tag_name: v${{ steps.manifest.outputs.version }}
 
-      # Trusted Publishing, so that no crates.io token is stored anywhere.
-      # GitHub mints a short-lived assertion that this run is this repository
-      # and this workflow;  crates.io checks it against the publisher
-      # registered on the crate and hands back a token good for one upload,
-      # which the action revokes again when the job ends.  No crates.io
-      # token is held as a repository secret, and none needs to be:  there is
-      # nothing here to leak, to rotate, or to forget.
       - id: auth
         uses: rust-lang/crates-io-auth-action@v1.0.5
 
-      # After the release, not before.  Publication is the irreversible half
-      # — a version can be yanked but never withdrawn — so it goes last, when
-      # everything reversible has already succeeded.
       - env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish --locked

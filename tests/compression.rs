@@ -162,8 +162,6 @@ fn the_generated_source_names_the_compressed_types() {
     assert!(source.contains("CompressedAttribution { packages: &["));
     assert!(source.contains("CompressedPackage {"));
     assert!(source.contains("CompressedLicence {"));
-    // Split, because the language checker reads a string literal as
-    // prose and `": "` is not English Spacing.
     assert!(source.contains("bytes:"));
     assert!(source.contains("include_bytes!("));
     assert!(

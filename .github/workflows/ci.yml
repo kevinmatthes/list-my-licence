@@ -38,10 +38,6 @@ jobs:
         with:
           args: -color
 
-  # The lints this crate cares about are denied in `src/lib.rs` rather than
-  # on the command line, so `clippy` and `doc` fail on their own account.
-  # `test` carries the conventions harness in `tests/conventions.rs`, which
-  # is why no separate job runs a checker of its own.
   cargo-features:
     runs-on: ubuntu-latest
     steps:
@@ -67,8 +63,6 @@ jobs:
           - doc --no-deps
           - test
 
-  # The headline claim of the runtime half, asserted rather than assumed:
-  # the crate itself is the only line `cargo tree` has to print.
   dependencies:
     runs-on: ubuntu-latest
     steps:
@@ -78,7 +72,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - run: |
+      - name: runtime half has no dependencies
+        run: |
           test "$(
             cargo tree --no-default-features --edges normal | wc -l
           )" -eq 1
@@ -94,16 +89,6 @@ jobs:
         with:
           args: --validate -i CITATION.cff
 
-  # The configuration this repository's dependency currency rests on.  Its
-  # predecessor in `aeruginous-rs` had drifted onto a deprecated field name
-  # without anything noticing, which is the whole argument for this job.
-  #
-  # It is a syntax check and nothing more.  The validator and the bot which
-  # reads the file are separate implementations, and they disagree in both
-  # directions:  Renovate rejects configurations this job passes, and accepts
-  # ones it fails.  A green run here is not a promise that updates will
-  # happen.  The evidence for that is the dependency dashboard issue, and
-  # update pull requests actually being opened.
   renovate-linter:
     runs-on: ubuntu-latest
     steps:
@@ -127,8 +112,6 @@ jobs:
 
       - run: cargo fmt --check
 
-  # One check to require of a pull request, so that adding a job here does
-  # not mean editing the branch protection rule as well.
   gate:
     needs:
       - actionlint

@@ -240,8 +240,6 @@ impl Discovery {
             );
         }
 
-        // A `license-file` is taken on the manifest's word, whatever it is
-        // called:  the author has told us where their licence is.
         if let Some(declared) = &package.licence_file
             && !candidates.contains(declared)
         {
@@ -291,14 +289,12 @@ impl Discovery {
                 return Some((stem, String::new()));
             }
 
-            // An extension alone, such as `LICENSE.md`.
             if let Some(extension) = rest.strip_prefix('.')
                 && EXTENSIONS.contains(&extension.to_ascii_lowercase().as_str())
             {
                 return Some((stem, String::new()));
             }
 
-            // A qualifier, such as `LICENSE-MIT` or `LICENSE_APACHE.txt`.
             if let Some(qualifier) = rest.strip_prefix(['-', '_', '.']) {
                 return Some((stem, Self::strip_extension(qualifier)));
             }

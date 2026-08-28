@@ -275,10 +275,6 @@ fn a_notice_is_carried_alongside_rather_than_instead() {
 fn every_standard_text_licence_really_is_holder_independent() {
     use license::License;
 
-    // A placeholder in the operative text means the licence needs a copyright
-    // line, so it does not belong on the standard-text list.  Appendices are
-    // exempt:  Apache-2.0 and the GPL family carry a "how to apply" section at
-    // the very end which is instructions, not terms.
     for identifier in [
         "Apache-2.0",
         "GPL-3.0-or-later",

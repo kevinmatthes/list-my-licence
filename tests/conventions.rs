@@ -26,14 +26,15 @@
 //! were enforced by two Python scripts until 2026-08-23; a Rust repository
 //! should hold Rust, so they are a test harness now.
 //!
-//! Two of these tests check the checker rather than the repository.  A
+//! Three of these tests check the checker rather than the repository.  A
 //! checker which reports nothing is worthless until it has been shown to
 //! report something, and the Python original earned that lesson twice.
 //!
 //! Prose living outside the repository — the session reports — is held to the
 //! same conventions by naming it in `CONVENTIONS_EXTRA_PROSE`, colon
 //! separated.  Only the language check reads it; a report's tables are wider
-//! than eighty characters by nature, and its semicolons are its own affair.
+//! than eighty characters by nature, but its semicolons obey the one-space
+//! rule like any source.
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
@@ -252,10 +253,9 @@ fn closing_rule(path: &Path) -> Option<String> {
 /// Every finding in one file, as `line:  message`.
 ///
 /// `semicolons` asks for the one-space-after-a-semicolon rule as well.  It is
-/// off for the language fixtures and for the prose named in
-/// `CONVENTIONS_EXTRA_PROSE`:  a session report's semicolons are its own
-/// concern, and a fixture is deliberately incorrect language rather than this
-/// project's prose.
+/// off only for the language fixtures, which are deliberately incorrect
+/// language rather than this project's prose; the session reports named in
+/// `CONVENTIONS_EXTRA_PROSE` are held to it like every source.
 fn findings(path: &Path, text: &str, semicolons: bool) -> Vec<String> {
     let mut found = Vec::new();
     let mut fenced = false;
@@ -263,14 +263,14 @@ fn findings(path: &Path, text: &str, semicolons: bool) -> Vec<String> {
 
     for (number, line) in text.lines().enumerate() {
         for fragment in prose(path, line, &mut fenced, &mut heading) {
-            if CODE_LITERAL.iter().any(|form| fragment.contains(form)) {
-                continue;
-            }
-
             let stripped = strip(&fragment);
             let trimmed = stripped.trim();
 
             if trimmed.is_empty() {
+                continue;
+            }
+
+            if CODE_LITERAL.iter().any(|form| trimmed.contains(form)) {
                 continue;
             }
 
@@ -283,7 +283,7 @@ fn findings(path: &Path, text: &str, semicolons: bool) -> Vec<String> {
             }
 
             if semicolons {
-                for finding in semicolon(trimmed) {
+                for finding in semicolon(despan(&fragment).trim()) {
                     found.push(format!(
                         "{}:{}  {finding}",
                         show(path),
@@ -617,6 +617,19 @@ fn strip(text: &str) -> String {
     result
 }
 
+/// The fragment with each inline code span reduced to one non-space token.
+///
+/// The semicolon check counts the spaces after a `;`, and [`strip`] would
+/// turn `word; `span` next` into `word;  next` — a doubled space that is not
+/// in the prose.  Collapsing every span to a single `_` keeps the real
+/// spacing intact and leaves a `;` inside a span to the code's own rules.
+fn despan(text: &str) -> String {
+    text.split('`')
+        .enumerate()
+        .map(|(part, text)| if part % 2 == 0 { text } else { "_" })
+        .collect()
+}
+
 /// Whether the line is a table row, which carries no prose of its own.
 fn table(line: &str) -> bool {
     let trimmed = line.trim();
@@ -727,7 +740,7 @@ fn language_findings() -> Vec<String> {
         let text = std::fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("cannot read {extra}"));
 
-        found.extend(findings(&path, &text, false));
+        found.extend(findings(&path, &text, true));
     }
 
     found
@@ -884,6 +897,27 @@ fn the_language_check_accepts_a_known_good_fixture() {
     let found = findings(Path::new("good.rs"), &good, false);
 
     assert!(found.is_empty(), "expected nothing, got:\n{found:#?}");
+}
+
+#[test]
+fn the_semicolon_check_reports_a_doubled_space_only_when_asked() {
+    let fixture = fixture("semicolons.txt");
+    let asked = findings(Path::new("semicolons.rs"), &fixture, true);
+    let silent = findings(Path::new("semicolons.rs"), &fixture, false);
+
+    assert_eq!(
+        asked.len(),
+        1,
+        "one doubled space after a semicolon, got:\n{asked:#?}"
+    );
+    assert!(
+        asked[0].contains("[SEMICOLON]"),
+        "the finding names the semicolon rule, got:\n{asked:#?}"
+    );
+    assert!(
+        silent.is_empty(),
+        "the rule stays off where it is not asked for, got:\n{silent:#?}"
+    );
 }
 
 /// The commit subjects since the most recent tag, or nothing where there is

@@ -160,9 +160,9 @@ jobs:
 
           for combo in "${combos[@]}"; do
             echo "::group::cargo-semver-checks $combo"
-            # shellcheck disable=SC2086
-            report="$(cargo semver-checks --baseline-rev "$LAST" $combo \
-                      2>&1 || true)"
+            read -ra flags <<< "$combo"
+            report="$(cargo semver-checks --baseline-rev "$LAST" \
+                      --release-type patch "${flags[@]}" 2>&1 || true)"
             echo "$report"
             echo '::endgroup::'
 

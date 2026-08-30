@@ -920,12 +920,18 @@ fn the_semicolon_check_reports_a_doubled_space_only_when_asked() {
     );
 }
 
-/// The commit subjects since the most recent tag, or nothing where there is
-/// no tag to measure from.
+/// The squashed commit subjects on `main` since the most recent tag, or
+/// nothing where there is nothing to measure.
 ///
-/// A shallow clone carries no tags — `actions/checkout` fetches none without
-/// `fetch-depth: 0` — and a fresh fork may have none at all.  Neither is a
-/// convention being broken, so the check steps aside rather than failing.
+/// The subjects that matter are `main`'s squash commits, not the work in
+/// progress on whatever branch the check runs from:  a branch's commits
+/// become one `[Category]` subject only when it merges, and
+/// `pr-title.yml` already guards that at merge time.  So the walk is
+/// `{tag}..origin/main`, not `..HEAD`.
+///
+/// It steps aside — rather than failing — when there is no tag (a shallow
+/// clone fetches none without `fetch-depth: 0`, a fresh fork may have none)
+/// or no `origin/main` (a fork without the upstream remote).
 fn commit_subjects() -> Option<Vec<String>> {
     let tag = Command::new("git")
         .args(["describe", "--tags", "--abbrev=0"])
@@ -942,8 +948,23 @@ fn commit_subjects() -> Option<Vec<String>> {
         return None;
     }
 
+    let main = Command::new("git")
+        .args(["rev-parse", "--verify", "--quiet", "origin/main"])
+        .current_dir(root())
+        .output()
+        .expect("git rev-parse must run inside the repository");
+
+    if !main.status.success() {
+        return None;
+    }
+
     let log = Command::new("git")
-        .args(["log", "--format=%s", "--no-merges", &format!("{tag}..HEAD")])
+        .args([
+            "log",
+            "--format=%s",
+            "--no-merges",
+            &format!("{tag}..origin/main"),
+        ])
         .current_dir(root())
         .output()
         .expect("git log must run inside the repository");
@@ -1010,7 +1031,7 @@ fn quoted_version(rest: &str) -> Option<String> {
 #[test]
 fn every_commit_since_the_last_tag_names_a_category() {
     let Some(subjects) = commit_subjects() else {
-        eprintln!("no tag to measure from; skipping the commit-category check");
+        eprintln!("no tag or no origin/main; skipping the category check");
         return;
     };
 

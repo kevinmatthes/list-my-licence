@@ -44,6 +44,19 @@
         "rust-version = \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "packageNameTemplate": "rust-lang/rust"
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "crate",
+      "depNameTemplate": "git-harvest",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/",
+        "/^\\.github/workflows/release\\.yml$/"
+      ],
+      "matchStrings": [
+        "GIT_HARVEST_VERSION: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "packageNameTemplate": "git-harvest"
     }
   ],
   "dependencyDashboard": true,
@@ -97,6 +110,17 @@
       ],
       "matchDepNames": [
         "rust"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ]
+    },
+    {
+      "addLabels": [
+        "github_actions"
+      ],
+      "matchDepNames": [
+        "git-harvest"
       ],
       "matchManagers": [
         "custom.regex"

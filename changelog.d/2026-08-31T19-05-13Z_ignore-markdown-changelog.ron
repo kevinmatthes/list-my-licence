@@ -1,0 +1,13 @@
+(
+  references: {},
+  changes: {
+    "Added": [
+      ("backfill the 0.1.0 to 0.1.2 history", Some("6d25806")),
+      ("create initial CHANGELOG", Some("ba1b2d3")),
+      ("ignore Markdown CHANGELOG rendering", Some("d2b1096")),
+    ],
+    "Fixed": [
+      ("exempt changelog RON from the width and language checks", Some("ccbc27d")),
+    ],
+  },
+)

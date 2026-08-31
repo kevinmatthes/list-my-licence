@@ -1,0 +1,11 @@
+(
+  references: {},
+  changes: {
+    "Added": [
+      ("CI rejects a branch whose changelog fragments are missing", Some("9a26ff9")),
+    ],
+    "Changed": [
+      ("assemble CHANGELOG.ron during the release book-keeping", Some("8c38f19")),
+    ],
+  },
+)

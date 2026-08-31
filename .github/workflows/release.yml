@@ -125,10 +125,15 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       VERSION: ${{ needs.decide.outputs.version }}
+      GIT_HARVEST_VERSION: "0.2.0"
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           ref: main
+
+      - run: rustup update
+
+      - run: cargo install git-harvest --version "$GIT_HARVEST_VERSION" --locked
 
       - uses: fregante/setup-git-user@v2.0.2
 
@@ -140,6 +145,8 @@ jobs:
                  awk -F. '{ printf "%s.%s.%d", $1, $2, $3 + 1 }')
           branch="release/post-v$VERSION"
           subject="[GitHub Actions] Release:  bump to $next"
+
+          git harvest assemble "$VERSION"
 
           awk -v v="$next" '/^\[/ { s = $0 }
                s == "[package]" && /^version = / {
@@ -160,12 +167,15 @@ jobs:
           sed -i -E "s/^date-released: .+/date-released: $today/" CITATION.cff
 
           git switch -c "$branch"
-          git commit -am "$subject"
+          git add -A
+          git commit -m "$subject"
           git push -u origin "$branch"
 
-          body="v$VERSION is published, so the manifest moves on to $next."
-          body="$body  Raise it further before merging if a larger change"
-          body="$body has already landed; the release-level check says so."
+          body="v$VERSION is published, so the manifest moves on to $next"
+          body="$body and CHANGELOG.ron gains its v$VERSION section."
+          body="$body  Raise the pending version further before merging if a"
+          body="$body larger change has already landed; the release-level"
+          body="$body check says so."
 
           gh pr create --base main --head "$branch" \
              --title "$subject" --body "$body"

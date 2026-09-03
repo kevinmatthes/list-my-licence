@@ -96,6 +96,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    env:
+      GIT_HARVEST_VERSION: "0.3.0"
     steps:
       - run: rustup update
 
@@ -103,9 +105,31 @@ jobs:
         with:
           persist-credentials: false
 
+      - run: cargo install git-harvest --version "$GIT_HARVEST_VERSION" --locked
+
+      - name: assemble this version's notes from the CHANGELOG
+        env:
+          VERSION: ${{ needs.decide.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          git harvest assemble "$VERSION"
+          git harvest render -o rendered.md
+
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\] " { grab = 1; print; next }
+            grab && /^## \[/ { grab = 0 }
+            grab { print }
+            /^\[[^]]+\]: / { print }
+          ' rendered.md > release-notes.md
+
+          echo "::group::release-notes.md"
+          cat release-notes.md
+          echo "::endgroup::"
+
       - uses: softprops/action-gh-release@v3.0.3
         with:
-          generate_release_notes: true
+          body_path: release-notes.md
           tag_name: v${{ needs.decide.outputs.version }}
 
       - id: auth
@@ -143,8 +167,9 @@ jobs:
 
           next=$(echo "$VERSION" |
                  awk -F. '{ printf "%s.%s.%d", $1, $2, $3 + 1 }')
-          branch="release/post-v$VERSION"
-          subject="[GitHub Actions] Release:  bump to $next"
+          branch="github-actions/post-v$VERSION"
+          commit="Skip ::= pre-bump the manifest to $next"
+          title="[GitHub Actions] Release:  bump to $next"
 
           git harvest assemble "$VERSION"
 
@@ -168,7 +193,7 @@ jobs:
 
           git switch -c "$branch"
           git add -A
-          git commit -m "$subject"
+          git commit -m "$commit"
           git push -u origin "$branch"
 
           body="v$VERSION is published, so the manifest moves on to $next"
@@ -178,6 +203,6 @@ jobs:
           body="$body check says so."
 
           gh pr create --base main --head "$branch" \
-             --title "$subject" --body "$body"
+             --title "$title" --body "$body"
 
 ################################################################################

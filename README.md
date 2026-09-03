@@ -6,9 +6,9 @@ Embed the verbatim licences of a Rust application and its dependencies into
 the binary that ships them.
 
 > **Made with Anthropic Claude.**  The implementation and the documentation
-> were written by Claude Opus 5, working to the direction and review of the
-> author, with whom every design decision rests.  Each commit names the model
-> in a `Co-Authored-By` trailer, so the record is per change rather than only
+> were written by Claude, working to the direction and review of the author,
+> with whom every design decision rests.  Each commit names the model in a
+> `Co-Authored-By` trailer, so the record is per change rather than only
 > here.
 
 > **Depending on this crate makes your own application GPL-3.0-or-later.**

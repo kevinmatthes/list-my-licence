@@ -125,7 +125,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       VERSION: ${{ needs.decide.outputs.version }}
-      GIT_HARVEST_VERSION: "0.2.0"
+      GIT_HARVEST_VERSION: "0.3.0"
     steps:
       - uses: actions/checkout@v7.0.1
         with:

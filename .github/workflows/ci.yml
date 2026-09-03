@@ -233,7 +233,7 @@ jobs:
   changelog-fragment:
     runs-on: ubuntu-latest
     env:
-      GIT_HARVEST_VERSION: "0.2.0"
+      GIT_HARVEST_VERSION: "0.3.0"
     steps:
       - if: github.event_name == 'pull_request'
         run: rustup update

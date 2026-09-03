@@ -1,13 +1,68 @@
 (
+  contributors: {
+    "claude": (
+      alias: "claude",
+      names: [
+        "Claude",
+        "Claude Sonnet 5",
+      ],
+      emails: [
+        "noreply@anthropic.com",
+      ],
+      urls: [
+        "https://claude.com/claude-code",
+      ],
+    ),
+    "kevinmatthes": (
+      alias: "kevinmatthes",
+      names: [
+        "Kevin Matthes",
+      ],
+      emails: [
+        "92332892+kevinmatthes@users.noreply.github.com",
+      ],
+      urls: [
+        "https://github.com/kevinmatthes",
+      ],
+    ),
+  },
   references: {},
   changes: {
     "Added": [
-      ("backfill the 0.1.0 to 0.1.2 history", Some("6d25806")),
-      ("create initial CHANGELOG", Some("ba1b2d3")),
-      ("ignore Markdown CHANGELOG rendering", Some("d2b1096")),
+      (
+        text: "backfill the 0.1.0 to 0.1.2 history",
+        commit: Some("6d25806"),
+        aliases: [
+          "kevinmatthes",
+          "claude",
+        ],
+      ),
+      (
+        text: "create initial CHANGELOG",
+        commit: Some("ba1b2d3"),
+        aliases: [
+          "kevinmatthes",
+          "claude",
+        ],
+      ),
+      (
+        text: "ignore Markdown CHANGELOG rendering",
+        commit: Some("d2b1096"),
+        aliases: [
+          "kevinmatthes",
+          "claude",
+        ],
+      ),
     ],
     "Fixed": [
-      ("exempt changelog RON from the width and language checks", Some("ccbc27d")),
+      (
+        text: "exempt changelog RON from the width and language checks",
+        commit: Some("ccbc27d"),
+        aliases: [
+          "kevinmatthes",
+          "claude",
+        ],
+      ),
     ],
   },
 )

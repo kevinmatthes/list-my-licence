@@ -19,6 +19,7 @@
       names: [
         "Claude",
         "Claude Sonnet 5",
+        "Claude Opus 5",
       ],
       emails: [
         "noreply@anthropic.com",

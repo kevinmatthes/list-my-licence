@@ -31,6 +31,11 @@ pub struct Attribution {
 }
 
 impl Attribution {
+    // Retrieve the identifier.
+    pub fn identifier(&self) -> String {
+        self.identifier.clone()
+    }
+
     /// Create a new instance.
     #[must_use]
     pub const fn new(
@@ -43,6 +48,16 @@ impl Attribution {
             text,
             provenance,
         }
+    }
+
+    /// Retrieve the provenance.
+    pub fn provenance(&self) -> crate::build::Provenance {
+        self.provenance
+    }
+
+    /// Retrieve the text.
+    pub fn text(&self) -> String {
+        self.text.clone()
     }
 
     /// Change the identifier.

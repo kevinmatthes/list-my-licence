@@ -31,7 +31,7 @@ pub struct Attribution {
 }
 
 impl Attribution {
-    // Retrieve the identifier.
+    /// Retrieve the identifier.
     pub fn identifier(&self) -> String {
         self.identifier.clone()
     }

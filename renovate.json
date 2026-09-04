@@ -57,6 +57,18 @@
         "GIT_HARVEST_VERSION: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "packageNameTemplate": "git-harvest"
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "crate",
+      "depNameTemplate": "cargo-semver-checks",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "cargo-semver-checks@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "packageNameTemplate": "cargo-semver-checks"
     }
   ],
   "dependencyDashboard": true,
@@ -121,6 +133,17 @@
       ],
       "matchDepNames": [
         "git-harvest"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ]
+    },
+    {
+      "addLabels": [
+        "rust"
+      ],
+      "matchDepNames": [
+        "cargo-semver-checks"
       ],
       "matchManagers": [
         "custom.regex"

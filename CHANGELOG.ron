@@ -69,6 +69,142 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 0),
+      released: Some("2026-09-04T23:03:57.744598543Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "CI rejects a branch whose changelog fragments are missing",
+            commit: Some("9a26ff9"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "`Attribution::identifier`, `Attribution::provenance`, `Attribution::text`",
+            commit: Some("6268e8b"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "`Attribution::new`",
+            commit: Some("a49e90f"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "`Attribution::with_identifier`",
+            commit: Some("d627aaa"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "`Attribution::with_provenance`, `Attribution::with_text`",
+            commit: Some("95259a3"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "backfill the 0.1.0 to 0.1.2 history",
+            commit: Some("6d25806"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "create initial CHANGELOG",
+            commit: Some("ba1b2d3"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "ignore Markdown CHANGELOG rendering",
+            commit: Some("d2b1096"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "let Renovate track the cargo-semver-checks tool pin",
+            commit: Some("6b949c9"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "test suite for `Attribution`",
+            commit: Some("af57bf0"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "assemble CHANGELOG.ron during the release book-keeping",
+            commit: Some("8c38f19"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "hide the fields of `Attribution`",
+            commit: Some("1df45ca"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "the project banner credits Claude without naming a model",
+            commit: Some("309e777"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.5",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "exempt changelog RON from the width and language checks",
+            commit: Some("ccbc27d"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "release-level checks the `build` feature",
+            commit: Some("0cd9c33"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 1, 2),
       released: Some("2026-08-28T00:00:00Z"),
       introduction: None,

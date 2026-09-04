@@ -243,9 +243,14 @@ fn both_renderers_agree() {
 
     let licences: &'static [Licence] = Box::leak(Box::new([Licence {
         identifier: Box::leak(
-            verdict.attributions[0].identifier.clone().into_boxed_str(),
+            verdict.attributions[0]
+                .identifier()
+                .to_string()
+                .into_boxed_str(),
         ),
-        text: Box::leak(verdict.attributions[0].text.clone().into_boxed_str()),
+        text: Box::leak(
+            verdict.attributions[0].text().to_string().into_boxed_str(),
+        ),
         origin: Origin::Distributed("LICENSE-MIT"),
     }]));
     #[allow(clippy::redundant_clone)]

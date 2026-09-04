@@ -51,10 +51,10 @@ the result and **has no dependencies at all**.
 
 ```toml
 [build-dependencies]
-list-my-licence = { version = "0.1", features = ["build"] }
+list-my-licence = { version = "0.2", features = ["build"] }
 
 [dependencies]
-list-my-licence = "0.1"
+list-my-licence = "0.2"
 ```
 
 A complete `build.rs`:
@@ -115,7 +115,7 @@ parser, rather than replacing the call that parses it — which is what lets it
 compose with a derived `Parser` instead of fighting it.
 
 ```toml
-list-my-licence = { version = "0.1", features = ["clap"] }
+list-my-licence = { version = "0.2", features = ["clap"] }
 ```
 
 ```rust
@@ -144,7 +144,7 @@ on demand.  Licence texts compress well — they are long, English, and highly
 repetitive — so a binary shipping many of them carries considerably less.
 
 ```toml
-list-my-licence = { version = "0.1", features = ["compression"] }
+list-my-licence = { version = "0.2", features = ["compression"] }
 ```
 
 ```rust

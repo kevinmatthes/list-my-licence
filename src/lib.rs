@@ -39,10 +39,10 @@
 //!
 //! ```toml
 //! [build-dependencies]
-//! list-my-licence = { version = "0.1", features = ["build"] }
+//! list-my-licence = { version = "0.2", features = ["build"] }
 //!
 //! [dependencies]
-//! list-my-licence = "0.1"
+//! list-my-licence = "0.2"
 //! ```
 //!
 //! This keeps the SPDX tables, the manifest parser and the canonical licence

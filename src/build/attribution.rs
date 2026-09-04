@@ -21,13 +21,71 @@
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Attribution {
     /// The SPDX identifier this text stands for.
-    pub identifier: String,
+    identifier: String,
 
     /// The text itself.
-    pub text: String,
+    text: String,
 
     /// Where it came from, recorded so that the output can say so.
-    pub provenance: crate::build::Provenance,
+    provenance: crate::build::Provenance,
+}
+
+impl Attribution {
+    /// Retrieve the identifier.
+    #[must_use]
+    pub fn identifier(&self) -> &str {
+        &self.identifier
+    }
+
+    /// Create a new instance.
+    #[must_use]
+    pub const fn new(
+        identifier: String,
+        text: String,
+        provenance: crate::build::Provenance,
+    ) -> Self {
+        Self {
+            identifier,
+            text,
+            provenance,
+        }
+    }
+
+    /// Retrieve the provenance.
+    #[must_use]
+    pub fn provenance(&self) -> crate::build::Provenance {
+        self.provenance.clone()
+    }
+
+    /// Retrieve the text.
+    #[must_use]
+    pub fn text(&self) -> &str {
+        &self.text
+    }
+
+    /// Change the identifier.
+    pub fn with_identifier(&mut self, identifier: &str) -> &mut Self {
+        self.identifier = identifier.to_string();
+
+        self
+    }
+
+    /// Change the provenance.
+    pub fn with_provenance(
+        &mut self,
+        provenance: crate::build::Provenance,
+    ) -> &mut Self {
+        self.provenance = provenance;
+
+        self
+    }
+
+    /// Change the text.
+    pub fn with_text(&mut self, text: &str) -> &mut Self {
+        self.text = text.to_string();
+
+        self
+    }
 }
 
 /******************************************************************************/

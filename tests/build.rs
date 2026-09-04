@@ -17,39 +17,68 @@
 |                                                                              |
 \******************************************************************************/
 
-/// The Markdown rendering of what will be reproduced.
-#[derive(Clone, Copy, Debug)]
-pub struct Markdown<'a>(pub &'a [crate::build::Reproduced<'a>]);
+//! Tests for the feature `build`.
 
-impl std::fmt::Display for Markdown<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("# Third party licences\n")?;
+#![cfg(feature = "build")]
 
-        for (package, verdict) in self.0 {
-            write!(f, "\n## {} {}\n", package.name, package.version)?;
+mod attribution {
+    use list_my_licence::build::{Attribution, Provenance};
 
-            for attribution in &verdict.attributions {
-                write!(
-                    f,
-                    "\n### {} ({})\n\n```text\n{}\n```\n",
-                    attribution.identifier(),
-                    crate::build::Emitter::origin_text(
-                        &attribution.provenance()
-                    ),
-                    attribution.text().trim_end(),
-                )?;
-            }
+    fn example() -> Attribution {
+        Attribution::new(
+            "identifier".to_string(),
+            "text".to_string(),
+            Provenance::Canonical,
+        )
+    }
 
-            for notice in &verdict.notices {
-                write!(
-                    f,
-                    "\n### NOTICE\n\n```text\n{}\n```\n",
-                    notice.text.trim_end()
-                )?;
-            }
+    mod identifier {
+        #[test]
+        fn get() {
+            assert_eq!(super::example().identifier(), "identifier");
         }
 
-        Ok(())
+        #[test]
+        fn set() {
+            assert_eq!(
+                super::example().with_identifier("new").identifier(),
+                "new"
+            );
+        }
+    }
+
+    mod provenance {
+        #[test]
+        fn get() {
+            assert_eq!(
+                super::example().provenance(),
+                super::Provenance::Canonical
+            );
+        }
+
+        #[test]
+        fn set() {
+            assert_eq!(
+                super::example()
+                    .with_provenance(super::Provenance::Combined(
+                        "LICENCE".into()
+                    ))
+                    .provenance(),
+                super::Provenance::Combined("LICENCE".into())
+            );
+        }
+    }
+
+    mod text {
+        #[test]
+        fn get() {
+            assert_eq!(super::example().text(), "text");
+        }
+
+        #[test]
+        fn set() {
+            assert_eq!(super::example().with_text("new").text(), "new");
+        }
     }
 }
 

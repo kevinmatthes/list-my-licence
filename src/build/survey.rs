@@ -71,7 +71,7 @@ impl Survey {
         let discharged: std::collections::BTreeSet<&str> = verdict
             .attributions
             .iter()
-            .map(super::attribution::Attribution::identifier)
+            .map(crate::build::Attribution::identifier)
             .collect();
 
         let expression = package.licence.as_deref().and_then(|declared| {

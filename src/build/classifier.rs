@@ -227,7 +227,7 @@ impl Classifier {
         }
 
         if attributions.iter().all(|a| {
-            matches!(a.provenance, crate::build::Provenance::Distributed(_))
+            matches!(a.provenance(), crate::build::Provenance::Distributed(_))
         }) && !attributions.is_empty()
         {
             return crate::build::Coverage::Complete;
@@ -312,7 +312,7 @@ impl Classifier {
     fn mark_combined(attributions: &mut [crate::build::Attribution]) {
         let shared: Vec<std::path::PathBuf> = attributions
             .iter()
-            .filter_map(|attribution| match &attribution.provenance {
+            .filter_map(|attribution| match &attribution.provenance() {
                 crate::build::Provenance::Distributed(path) => {
                     Some(path.clone())
                 }
@@ -322,11 +322,11 @@ impl Classifier {
 
         for attribution in attributions.iter_mut() {
             if let crate::build::Provenance::Distributed(path) =
-                attribution.provenance.clone()
+                attribution.provenance().clone()
                 && shared.iter().filter(|other| **other == path).count() > 1
             {
-                attribution.provenance =
-                    crate::build::Provenance::Combined(path);
+                attribution
+                    .with_provenance(crate::build::Provenance::Combined(path));
             }
         }
     }

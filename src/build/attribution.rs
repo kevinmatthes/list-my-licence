@@ -30,4 +30,19 @@ pub struct Attribution {
     pub provenance: crate::build::Provenance,
 }
 
+impl Attribution {
+    /// Create a new instance.
+    pub fn new(
+        identifier: String,
+        text: String,
+        provenance: crate::build::Provenance,
+    ) -> Attribution {
+        Attribution {
+            identifier,
+            text,
+            provenance,
+        }
+    }
+}
+
 /******************************************************************************/

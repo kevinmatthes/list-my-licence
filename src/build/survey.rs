@@ -71,7 +71,7 @@ impl Survey {
         let discharged: std::collections::BTreeSet<&str> = verdict
             .attributions
             .iter()
-            .map(|attribution| attribution.identifier().as_str())
+            .map(|attribution| attribution.identifier())
             .collect();
 
         let expression = package.licence.as_deref().and_then(|declared| {
@@ -97,7 +97,7 @@ impl Survey {
             self.findings.push(crate::build::Finding {
                 package: package.name.clone(),
                 version: package.version.clone(),
-                identifier: attribution.identifier().clone(),
+                identifier: attribution.identifier().to_string(),
                 strength,
                 source: Self::source(package),
             });

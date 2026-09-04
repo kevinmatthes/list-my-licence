@@ -131,11 +131,11 @@ impl Classifier {
             }
 
             discharged.insert(term.clone());
-            attributions.push(crate::build::Attribution {
-                identifier: term.clone(),
+            attributions.push(crate::build::Attribution::new(
+                term.clone(),
                 text,
                 provenance,
-            });
+            ));
         }
 
         let combined = leaning.len() > 1;

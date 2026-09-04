@@ -166,7 +166,7 @@ impl Emitter {
             verdict
                 .attributions
                 .iter()
-                .map(|attribution| attribution.text.as_str())
+                .map(|attribution| attribution.text().as_str())
                 .chain(
                     verdict.notices.iter().map(|notice| notice.text.as_str()),
                 )
@@ -207,7 +207,7 @@ impl Emitter {
 
         for (_, verdict) in packages {
             for attribution in &verdict.attributions {
-                if files.contains_key(&attribution.text) {
+                if files.contains_key(&attribution.text()) {
                     continue;
                 }
 
@@ -217,11 +217,11 @@ impl Emitter {
                 Self::write_bytes(
                     &directory.join(leaf),
                     &miniz_oxide::deflate::compress_to_vec(
-                        attribution.text.as_bytes(),
+                        attribution.text().as_bytes(),
                         10,
                     ),
                 )?;
-                files.insert(attribution.text.clone(), name);
+                files.insert(attribution.text().clone(), name);
             }
 
             for notice in &verdict.notices {

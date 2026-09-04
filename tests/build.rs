@@ -17,6 +17,52 @@
 |                                                                              |
 \******************************************************************************/
 
+//! Unit tests for the feature `build`.
 
+#![cfg(feature = "build")]
+
+mod attribution {
+    use list_my_licence::build::{Attribution, Provenance};
+
+    fn example() -> Attribution {
+        Attribution::new("identifier", "text", Provenance::Canonical)
+    }
+
+    mod identifier {
+        #[test]
+        fn get() {
+            assert_eq!(example().identifier(), "identifier");
+        }
+
+        #[test]
+        fn set() {
+            assert_eq!(example().with_identifier("new").identifier(), "new");
+        }
+    }
+
+    mod provenance {
+        #[test]
+        fn get() {
+            assert_eq!(example().provenance(), Provenance::Canonical);
+        }
+
+        #[test]
+        fn set() {
+            assert_eq!(example().with_provenance(Provenance::Combined("LICENCE".into())).provenance, Provenance::Combined("LICENCE".into));
+        }
+    }
+
+    mod text {
+        #[test]
+        fn get() {
+            assert_eq!(example().text(), "text");
+        }
+
+        #[test]
+        fn set() {
+            assert_eq!(example().with_text("new").text(), "new");
+        }
+    }
+}
 
 /******************************************************************************/

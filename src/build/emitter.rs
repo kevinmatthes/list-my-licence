@@ -166,7 +166,7 @@ impl Emitter {
             verdict
                 .attributions
                 .iter()
-                .map(|attribution| attribution.text().as_str())
+                .map(|attribution| attribution.text())
                 .chain(
                     verdict.notices.iter().map(|notice| notice.text.as_str()),
                 )
@@ -221,7 +221,7 @@ impl Emitter {
                         10,
                     ),
                 )?;
-                files.insert(attribution.text().clone(), name);
+                files.insert(attribution.text().to_string(), name);
             }
 
             for notice in &verdict.notices {

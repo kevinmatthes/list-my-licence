@@ -83,7 +83,7 @@ fn the_dominant_layout_is_complete() {
         verdict
             .attributions
             .iter()
-            .all(|a| matches!(a.provenance, Provenance::Distributed(_))),
+            .all(|a| matches!(a.provenance(), Provenance::Distributed(_))),
         "both texts come from the copies the author distributed"
     );
     assert!(verdict.problems.is_empty(), "{:?}", verdict.problems);
@@ -108,7 +108,7 @@ fn a_single_combined_file_is_not_a_gap() {
         verdict
             .attributions
             .iter()
-            .all(|a| matches!(a.provenance, Provenance::Combined(_))),
+            .all(|a| matches!(a.provenance(), Provenance::Combined(_))),
         "and the output must be able to say the file was shared"
     );
     assert!(verdict.problems.is_empty(), "{:?}", verdict.problems);
@@ -126,7 +126,7 @@ fn one_branch_of_an_or_suffices() {
         verdict.problems
     );
     assert_eq!(verdict.attributions.len(), 1, "only the branch taken");
-    assert_eq!(verdict.attributions[0].identifier, "Apache-2.0");
+    assert_eq!(verdict.attributions[0].identifier(), "Apache-2.0");
 }
 
 #[test]
@@ -141,11 +141,11 @@ fn a_missing_file_is_survivable_for_a_standard_text_licence() {
         verdict.problems
     );
     assert_eq!(
-        verdict.attributions[0].provenance,
+        verdict.attributions[0].provenance(),
         Provenance::Canonical,
         "the text is the canonical one, and the output must say so"
     );
-    assert_eq!(verdict.attributions[0].identifier, "Apache-2.0");
+    assert_eq!(verdict.attributions[0].identifier(), "Apache-2.0");
 }
 
 #[test]
@@ -250,7 +250,7 @@ fn an_exception_matches_the_licence_it_qualifies() {
     assert_eq!(verdict.attributions.len(), 1);
     assert!(
         matches!(
-            verdict.attributions[0].provenance,
+            verdict.attributions[0].provenance(),
             Provenance::Distributed(_)
         ),
         "the file names the exception, the term names the licence, and they \
@@ -319,7 +319,7 @@ fn a_general_file_beside_specific_ones_is_not_combined() {
         verdict
             .attributions
             .iter()
-            .all(|a| !matches!(a.provenance, Provenance::Combined(_))),
+            .all(|a| !matches!(a.provenance(), Provenance::Combined(_))),
         "nothing here leans on the general file:  {:?}",
         verdict.attributions
     );
@@ -349,11 +349,11 @@ fn a_custom_licence_declared_by_file_is_reproduced() {
     );
     assert_eq!(verdict.attributions.len(), 1, "the text must be reproduced");
     assert_eq!(
-        verdict.attributions[0].identifier, "LicenseRef-my-crate",
+        verdict.attributions[0].identifier(), "LicenseRef-my-crate",
         "an underscore is not admissible in an SPDX reference"
     );
     assert!(
-        verdict.attributions[0].text.contains("Bespoke terms"),
+        verdict.attributions[0].text().contains("Bespoke terms"),
         "and the text must be the author's own, not a canonical stand-in"
     );
     assert!(
@@ -373,7 +373,7 @@ fn a_declared_licence_reference_is_reproduced() {
     assert!(!verdict.is_fatal(), "{:?}", verdict.problems);
     assert_eq!(verdict.attributions.len(), 1);
     assert_eq!(
-        verdict.attributions[0].identifier, "LicenseRef-Acme-Proprietary",
+        verdict.attributions[0].identifier(), "LicenseRef-Acme-Proprietary",
         "the reference the author chose must be preserved verbatim"
     );
     assert!(verdict.problems.iter().any(|problem| matches!(
@@ -405,7 +405,7 @@ fn a_custom_branch_does_not_spoil_a_standard_one() {
         "the MIT branch is fully discharged by the shipped file:  {:?}",
         verdict.problems
     );
-    assert_eq!(verdict.attributions[0].identifier, "MIT");
+    assert_eq!(verdict.attributions[0].identifier(), "MIT");
 }
 
 #[test]

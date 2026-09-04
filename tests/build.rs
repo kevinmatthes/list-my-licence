@@ -17,8 +17,6 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Unit tests for the feature `build`.
-
 #![cfg(feature = "build")]
 
 mod attribution {
@@ -48,7 +46,12 @@ mod attribution {
 
         #[test]
         fn set() {
-            assert_eq!(example().with_provenance(Provenance::Combined("LICENCE".into())).provenance, Provenance::Combined("LICENCE".into));
+            assert_eq!(
+                example()
+                    .with_provenance(Provenance::Combined("LICENCE".into()))
+                    .provenance,
+                Provenance::Combined("LICENCE".into)
+            );
         }
     }
 

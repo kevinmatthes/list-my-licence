@@ -50,7 +50,7 @@ impl std::fmt::Display for Generated<'_> {
             for attribution in &verdict.attributions {
                 let file = self
                     .files
-                    .get(&attribution.text())
+                    .get(attribution.text())
                     .map_or("", String::as_str);
 
                 write!(

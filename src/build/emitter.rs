@@ -166,7 +166,7 @@ impl Emitter {
             verdict
                 .attributions
                 .iter()
-                .map(super::attribution::Attribution::text)
+                .map(crate::build::Attribution::text)
                 .chain(
                     verdict.notices.iter().map(|notice| notice.text.as_str()),
                 )

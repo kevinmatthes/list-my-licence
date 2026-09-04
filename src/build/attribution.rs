@@ -51,6 +51,23 @@ impl Attribution {
 
         self
     }
+
+    /// Change the provenance.
+    pub fn with_provenance(
+        &mut self,
+        provenance: crate::build::Provenance,
+    ) -> &mut Self {
+        self.provenance = provenance;
+
+        self
+    }
+
+    /// Change the text.
+    pub fn with_text(&mut self, text: String) -> &mut Self {
+        self.text = text;
+
+        self
+    }
 }
 
 /******************************************************************************/

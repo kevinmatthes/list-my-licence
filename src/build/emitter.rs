@@ -166,7 +166,7 @@ impl Emitter {
             verdict
                 .attributions
                 .iter()
-                .map(|attribution| attribution.text())
+                .map(super::attribution::Attribution::text)
                 .chain(
                     verdict.notices.iter().map(|notice| notice.text.as_str()),
                 )

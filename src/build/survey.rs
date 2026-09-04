@@ -71,7 +71,7 @@ impl Survey {
         let discharged: std::collections::BTreeSet<&str> = verdict
             .attributions
             .iter()
-            .map(|attribution| attribution.identifier())
+            .map(super::attribution::Attribution::identifier)
             .collect();
 
         let expression = package.licence.as_deref().and_then(|declared| {
@@ -80,7 +80,7 @@ impl Survey {
 
         for attribution in &verdict.attributions {
             let strength =
-                crate::build::Strength::of(&attribution.identifier());
+                crate::build::Strength::of(attribution.identifier());
 
             if strength == crate::build::Strength::Permissive {
                 continue;
@@ -89,7 +89,7 @@ impl Survey {
             if Self::avoidable(
                 expression.as_ref(),
                 &discharged,
-                &attribution.identifier(),
+                attribution.identifier(),
             ) {
                 continue;
             }

@@ -32,12 +32,13 @@ pub struct Attribution {
 
 impl Attribution {
     /// Create a new instance.
-    pub fn new(
+    #[must_use]
+    pub const fn new(
         identifier: String,
         text: String,
         provenance: crate::build::Provenance,
-    ) -> Attribution {
-        Attribution {
+    ) -> Self {
+        Self {
             identifier,
             text,
             provenance,

@@ -33,8 +33,8 @@ pub struct Attribution {
 impl Attribution {
     /// Retrieve the identifier.
     #[must_use]
-    pub fn identifier(&self) -> String {
-        self.identifier.clone()
+    pub fn identifier(&self) -> &str {
+        &self.identifier
     }
 
     /// Create a new instance.
@@ -59,8 +59,8 @@ impl Attribution {
 
     /// Retrieve the text.
     #[must_use]
-    pub fn text(&self) -> String {
-        self.text.clone()
+    pub fn text(&self) -> &str {
+        &self.text
     }
 
     /// Change the identifier.

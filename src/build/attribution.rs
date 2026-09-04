@@ -32,6 +32,7 @@ pub struct Attribution {
 
 impl Attribution {
     /// Retrieve the identifier.
+    #[must_use]
     pub fn identifier(&self) -> String {
         self.identifier.clone()
     }
@@ -51,11 +52,13 @@ impl Attribution {
     }
 
     /// Retrieve the provenance.
+    #[must_use]
     pub fn provenance(&self) -> crate::build::Provenance {
         self.provenance.clone()
     }
 
     /// Retrieve the text.
+    #[must_use]
     pub fn text(&self) -> String {
         self.text.clone()
     }

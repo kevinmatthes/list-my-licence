@@ -79,8 +79,7 @@ impl Survey {
         });
 
         for attribution in &verdict.attributions {
-            let strength =
-                crate::build::Strength::of(attribution.identifier());
+            let strength = crate::build::Strength::of(attribution.identifier());
 
             if strength == crate::build::Strength::Permissive {
                 continue;

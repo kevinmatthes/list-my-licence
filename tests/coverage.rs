@@ -349,7 +349,8 @@ fn a_custom_licence_declared_by_file_is_reproduced() {
     );
     assert_eq!(verdict.attributions.len(), 1, "the text must be reproduced");
     assert_eq!(
-        verdict.attributions[0].identifier(), "LicenseRef-my-crate",
+        verdict.attributions[0].identifier(),
+        "LicenseRef-my-crate",
         "an underscore is not admissible in an SPDX reference"
     );
     assert!(
@@ -373,7 +374,8 @@ fn a_declared_licence_reference_is_reproduced() {
     assert!(!verdict.is_fatal(), "{:?}", verdict.problems);
     assert_eq!(verdict.attributions.len(), 1);
     assert_eq!(
-        verdict.attributions[0].identifier(), "LicenseRef-Acme-Proprietary",
+        verdict.attributions[0].identifier(),
+        "LicenseRef-Acme-Proprietary",
         "the reference the author chose must be preserved verbatim"
     );
     assert!(verdict.problems.iter().any(|problem| matches!(

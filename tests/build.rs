@@ -25,7 +25,11 @@ mod attribution {
     use list_my_licence::build::{Attribution, Provenance};
 
     fn example() -> Attribution {
-        Attribution::new("identifier", "text", Provenance::Canonical)
+        Attribution::new(
+            "identifier".to_string(),
+            "text".to_string(),
+            Provenance::Canonical,
+        )
     }
 
     mod identifier {
@@ -54,7 +58,7 @@ mod attribution {
             assert_eq!(
                 super::example()
                     .with_provenance(Provenance::Combined("LICENCE".into()))
-                    .provenance,
+                    .provenance(),
                 Provenance::Combined("LICENCE".into())
             );
         }

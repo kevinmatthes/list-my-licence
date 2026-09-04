@@ -21,13 +21,13 @@
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Attribution {
     /// The SPDX identifier this text stands for.
-    pub identifier: String,
+    identifier: String,
 
     /// The text itself.
-    pub text: String,
+    text: String,
 
     /// Where it came from, recorded so that the output can say so.
-    pub provenance: crate::build::Provenance,
+    provenance: crate::build::Provenance,
 }
 
 impl Attribution {

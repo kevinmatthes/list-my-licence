@@ -155,6 +155,10 @@ jobs:
             '--only-explicit-features --features clap'
             '--only-explicit-features --features compression'
             '--only-explicit-features --features clap,compression'
+            '--only-explicit-features --features build'
+            '--only-explicit-features --features build,clap'
+            '--only-explicit-features --features build,compression'
+            '--only-explicit-features --features build,clap,compression'
             '--only-explicit-features'
           )
 

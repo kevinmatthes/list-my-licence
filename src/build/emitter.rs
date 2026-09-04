@@ -207,7 +207,7 @@ impl Emitter {
 
         for (_, verdict) in packages {
             for attribution in &verdict.attributions {
-                if files.contains_key(&attribution.text()) {
+                if files.contains_key(attribution.text()) {
                     continue;
                 }
 

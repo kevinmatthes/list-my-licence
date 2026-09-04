@@ -50,16 +50,21 @@ mod attribution {
     mod provenance {
         #[test]
         fn get() {
-            assert_eq!(super::example().provenance(), Provenance::Canonical);
+            assert_eq!(
+                super::example().provenance(),
+                super::Provenance::Canonical
+            );
         }
 
         #[test]
         fn set() {
             assert_eq!(
                 super::example()
-                    .with_provenance(Provenance::Combined("LICENCE".into()))
+                    .with_provenance(super::Provenance::Combined(
+                        "LICENCE".into()
+                    ))
                     .provenance(),
-                Provenance::Combined("LICENCE".into())
+                super::Provenance::Combined("LICENCE".into())
             );
         }
     }

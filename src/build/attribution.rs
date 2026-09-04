@@ -64,8 +64,8 @@ impl Attribution {
     }
 
     /// Change the identifier.
-    pub fn with_identifier(&mut self, identifier: String) -> &mut Self {
-        self.identifier = identifier;
+    pub fn with_identifier(&mut self, identifier: &str) -> &mut Self {
+        self.identifier = identifier.to_string();
 
         self
     }
@@ -81,8 +81,8 @@ impl Attribution {
     }
 
     /// Change the text.
-    pub fn with_text(&mut self, text: String) -> &mut Self {
-        self.text = text;
+    pub fn with_text(&mut self, text: &str) -> &mut Self {
+        self.text = text.to_string();
 
         self
     }

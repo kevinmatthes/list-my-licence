@@ -44,6 +44,13 @@ impl Attribution {
             provenance,
         }
     }
+
+    /// Change the identifier.
+    pub fn with_identifier(&mut self, identifier: String) -> &mut Self {
+        self.identifier = identifier;
+
+        self
+    }
 }
 
 /******************************************************************************/

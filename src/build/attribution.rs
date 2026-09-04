@@ -52,7 +52,7 @@ impl Attribution {
 
     /// Retrieve the provenance.
     pub fn provenance(&self) -> crate::build::Provenance {
-        self.provenance
+        self.provenance.clone()
     }
 
     /// Retrieve the text.

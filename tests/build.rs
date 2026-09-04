@@ -17,6 +17,8 @@
 |                                                                              |
 \******************************************************************************/
 
+//! Tests for the feature `build`.
+
 #![cfg(feature = "build")]
 
 mod attribution {
@@ -29,28 +31,31 @@ mod attribution {
     mod identifier {
         #[test]
         fn get() {
-            assert_eq!(example().identifier(), "identifier");
+            assert_eq!(super::example().identifier(), "identifier");
         }
 
         #[test]
         fn set() {
-            assert_eq!(example().with_identifier("new").identifier(), "new");
+            assert_eq!(
+                super::example().with_identifier("new").identifier(),
+                "new"
+            );
         }
     }
 
     mod provenance {
         #[test]
         fn get() {
-            assert_eq!(example().provenance(), Provenance::Canonical);
+            assert_eq!(super::example().provenance(), Provenance::Canonical);
         }
 
         #[test]
         fn set() {
             assert_eq!(
-                example()
+                super::example()
                     .with_provenance(Provenance::Combined("LICENCE".into()))
                     .provenance,
-                Provenance::Combined("LICENCE".into)
+                Provenance::Combined("LICENCE".into())
             );
         }
     }
@@ -58,12 +63,12 @@ mod attribution {
     mod text {
         #[test]
         fn get() {
-            assert_eq!(example().text(), "text");
+            assert_eq!(super::example().text(), "text");
         }
 
         #[test]
         fn set() {
-            assert_eq!(example().with_text("new").text(), "new");
+            assert_eq!(super::example().with_text("new").text(), "new");
         }
     }
 }

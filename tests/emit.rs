@@ -269,4 +269,109 @@ fn both_renderers_agree() {
     );
 }
 
+#[test]
+fn the_dep5_output_opens_with_the_format_stanza_and_names_each_package() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    let rendered = Emitter::dep5(&packages);
+
+    assert!(
+        rendered.starts_with("Format:")
+            && rendered.contains(
+                "https://www.debian.org/doc/packaging-manuals/\
+                 copyright-format/1.0/"
+            ),
+        "a DEP-5 file is identified by its Format field, whose value is the \
+         specification URI"
+    );
+    assert!(
+        rendered.contains("\nFiles:")
+            && rendered.contains(" fixture-1.2.3/*\n"),
+        "each dependency is a Files paragraph keyed by its crate directory"
+    );
+    assert!(
+        rendered.contains("\nLicense:") && rendered.contains(" MIT\n"),
+        "with the discharged SPDX identifier as the synopsis"
+    );
+}
+
+#[test]
+fn the_dep5_output_states_when_no_author_is_declared() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    let rendered = Emitter::dep5(&packages);
+
+    assert!(
+        rendered.contains("Copyright:")
+            && rendered.contains(" not stated in the package manifest"),
+        "the Copyright field is mandatory, and a guess would be worse than \
+         an admission"
+    );
+}
+
+#[test]
+fn a_blank_line_in_a_licence_folds_to_a_lone_full_stop() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    fs::write(
+        work.path().join("LICENSE-MIT"),
+        "First paragraph.\n\nSecond paragraph.\n",
+    )
+    .expect("a fixture file");
+
+    let described = package(work.path(), "fixture", "MIT");
+    let evidence = Discovery::new().search(&described);
+    let verdict = Classifier::new().classify(&described, &evidence);
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    let rendered = Emitter::dep5(&packages);
+
+    assert!(
+        rendered.contains("\n .\n"),
+        "a blank line must fold to a lone full stop, or a control-file \
+         parser reads the field as having ended"
+    );
+    assert!(
+        rendered.contains(" First paragraph.")
+            && rendered.contains(" Second paragraph."),
+        "and the surrounding lines survive, each indented by one space"
+    );
+}
+
+#[test]
+fn every_dep5_line_is_a_field_or_a_continuation() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let (described, verdict) =
+        reproduced(work.path(), &["LICENSE-MIT", "NOTICE"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    for line in Emitter::dep5(&packages).lines() {
+        assert!(
+            line.is_empty()
+                || line.starts_with(' ')
+                || line.split_once(": ").is_some_and(|(key, _)| key
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '-')),
+            "a bare text line leaked out of a folded field:  {line:?}"
+        );
+    }
+}
+
+#[test]
+fn the_dep5_output_is_deterministic() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    assert_eq!(
+        Emitter::dep5(&packages),
+        Emitter::dep5(&packages),
+        "the check compares a fresh rendering against a committed one, so \
+         any instability would fail at random"
+    );
+}
+
 /******************************************************************************/

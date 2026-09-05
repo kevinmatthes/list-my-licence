@@ -29,6 +29,7 @@ mod classification;
 mod classifier;
 mod copyleft;
 mod coverage;
+mod dep5;
 mod discovery;
 mod emit_error;
 mod emitter;
@@ -65,7 +66,9 @@ pub use crate::build::{
     skipped::Skipped, strength::Strength, survey::Survey,
 };
 
-pub(crate) use crate::build::{generated::Generated, markdown::Markdown};
+pub(crate) use crate::build::{
+    dep5::Dep5, generated::Generated, markdown::Markdown,
+};
 
 #[cfg(feature = "compression")]
 pub(crate) use crate::build::{

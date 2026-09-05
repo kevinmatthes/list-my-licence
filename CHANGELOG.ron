@@ -69,6 +69,63 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 1),
+      released: Some("2026-09-05T18:44:39.135292082Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "a DEP-5 `debian/copyright` renderer",
+            commit: Some("181c6e1"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "a Renovate branch keeps one changelog fragment, named for the branch",
+            commit: Some("6755958"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "documentation of `Attribution::identifier`, `Attribution::with_identifier`",
+            commit: Some("71c7dc4"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "documentation of `Attribution::provenance`, `Attribution::with_provenance`",
+            commit: Some("7d6c51a"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "documentation of `Attribution::text`, `Attribution::with_text`",
+            commit: Some("24341c5"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.6",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 0),
       released: Some("2026-09-04T23:03:57.744598543Z"),
       introduction: None,

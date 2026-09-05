@@ -70,6 +70,15 @@ impl Emitter {
         })
     }
 
+    /// Renders the attribution as a machine-readable `debian/copyright`.
+    ///
+    /// The same packages [`Self::markdown`] renders, in the DEP-5 format a
+    /// Debian distribution ships instead of a prose `THIRDPARTY.md`.
+    #[must_use]
+    pub fn dep5(packages: &[crate::build::Reproduced<'_>]) -> String {
+        crate::build::Dep5(packages).to_string()
+    }
+
     /// Writes the embedded form into `OUT_DIR`.
     ///
     /// # Errors

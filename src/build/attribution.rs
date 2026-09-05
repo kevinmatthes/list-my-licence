@@ -21,8 +21,6 @@
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Attribution {
     identifier: String,
-
-    /// The text itself.
     text: String,
 
     /// Where it came from, recorded so that the output can say so.
@@ -56,7 +54,7 @@ impl Attribution {
         self.provenance.clone()
     }
 
-    /// Retrieve the text.
+    /// Retrieve the text itself.
     #[must_use]
     pub fn text(&self) -> &str {
         &self.text
@@ -79,7 +77,7 @@ impl Attribution {
         self
     }
 
-    /// Change the text.
+    /// Change the text itself.
     pub fn with_text(&mut self, text: &str) -> &mut Self {
         self.text = text.to_string();
 

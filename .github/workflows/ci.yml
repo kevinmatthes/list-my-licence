@@ -350,8 +350,7 @@ jobs:
           head=$(printf '%s' "$entry" | cut -c1 | tr '[:upper:]' '[:lower:]')
           rest=$(printf '%s' "$entry" | cut -c2-)
           leaf=${LEAF##*/}
-          stamp=$(date -u +%Y-%m-%dT%H-%M-%SZ)
-          file="changelog.d/${stamp}_${leaf}.ron"
+          file="changelog.d/${leaf}.ron"
 
           mkdir -p changelog.d
           {
@@ -364,6 +363,11 @@ jobs:
           } > "$file"
 
           git add "$file"
+          if git diff --cached --quiet; then
+            echo "nothing new to record"
+            exit 0
+          fi
+
           git commit -m "$marker"
           git push
 

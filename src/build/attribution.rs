@@ -20,7 +20,6 @@
 /// One licence of a package, with the text to be reproduced for it.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Attribution {
-    /// The SPDX identifier this text stands for.
     identifier: String,
 
     /// The text itself.
@@ -31,7 +30,7 @@ pub struct Attribution {
 }
 
 impl Attribution {
-    /// Retrieve the identifier.
+    /// Retrieve the SPDX identifier this text stands for.
     #[must_use]
     pub fn identifier(&self) -> &str {
         &self.identifier
@@ -63,7 +62,7 @@ impl Attribution {
         &self.text
     }
 
-    /// Change the identifier.
+    /// Change the SPDX identifier this text stands for.
     pub fn with_identifier(&mut self, identifier: &str) -> &mut Self {
         self.identifier = identifier.to_string();
 

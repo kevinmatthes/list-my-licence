@@ -42,10 +42,7 @@ mod attribution {
 
         #[test]
         fn set() {
-            assert_eq!(
-                example().with_identifier("new").identifier(),
-                "new"
-            );
+            assert_eq!(example().with_identifier("new").identifier(), "new");
         }
     }
 
@@ -55,10 +52,7 @@ mod attribution {
 
         #[test]
         fn get() {
-            assert_eq!(
-                example().provenance(),
-                &Provenance::Canonical
-            );
+            assert_eq!(example().provenance(), &Provenance::Canonical);
         }
 
         #[test]

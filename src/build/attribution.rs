@@ -22,8 +22,6 @@
 pub struct Attribution {
     identifier: String,
     text: String,
-
-    /// Where it came from, recorded so that the output can say so.
     provenance: crate::build::Provenance,
 }
 
@@ -49,6 +47,8 @@ impl Attribution {
     }
 
     /// Retrieve the provenance.
+    ///
+    /// Where it came from, recorded so that the output can say so.
     #[must_use]
     pub fn provenance(&self) -> crate::build::Provenance {
         self.provenance.clone()
@@ -68,6 +68,8 @@ impl Attribution {
     }
 
     /// Change the provenance.
+    ///
+    /// Where it came from, recorded so that the output can say so.
     pub fn with_provenance(
         &mut self,
         provenance: crate::build::Provenance,

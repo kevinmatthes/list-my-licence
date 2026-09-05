@@ -20,18 +20,13 @@
 /// One licence of a package, with the text to be reproduced for it.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Attribution {
-    /// The SPDX identifier this text stands for.
     identifier: String,
-
-    /// The text itself.
     text: String,
-
-    /// Where it came from, recorded so that the output can say so.
     provenance: crate::build::Provenance,
 }
 
 impl Attribution {
-    /// Retrieve the identifier.
+    /// Retrieve the SPDX identifier this text stands for.
     #[must_use]
     pub fn identifier(&self) -> &str {
         &self.identifier
@@ -52,18 +47,20 @@ impl Attribution {
     }
 
     /// Retrieve the provenance.
+    ///
+    /// Where it came from, recorded so that the output can say so.
     #[must_use]
     pub fn provenance(&self) -> crate::build::Provenance {
         self.provenance.clone()
     }
 
-    /// Retrieve the text.
+    /// Retrieve the text itself.
     #[must_use]
     pub fn text(&self) -> &str {
         &self.text
     }
 
-    /// Change the identifier.
+    /// Change the SPDX identifier this text stands for.
     pub fn with_identifier(&mut self, identifier: &str) -> &mut Self {
         self.identifier = identifier.to_string();
 
@@ -71,6 +68,8 @@ impl Attribution {
     }
 
     /// Change the provenance.
+    ///
+    /// Where it came from, recorded so that the output can say so.
     pub fn with_provenance(
         &mut self,
         provenance: crate::build::Provenance,
@@ -80,7 +79,7 @@ impl Attribution {
         self
     }
 
-    /// Change the text.
+    /// Change the text itself.
     pub fn with_text(&mut self, text: &str) -> &mut Self {
         self.text = text.to_string();
 

@@ -62,7 +62,7 @@ impl std::fmt::Display for GeneratedCompressed<'_> {
                      include_bytes!({file:?}),\n                origin: \
                      {},\n            }},\n",
                     attribution.identifier(),
-                    crate::build::Emitter::origin(&attribution.provenance()),
+                    crate::build::Emitter::origin(attribution.provenance()),
                 )?;
             }
 

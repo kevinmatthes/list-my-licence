@@ -36,7 +36,7 @@ impl Dep5<'_> {
     ) -> std::fmt::Result {
         for attribution in &verdict.attributions {
             let origin =
-                crate::build::Emitter::origin_text(&attribution.provenance());
+                crate::build::Emitter::origin_text(attribution.provenance());
 
             write!(f, " .\n {} ({origin})", attribution.identifier())?;
             f.write_str(":\n .\n")?;

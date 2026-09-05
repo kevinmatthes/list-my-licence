@@ -50,7 +50,7 @@ impl Attribution {
     ///
     /// Where it came from, recorded so that the output can say so.
     #[must_use]
-    pub fn provenance(&self) -> &crate::build::Provenance {
+    pub const fn provenance(&self) -> &crate::build::Provenance {
         &self.provenance
     }
 

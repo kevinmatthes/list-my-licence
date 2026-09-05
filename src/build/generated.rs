@@ -60,7 +60,7 @@ impl std::fmt::Display for Generated<'_> {
                      include_str!({file:?}),\n                origin: \
                      {},\n            }},\n",
                     attribution.identifier(),
-                    crate::build::Emitter::origin(&attribution.provenance()),
+                    crate::build::Emitter::origin(attribution.provenance()),
                 )?;
             }
 

@@ -34,7 +34,7 @@ impl std::fmt::Display for Markdown<'_> {
                     "\n### {} ({})\n\n```text\n{}\n```\n",
                     attribution.identifier(),
                     crate::build::Emitter::origin_text(
-                        &attribution.provenance()
+                        attribution.provenance()
                     ),
                     attribution.text().trim_end(),
                 )?;

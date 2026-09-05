@@ -48,23 +48,26 @@ mod attribution {
     }
 
     mod provenance {
+        use crate::attribution::example;
+        use list_my_licence::build::Provenance;
+
         #[test]
         fn get() {
             assert_eq!(
-                super::example().provenance(),
-                super::Provenance::Canonical
+                example().provenance(),
+                &Provenance::Canonical
             );
         }
 
         #[test]
         fn set() {
             assert_eq!(
-                super::example()
+                &example()
                     .with_provenance(super::Provenance::Combined(
                         "LICENCE".into()
                     ))
                     .provenance(),
-                super::Provenance::Combined("LICENCE".into())
+                &Provenance::Combined("LICENCE".into())
             );
         }
     }

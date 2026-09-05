@@ -33,15 +33,17 @@ mod attribution {
     }
 
     mod identifier {
+        use crate::attribution::example;
+
         #[test]
         fn get() {
-            assert_eq!(super::example().identifier(), "identifier");
+            assert_eq!(example().identifier(), "identifier");
         }
 
         #[test]
         fn set() {
             assert_eq!(
-                super::example().with_identifier("new").identifier(),
+                example().with_identifier("new").identifier(),
                 "new"
             );
         }
@@ -73,14 +75,16 @@ mod attribution {
     }
 
     mod text {
+        use crate::attribution::example;
+
         #[test]
         fn get() {
-            assert_eq!(super::example().text(), "text");
+            assert_eq!(example().text(), "text");
         }
 
         #[test]
         fn set() {
-            assert_eq!(super::example().with_text("new").text(), "new");
+            assert_eq!(example().with_text("new").text(), "new");
         }
     }
 }

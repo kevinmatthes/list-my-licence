@@ -62,7 +62,7 @@ mod attribution {
         #[test]
         fn set() {
             assert_eq!(
-                &example()
+                example()
                     .with_provenance(super::Provenance::Combined(
                         "LICENCE".into()
                     ))

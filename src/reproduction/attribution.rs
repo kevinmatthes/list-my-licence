@@ -28,6 +28,17 @@ pub struct Attribution {
 }
 
 impl Attribution {
+    /// Renders as a machine-readable DEP-5 `debian/copyright`.
+    ///
+    /// The format a Debian distribution ships in place of a prose
+    /// `THIRDPARTY.md`.  Licence texts fold into control-field
+    /// continuations rather than fenced blocks, which is that file's own
+    /// way of keeping a verbatim text intact.
+    #[must_use]
+    pub fn dep5(&self) -> String {
+        crate::Dep5(self).to_string()
+    }
+
     /// Whether anything is covered at all.
     #[must_use]
     pub const fn is_empty(&self) -> bool {

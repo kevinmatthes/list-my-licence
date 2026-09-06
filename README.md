@@ -79,7 +79,8 @@ fn main() {
 ```
 
 `Attribution` is plain data.  `Display` renders it for a terminal,
-`markdown()` for a file, and the packages can be walked directly for anything
+`markdown()` for a file, `dep5()` as a machine-readable DEP-5
+`debian/copyright`, and the packages can be walked directly for anything
 else.
 
 ### Keeping the committed file honest

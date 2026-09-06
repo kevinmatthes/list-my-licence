@@ -51,6 +51,7 @@
       "depNameTemplate": "git-harvest",
       "managerFilePatterns": [
         "/^\\.github/workflows/ci\\.yml$/",
+        "/^\\.github/workflows/fragment\\.yml$/",
         "/^\\.github/workflows/release\\.yml$/"
       ],
       "matchStrings": [

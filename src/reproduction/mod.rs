@@ -36,6 +36,7 @@ mod compressed_attribution;
 mod compressed_licence;
 #[cfg(feature = "compression")]
 mod compressed_package;
+mod dep5;
 mod embed;
 #[cfg(feature = "compression")]
 mod embed_compressed;
@@ -45,7 +46,7 @@ mod origin;
 mod package;
 
 pub use crate::reproduction::{
-    attribution::Attribution, licence::Licence, markdown::Markdown,
+    attribution::Attribution, dep5::Dep5, licence::Licence, markdown::Markdown,
     origin::Origin, package::Package,
 };
 

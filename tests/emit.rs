@@ -270,6 +270,42 @@ fn both_renderers_agree() {
 }
 
 #[test]
+fn both_dep5_renderers_agree() {
+    use list_my_licence::{Attribution, Licence, Origin, Package};
+
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    let licences: &'static [Licence] = Box::leak(Box::new([Licence {
+        identifier: Box::leak(
+            verdict.attributions[0]
+                .identifier()
+                .to_string()
+                .into_boxed_str(),
+        ),
+        text: Box::leak(
+            verdict.attributions[0].text().to_string().into_boxed_str(),
+        ),
+        origin: Origin::Distributed("LICENSE-MIT"),
+    }]));
+    #[allow(clippy::redundant_clone)]
+    let embedded: &'static [Package] = Box::leak(Box::new([Package {
+        name: Box::leak(described.name.clone().into_boxed_str()),
+        version: Box::leak(described.version.clone().into_boxed_str()),
+        licences,
+        notices: &[],
+    }]));
+
+    assert_eq!(
+        Attribution { packages: embedded }.dep5(),
+        Emitter::dep5(&packages),
+        "the build-time renderer and the runtime one must not drift apart \
+         in wording, so the two are held together here"
+    );
+}
+
+#[test]
 fn the_dep5_output_opens_with_the_format_stanza_and_names_each_package() {
     let work = tempfile::tempdir().expect("a temporary directory");
     let (described, verdict) = reproduced(work.path(), &["LICENSE-MIT"], "MIT");

@@ -58,7 +58,7 @@ pub mod build;
 pub mod cli;
 
 pub use crate::reproduction::{
-    Attribution, Licence, Markdown, Origin, Package,
+    Attribution, Dep5, Licence, Markdown, Origin, Package,
 };
 
 #[cfg(feature = "compression")]

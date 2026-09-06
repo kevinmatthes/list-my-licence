@@ -33,51 +33,52 @@ mod attribution {
     }
 
     mod identifier {
+        use crate::attribution::example;
+
         #[test]
         fn get() {
-            assert_eq!(super::example().identifier(), "identifier");
+            assert_eq!(example().identifier(), "identifier");
         }
 
         #[test]
         fn set() {
-            assert_eq!(
-                super::example().with_identifier("new").identifier(),
-                "new"
-            );
+            assert_eq!(example().with_identifier("new").identifier(), "new");
         }
     }
 
     mod provenance {
+        use crate::attribution::example;
+        use list_my_licence::build::Provenance;
+
         #[test]
         fn get() {
-            assert_eq!(
-                super::example().provenance(),
-                super::Provenance::Canonical
-            );
+            assert_eq!(example().provenance(), &Provenance::Canonical);
         }
 
         #[test]
         fn set() {
             assert_eq!(
-                super::example()
+                example()
                     .with_provenance(super::Provenance::Combined(
                         "LICENCE".into()
                     ))
                     .provenance(),
-                super::Provenance::Combined("LICENCE".into())
+                &Provenance::Combined("LICENCE".into())
             );
         }
     }
 
     mod text {
+        use crate::attribution::example;
+
         #[test]
         fn get() {
-            assert_eq!(super::example().text(), "text");
+            assert_eq!(example().text(), "text");
         }
 
         #[test]
         fn set() {
-            assert_eq!(super::example().with_text("new").text(), "new");
+            assert_eq!(example().with_text("new").text(), "new");
         }
     }
 }

@@ -142,7 +142,7 @@ fn a_missing_file_is_survivable_for_a_standard_text_licence() {
     );
     assert_eq!(
         verdict.attributions[0].provenance(),
-        Provenance::Canonical,
+        &Provenance::Canonical,
         "the text is the canonical one, and the output must say so"
     );
     assert_eq!(verdict.attributions[0].identifier(), "Apache-2.0");

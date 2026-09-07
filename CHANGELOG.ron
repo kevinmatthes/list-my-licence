@@ -69,6 +69,49 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 2),
+      released: Some("2026-09-07T01:41:18.229503922Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "a `workflow_dispatch` changelog-fragment helper",
+            commit: Some("49ede9c"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "a runtime DEP-5 renderer over the embedded model",
+            commit: Some("d1afa94"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "`Attribution::provenance` now returns a reference",
+            commit: Some("bee3f99"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.7",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 1),
       released: Some("2026-09-05T18:44:39.135292082Z"),
       introduction: None,

@@ -2,7 +2,7 @@
   references: {},
   changes: {
     "Changed": [
-      (text: "update taiki-e/install-action action to v2.87.8", commit: None, aliases: ["renovate", "github-actions"]),
+      (text: "update taiki-e/install-action action to v2.87.9", commit: None, aliases: ["renovate", "github-actions"]),
     ],
   },
 )

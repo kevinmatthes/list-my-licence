@@ -84,8 +84,10 @@ const HASH_COMMENTED: [&str; 7] = [
 /// Files holding no prose of this project's own.
 ///
 /// The licence is a verbatim quotation of somebody else's words, and the
-/// lock file is generated.
-const UNCHECKED: [&str; 2] = ["Cargo.lock", "LICENCE"];
+/// lock file is generated.  `renovate.json` is machine configuration with no
+/// comment syntax to wrap or word within, the same standing exception it
+/// already holds from the closing rule.
+const UNCHECKED: [&str; 3] = ["Cargo.lock", "LICENCE", "renovate.json"];
 
 /// Whether the file is a changelog RON document rather than prose.
 ///
@@ -95,6 +97,18 @@ const UNCHECKED: [&str; 2] = ["Cargo.lock", "LICENCE"];
 /// and language rules step over them the way they step over `Cargo.lock`.
 fn changelog_ron(name: &str) -> bool {
     Path::new(name).extension().is_some_and(|end| end == "ron")
+}
+
+/// Whether the line pins a workflow action to a commit, past any width.
+///
+/// A forty-character commit SHA or a `sha256:` digest on a `uses:` line
+/// outruns [`WIDTH`] before the action is named; pinning by hash is the
+/// supply-chain rule, and it wins the column here the way the licence header
+/// wins it in `renovate.json`.
+fn action_pin(line: &str) -> bool {
+    let body = line.trim_start();
+    let step = body.strip_prefix("- ").unwrap_or(body);
+    step.starts_with("uses: ") && step.contains('@')
 }
 
 /// Where the language fixtures live.
@@ -815,7 +829,7 @@ fn every_file_holds_its_lines_within_eighty_characters() {
         for (number, line) in text.lines().enumerate() {
             let length = line.chars().count();
 
-            if length > WIDTH {
+            if length > WIDTH && !action_pin(line) {
                 wide.push(format!(
                     "{name}:{}  {length} characters",
                     number + 1

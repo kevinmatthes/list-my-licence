@@ -26,7 +26,7 @@ permissions:
   contents: write
 
 env:
-  GIT_HARVEST_VERSION: "0.3.0"
+  GIT_HARVEST_VERSION: "0.3.1"
 
 jobs:
   fragment:

@@ -84,10 +84,13 @@ const HASH_COMMENTED: [&str; 7] = [
 /// Files holding no prose of this project's own.
 ///
 /// The licence is a verbatim quotation of somebody else's words, and the
-/// lock file is generated.  `renovate.json` is machine configuration with no
-/// comment syntax to wrap or word within, the same standing exception it
-/// already holds from the closing rule.
-const UNCHECKED: [&str; 3] = ["Cargo.lock", "LICENCE", "renovate.json"];
+/// lock file is generated.  `THIRDPARTY.md` is dependency licence text
+/// harvested by the build script — none is this project's to spell or
+/// wrap.  `renovate.json` is machine configuration with no comment syntax
+/// to wrap or word within, the same standing exception it already holds
+/// from the closing rule.
+const UNCHECKED: [&str; 4] =
+    ["Cargo.lock", "LICENCE", "THIRDPARTY.md", "renovate.json"];
 
 /// Whether the file is a changelog RON document rather than prose.
 ///

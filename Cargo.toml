@@ -29,7 +29,7 @@ authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
 keywords = ["attribution", "compliance", "licence", "license", "spdx"]
 categories = ["development-tools::build-utils"]
 readme = "README.md"
-include = ["src/**", "README.md", "LICENCE"]
+include = ["build.rs", "src/**", "README.md", "LICENCE", "THIRDPARTY.md"]
 
 [dependencies]
 cargo_metadata = { version = "0.23.1", optional = true }
@@ -41,6 +41,9 @@ spdx = { version = "0.13.5", optional = true }
 features = ["derive"]
 optional = true
 version = "4.6.6"
+
+[build-dependencies]
+list-my-licence = { version = "0.2.2", features = ["build"] }
 
 [features]
 default = []

@@ -52,22 +52,33 @@ fn resolves_own_shipping_dependencies() {
 
 #[test]
 fn optional_dependencies_are_absent_without_their_feature() {
+    // `cargo_metadata`, `license` and `spdx` are excluded from this list:
+    // this crate's own `[build-dependencies]` entry on itself pulls them
+    // in unconditionally (a build dependency ships just as surely as a
+    // normal one, `Resolver::ships`), so they are present regardless of
+    // this crate's own feature selection.  `clap` and `miniz_oxide` carry
+    // no such build-time edge and stay genuinely feature-gated.
     let names = resolve_names(&Resolver::new().features(Vec::<String>::new()));
 
-    for gated in ["cargo_metadata", "license", "spdx"] {
+    for gated in ["clap", "miniz_oxide"] {
         assert!(
             !names.iter().any(|name| name == gated),
-            "{gated} is gated behind the build feature and must not \
-             be resolved when that feature is off, got {names:?}"
+            "{gated} is gated behind a feature and must not be resolved \
+             when that feature is off, got {names:?}"
         );
     }
 }
 
 #[test]
 fn feature_selection_changes_the_resolved_set() {
+    // `clap`, not `build`:  the build feature's own dependencies already
+    // appear unconditionally via this crate's self-referential
+    // `[build-dependencies]` entry (see the previous test), so comparing
+    // against it would show no widening at all.  `clap` carries no such
+    // edge and still isolates a genuine feature-driven change.
     let without =
         resolve_names(&Resolver::new().features(Vec::<String>::new()));
-    let with = resolve_names(&Resolver::new().features(["build"]));
+    let with = resolve_names(&Resolver::new().features(["clap"]));
 
     assert!(
         with.len() > without.len(),
@@ -99,11 +110,26 @@ fn includes_the_root_package_by_default() {
 
 #[test]
 fn root_can_be_excluded() {
-    let names = resolve_names(&Resolver::new().include_root(false));
+    // Not `resolve_names`:  this crate's `[build-dependencies]` entry on
+    // itself is a *different* package also named `list-my-licence` (the
+    // last published version, not this checkout), so a name-only check
+    // cannot tell "the root is gone" from "a same-named build dependency
+    // is still, correctly, present".  The version distinguishes them.
+    let packages = Resolver::new()
+        .include_root(false)
+        .resolve()
+        .expect("resolving this crate's own graph must succeed");
 
     assert!(
-        !names.iter().any(|name| name == "list-my-licence"),
-        "include_root(false) must drop the root package, got {names:?}"
+        !packages.iter().any(|package| {
+            package.name == "list-my-licence"
+                && package.version == env!("CARGO_PKG_VERSION")
+        }),
+        "include_root(false) must drop the root package, got {:?}",
+        packages
+            .iter()
+            .map(|package| (&package.name, &package.version))
+            .collect::<Vec<_>>()
     );
 }
 

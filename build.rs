@@ -24,15 +24,30 @@
 //! the committed `THIRDPARTY.md`.  Under continuous integration (`CI` set)
 //! it checks that file against the graph instead of rewriting it, so
 //! licence drift cannot be merged unnoticed.
+//!
+//! `Builder::run` resolves against whichever features Cargo happens to
+//! have enabled for *this* build (`Resolver::from_build_env`), which
+//! genuinely varies across this crate's own `cargo-features` CI matrix —
+//! a `--features compression` build needs a different graph than
+//! `--all-features`.  A single committed file cannot match all of them,
+//! so `THIRDPARTY.md` is only written or checked under `--all-features`,
+//! the one combination that is the true superset and so the only one
+//! stable across every build.
 
 fn main() {
     let checking = std::env::var_os("CI").is_some();
+    let all_features =
+        ["BUILD", "CLAP", "COMPRESSION"].into_iter().all(|feature| {
+            std::env::var_os(format!("CARGO_FEATURE_{feature}")).is_some()
+        });
 
-    if let Err(error) = list_my_licence::build::Builder::new()
-        .publish("THIRDPARTY.md")
-        .checking(checking)
-        .run()
-    {
+    let mut builder = list_my_licence::build::Builder::new().checking(checking);
+
+    if all_features {
+        builder = builder.publish("THIRDPARTY.md");
+    }
+
+    if let Err(error) = builder.run() {
         panic!("{error}");
     }
 }

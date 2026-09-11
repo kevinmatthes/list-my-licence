@@ -27,6 +27,22 @@
 
 use list_my_licence::build::Resolver;
 
+/// The triple `rustc` is actually running as, for platform-filter tests.
+fn host_triple() -> String {
+    let rustc = std::process::Command::new("rustc")
+        .arg("-vV")
+        .output()
+        .expect("rustc must be runnable to learn the host triple");
+    let verbose =
+        String::from_utf8(rustc.stdout).expect("rustc -vV emits UTF-8");
+
+    verbose
+        .lines()
+        .find_map(|line| line.strip_prefix("host: "))
+        .expect("rustc -vV reports a host triple")
+        .to_owned()
+}
+
 /// Names of the resolved packages, for terse assertions.
 fn resolve_names(resolver: &Resolver) -> Vec<String> {
     resolver
@@ -178,19 +194,9 @@ fn a_missing_manifest_is_reported_rather_than_panicking() {
 
 #[test]
 fn resolves_against_the_host_triple() {
-    let rustc = std::process::Command::new("rustc")
-        .arg("-vV")
-        .output()
-        .expect("rustc must be runnable to learn the host triple");
-    let verbose =
-        String::from_utf8(rustc.stdout).expect("rustc -vV emits UTF-8");
-    let host = verbose
-        .lines()
-        .find_map(|line| line.strip_prefix("host: "))
-        .expect("rustc -vV reports a host triple");
-
+    let host = host_triple();
     let filtered =
-        resolve_names(&Resolver::new().features(["build"]).target(host));
+        resolve_names(&Resolver::new().features(["build"]).target(&host));
     let unfiltered = resolve_names(&Resolver::new().features(["build"]));
 
     assert!(
@@ -206,6 +212,30 @@ fn resolves_against_the_host_triple() {
         filtered.iter().any(|name| name == "cargo_metadata"),
         "a dependency of every platform must survive filtering, \
          got {filtered:?}"
+    );
+}
+
+#[test]
+fn every_platform_undoes_a_target_filter() {
+    let host = host_triple();
+    let filtered =
+        resolve_names(&Resolver::new().features(["clap"]).target(&host));
+    let widened = resolve_names(
+        &Resolver::new()
+            .features(["clap"])
+            .target(&host)
+            .every_platform(),
+    );
+
+    assert!(
+        widened.len() >= filtered.len(),
+        "every_platform must widen or match a target-filtered graph, \
+         never narrow it; filtered = {filtered:?}, widened = {widened:?}"
+    );
+    assert!(
+        widened.iter().any(|name| name == "windows-sys"),
+        "a platform-conditional dependency excluded by the host triple \
+         must reappear once the filter is cleared, got {widened:?}"
     );
 }
 

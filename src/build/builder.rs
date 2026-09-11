@@ -61,19 +61,29 @@ impl Builder {
         self
     }
 
-    /// Resolves, discovers, classifies, surveys and emits.
+    /// Borrows a pass's packages for an [`crate::build::Emitter`] call.
+    fn borrow(
+        packages: &[(
+            crate::build::ResolvedPackage,
+            crate::build::Classification,
+        )],
+    ) -> Vec<crate::build::Reproduced<'_>> {
+        packages
+            .iter()
+            .map(|(package, verdict)| (package, verdict))
+            .collect()
+    }
+
+    /// Resolves, discovers, classifies and surveys one graph.
     ///
     /// # Errors
     ///
     /// Returns [`crate::build::Error::Undischargeable`] if any package
-    /// carries an obligation that cannot be discharged,
-    /// [`crate::build::Error::Resolve`] if the graph cannot be read, and
-    /// [`crate::build::Error::Emit`] if the artefacts cannot be written or
-    /// the published file is stale.
-    pub fn run(&self) -> Result<crate::build::Outcome, crate::build::Error> {
-        println!("cargo::rerun-if-changed=Cargo.lock");
-
-        let resolver = crate::build::Resolver::from_build_env()?;
+    /// carries an obligation that cannot be discharged, and
+    /// [`crate::build::Error::Resolve`] if the graph cannot be read.
+    fn pass(
+        resolver: &crate::build::Resolver,
+    ) -> Result<crate::build::Outcome, crate::build::Error> {
         let discovery = crate::build::Discovery::new();
         let classifier = crate::build::Classifier::new();
 
@@ -109,22 +119,52 @@ impl Builder {
             return Err(crate::build::Error::Undischargeable(undischargeable));
         }
 
-        let borrowed: Vec<crate::build::Reproduced<'_>> = packages
-            .iter()
-            .map(|(package, verdict)| (package, verdict))
-            .collect();
+        Ok(crate::build::Outcome { packages, survey })
+    }
 
-        crate::build::Emitter::from_build_env()?.embed(&borrowed)?;
+    /// Resolves, discovers, classifies, surveys and emits.
+    ///
+    /// Embedding — the attribution `git harvest licences` (say) prints at
+    /// runtime — describes the one binary this build produces, so it
+    /// resolves against the build's own platform and features
+    /// ([`crate::build::Resolver::from_build_env`]).  Publishing describes
+    /// the *source*, which whoever builds this crate may target
+    /// differently, so it resolves every platform
+    /// ([`crate::build::Resolver::every_platform`]) instead — a
+    /// `cfg(windows)` dependency the embedding pass never sees still needs
+    /// its licence reproduced.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`crate::build::Error::Undischargeable`] if any package
+    /// carries an obligation that cannot be discharged,
+    /// [`crate::build::Error::Resolve`] if the graph cannot be read, and
+    /// [`crate::build::Error::Emit`] if the artefacts cannot be written or
+    /// the published file is stale.
+    pub fn run(&self) -> Result<crate::build::Outcome, crate::build::Error> {
+        println!("cargo::rerun-if-changed=Cargo.lock");
 
-        if let Some(path) = &self.published {
-            if self.checking {
-                crate::build::Emitter::check(path, &borrowed)?;
-            } else {
-                crate::build::Emitter::publish(path, &borrowed)?;
-            }
+        let embedded = Self::pass(&crate::build::Resolver::from_build_env()?)?;
+
+        crate::build::Emitter::from_build_env()?
+            .embed(&Self::borrow(&embedded.packages))?;
+
+        let Some(path) = &self.published else {
+            return Ok(embedded);
+        };
+
+        let published = Self::pass(
+            &crate::build::Resolver::from_build_env()?.every_platform(),
+        )?;
+        let borrowed = Self::borrow(&published.packages);
+
+        if self.checking {
+            crate::build::Emitter::check(path, &borrowed)?;
+        } else {
+            crate::build::Emitter::publish(path, &borrowed)?;
         }
 
-        Ok(crate::build::Outcome { packages, survey })
+        Ok(published)
     }
 }
 

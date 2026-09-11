@@ -532,7 +532,12 @@ fn spacing(text: &str) -> Vec<String> {
             continue;
         }
 
-        let opening = index.saturating_sub(5);
+        let opening = text[..=index]
+            .char_indices()
+            .rev()
+            .take(6)
+            .last()
+            .map_or(0, |(start, _)| start);
 
         if ABBREVIATIONS
             .iter()
@@ -949,6 +954,13 @@ fn the_semicolon_check_reports_a_doubled_space_only_when_asked() {
         silent.is_empty(),
         "the rule stays off where it is not asked for, got:\n{silent:#?}"
     );
+}
+
+#[test]
+fn the_spacing_check_does_not_panic_on_a_multibyte_character_before_it() {
+    let text = fixture("multibyte.txt");
+
+    findings(Path::new("multibyte.rs"), &text, true);
 }
 
 #[test]

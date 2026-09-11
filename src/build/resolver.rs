@@ -65,6 +65,22 @@ impl Resolver {
         }
     }
 
+    /// Clears any target filter, resolving the graph for every platform.
+    ///
+    /// [`Self::from_build_env`] narrows to the triple actually being
+    /// compiled for, which is right for [`crate::build::Emitter::embed`] —
+    /// describing the one binary this build produces — but wrong for
+    /// [`crate::build::Emitter::publish`] and [`crate::build::Emitter::check`],
+    /// which describe the *source*:  a `cfg(windows)` dependency that never
+    /// resolves under the CI host's own triple still ships to whoever
+    /// builds this crate for Windows, and its licence still needs
+    /// reproducing.
+    #[must_use]
+    pub fn every_platform(mut self) -> Self {
+        self.target = None;
+        self
+    }
+
     /// Sets the feature selection to resolve with, replacing any default.
     ///
     /// Passing an empty list resolves with no features at all.  Leaving this

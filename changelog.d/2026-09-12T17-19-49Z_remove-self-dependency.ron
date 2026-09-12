@@ -25,6 +25,14 @@
   changes: {
     "Fixed": [
       (
+        text: "exclude target/ from the new workspace",
+        commit: Some("8c31646"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
         text: "remove the crate\'s unconditional self-dependency",
         commit: Some("9ddae2d"),
         aliases: [

@@ -1,12 +1,12 @@
 (
   contributors: {
-    "aeruginous.rs@gmail.com": (
-      alias: "aeruginous.rs@gmail.com",
+    "92332892+kevinmatthes@users.noreply.github.com": (
+      alias: "92332892+kevinmatthes@users.noreply.github.com",
       names: [
         "Kevin Matthes",
       ],
       emails: [
-        "aeruginous.rs@gmail.com",
+        "92332892+kevinmatthes@users.noreply.github.com",
       ],
       urls: [],
     ),
@@ -23,12 +23,12 @@
   },
   references: {},
   changes: {
-    "Changed": [
+    "Fixed": [
       (
-        text: "pin every workflow action to its release commit hash",
-        commit: Some("33a2e25"),
+        text: "pin the self-dependency to an exact version, not a caret range",
+        commit: Some("bd4c9cf"),
         aliases: [
-          "aeruginous.rs@gmail.com",
+          "92332892+kevinmatthes@users.noreply.github.com",
           "noreply@anthropic.com",
         ],
       ),

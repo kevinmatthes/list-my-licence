@@ -564,5 +564,41 @@
         ],
       },
     ),
+    (
+      version: (0, 2, 5),
+      released: Some("2026-09-12T17:42:13.011777928Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Changed": [
+          (
+            text: "update taiki-e/install-action action to v2.87.12",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "exclude target/ from the new workspace",
+            commit: Some("8c31646"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "remove the crate\'s unconditional self-dependency",
+            commit: Some("9ddae2d"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
   ],
 )

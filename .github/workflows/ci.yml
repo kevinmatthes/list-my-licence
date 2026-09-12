@@ -174,6 +174,16 @@ jobs:
               *'requires new major version'*) raise major ;;
               *'requires new minor version'*) raise minor ;;
               *'no semver update required'*) ;;
+              *'cyclic package dependency: package `list-my-licence'*)
+                if [ "$LAST" != v0.2.3 ]; then
+                  echo 'unexpected cyclic dependency for a baseline other' \
+                       'than the one known to carry it; exit 1'
+                  exit 1
+                fi
+                echo "::warning::$LAST cannot be built as a baseline (its" \
+                     'own self-dependency is a cyclic caret range, fixed' \
+                     'going forward); skipping this combination.'
+                ;;
               *) echo 'no verdict from cargo-semver-checks'; exit 1 ;;
             esac
           done

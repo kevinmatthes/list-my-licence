@@ -19,7 +19,7 @@
 
 [package]
 name = "list-my-licence"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2024"
 rust-version = "1.98.1"
 description = "Embed verbatim dependency licences into a Rust binary."
@@ -43,7 +43,7 @@ optional = true
 version = "4.6.6"
 
 [build-dependencies]
-list-my-licence = { version = "0.2.2", features = ["build"] }
+list-my-licence = { version = "=0.2.2", features = ["build"] }
 
 [features]
 default = []

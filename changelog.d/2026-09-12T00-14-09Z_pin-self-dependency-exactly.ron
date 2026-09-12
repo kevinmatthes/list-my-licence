@@ -25,16 +25,32 @@
   changes: {
     "Fixed": [
       (
-        text: "stop the language check panicking on a multibyte character before punctuation",
-        commit: Some("7e21483"),
+        text: "tolerate the known-broken v0.2.3 baseline in release-level",
+        commit: Some("cf41cdc"),
         aliases: [
           "92332892+kevinmatthes@users.noreply.github.com",
           "noreply@anthropic.com",
         ],
       ),
       (
-        text: "resolve every platform when publishing the attribution, not just the build\'s own",
-        commit: Some("9974aff"),
+        text: "track the released version in CITATION.cff, not the pre-bumped one",
+        commit: Some("13a1af7"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
+        text: "disable rename detection in the changelog-fragment gate\'s diff",
+        commit: Some("75ad497"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
+        text: "pin the self-dependency to an exact version, not a caret range",
+        commit: Some("bd4c9cf"),
         aliases: [
           "92332892+kevinmatthes@users.noreply.github.com",
           "noreply@anthropic.com",

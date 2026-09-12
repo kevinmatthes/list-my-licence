@@ -69,6 +69,98 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 3),
+      released: Some("2026-09-11T23:18:08Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Changed": [
+          (
+            text: "dogfood the build feature on this crate itself, generating a committed THIRDPARTY.md",
+            commit: Some("12b621d"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "lock file maintenance",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "pin every workflow action to its release commit hash",
+            commit: Some("33a2e25"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "scope the release book-keeping token to the step that uses it",
+            commit: Some("b53bdc0"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "synthesise Renovate changelog entries at release time",
+            commit: Some("e9fca47"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.11",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "only publish THIRDPARTY.md under --all-features, the one combination stable across every feature-matrix build",
+            commit: Some("5b3e4f2"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "pin GIT_HARVEST_VERSION to 0.3.1, the latest actual release, not the stale 0.3.0",
+            commit: Some("c2f9d8c"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "resolve every platform when publishing the attribution, not just the build\'s own",
+            commit: Some("9974aff"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "stop the language check panicking on a multibyte character before punctuation",
+            commit: Some("7e21483"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 2),
       released: Some("2026-09-07T01:41:18.229503922Z"),
       introduction: None,

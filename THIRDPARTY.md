@@ -4439,7 +4439,7 @@ Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
 ```
 
-## list-my-licence 0.2.3
+## list-my-licence 0.2.4
 
 ### GPL-3.0-or-later (as distributed, in LICENCE)
 

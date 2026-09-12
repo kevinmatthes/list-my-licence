@@ -73,7 +73,7 @@ fn the_gpl_family_is_told_apart() {
     assert_eq!(
         Strength::of("GPL-3.0"),
         Strength::Strong,
-        "the deprecated bare form still occurs, and aeruginous-rs uses it"
+        "the deprecated bare form still occurs"
     );
     assert_eq!(Strength::of("MIT"), Strength::Permissive);
     assert_eq!(Strength::of("MPL-2.0"), Strength::Weak);

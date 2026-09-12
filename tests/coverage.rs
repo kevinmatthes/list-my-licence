@@ -201,7 +201,7 @@ fn a_deprecated_identifier_is_understood() {
 
     assert!(
         !verdict.is_fatal(),
-        "aeruginous-rs itself declares the deprecated GPL-3.0: {:?}",
+        "some crates declare the deprecated GPL-3.0:  {:?}",
         verdict.problems
     );
 }

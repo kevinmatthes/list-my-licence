@@ -64,7 +64,8 @@ jobs:
 
           last=$(git describe --tags --abbrev=0)
           version=$(cargo metadata --format-version 1 --no-deps |
-                    jq -r '.packages[0].version')
+                    jq -r '.packages[] |
+                           select(.name == "list-my-licence") | .version')
 
           shipped=no
           for f in $(git diff --name-only "$last"..HEAD); do

@@ -17,43 +17,18 @@
 ##                                                                            ##
 ################################################################################
 
-[workspace]
-exclude = ["target"]
-members = ["xtask"]
-
 [package]
-name = "list-my-licence"
-version = "0.2.5"
+name = "xtask"
+version = "0.0.0"
 edition = "2024"
 rust-version = "1.98.1"
-description = "Embed verbatim dependency licences into a Rust binary."
-repository = "https://github.com/kevinmatthes/list-my-licence"
+description = "Refreshes or checks this workspace's own THIRDPARTY.md."
 license = "GPL-3.0-or-later"
 authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
-keywords = ["attribution", "compliance", "licence", "license", "spdx"]
-categories = ["development-tools::build-utils"]
-readme = "README.md"
-include = ["src/**", "README.md", "LICENCE", "THIRDPARTY.md"]
+publish = false
 
 [dependencies]
-cargo_metadata = { version = "0.23.1", optional = true }
-license = { version = "3.8.0", optional = true }
-miniz_oxide = { version = "0.9.1", optional = true }
-spdx = { version = "0.13.5", optional = true }
-
-[dependencies.clap]
-features = ["derive"]
-optional = true
-version = "4.6.6"
-
-[features]
-default = []
-build = ["dep:cargo_metadata", "dep:license", "dep:spdx"]
-clap = ["dep:clap"]
-compression = ["dep:miniz_oxide"]
-
-[dev-dependencies]
-tempfile = "3.27.0"
+list-my-licence = { path = "..", features = ["build"] }
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }

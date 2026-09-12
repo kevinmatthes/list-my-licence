@@ -60,9 +60,9 @@ dependencies = [
 
 [[package]]
 name = "bitflags"
-version = "2.13.1"
+version = "2.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b588b76d00fde79687d7646a9b5bdf3cc0f655e0bbd080335a95d7e96f3587da"
+checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "camino"
@@ -219,23 +219,11 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "list-my-licence"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "172d0a7e2d442301568271c52739df8debf1b032a0720c6578cc06cc76f87969"
-dependencies = [
- "cargo_metadata",
- "license",
- "spdx",
-]
-
-[[package]]
-name = "list-my-licence"
 version = "0.2.5"
 dependencies = [
  "cargo_metadata",
  "clap",
  "license",
- "list-my-licence 0.2.2",
  "miniz_oxide",
  "spdx",
  "tempfile",
@@ -369,9 +357,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.16.0"
+version = "1.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9be42f50aa861c555654aa3a37f52f4b1074bacf4e48fe0ef7fa584e80f1f0f"
+checksum = "ba467056f1b547ed52077911161fc86985becbc60e8e1857c8a144dab0def891"
 
 [[package]]
 name = "spdx"
@@ -463,6 +451,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
 dependencies = [
  "windows-link",
+]
+
+[[package]]
+name = "xtask"
+version = "0.0.0"
+dependencies = [
+ "list-my-licence",
 ]
 
 [[package]]

@@ -17,38 +17,43 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Harvest the dependency licences at build time.
+//! Refreshes or checks the workspace's own committed `THIRDPARTY.md`.
 //!
-//! Dogfoods this crate's own `build` feature on itself, embedding the
-//! notices for a consumer of the `build` feature to print and refreshing
-//! the committed `THIRDPARTY.md`.  Under continuous integration (`CI` set)
-//! it checks that file against the graph instead of rewriting it, so
-//! licence drift cannot be merged unnoticed.
-//!
-//! `Builder::run` resolves against whichever features Cargo happens to
-//! have enabled for *this* build (`Resolver::from_build_env`), which
-//! genuinely varies across this crate's own `cargo-features` CI matrix —
-//! a `--features compression` build needs a different graph than
-//! `--all-features`.  A single committed file cannot match all of them,
-//! so `THIRDPARTY.md` is only written or checked under `--all-features`,
-//! the one combination that is the true superset and so the only one
-//! stable across every build.
+//! Run explicitly (`cargo run -p xtask`) rather than from a `build.rs`, so
+//! this crate never depends on itself to build.  `CI` set selects checking
+//! over rewriting, matching the committed file against the full,
+//! `--all-features` dependency graph.
+
+fn root() -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
+}
+
+fn simulate_build_script(root: &std::path::Path) {
+    let out_dir = std::env::temp_dir().join("list-my-licence-xtask");
+    std::fs::create_dir_all(&out_dir).expect("a writable temporary directory");
+
+    for (key, value) in [
+        ("CARGO_MANIFEST_DIR", root.as_os_str()),
+        ("OUT_DIR", out_dir.as_os_str()),
+        ("CARGO_FEATURE_BUILD", std::ffi::OsStr::new("1")),
+        ("CARGO_FEATURE_CLAP", std::ffi::OsStr::new("1")),
+        ("CARGO_FEATURE_COMPRESSION", std::ffi::OsStr::new("1")),
+    ] {
+        unsafe { std::env::set_var(key, value) };
+    }
+}
 
 fn main() {
-    let checking = std::env::var_os("CI").is_some();
-    let all_features =
-        ["BUILD", "CLAP", "COMPRESSION"].into_iter().all(|feature| {
-            std::env::var_os(format!("CARGO_FEATURE_{feature}")).is_some()
-        });
+    let root = root();
+    simulate_build_script(&root);
 
-    let mut builder = list_my_licence::build::Builder::new().checking(checking);
-
-    if all_features {
-        builder = builder.publish("THIRDPARTY.md");
-    }
+    let builder = list_my_licence::build::Builder::new()
+        .checking(std::env::var_os("CI").is_some())
+        .publish(root.join("THIRDPARTY.md"));
 
     if let Err(error) = builder.run() {
-        panic!("{error}");
+        eprintln!("{error}");
+        std::process::exit(1);
     }
 }
 

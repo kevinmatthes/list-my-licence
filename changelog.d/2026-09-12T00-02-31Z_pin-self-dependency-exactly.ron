@@ -25,6 +25,14 @@
   changes: {
     "Fixed": [
       (
+        text: "disable rename detection in the changelog-fragment gate\'s diff",
+        commit: Some("75ad497"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
         text: "pin the self-dependency to an exact version, not a caret range",
         commit: Some("bd4c9cf"),
         aliases: [

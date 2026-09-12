@@ -69,6 +69,64 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 4),
+      released: Some("2026-09-12T01:05:22.021979006Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Fixed": [
+          (
+            text: "collapse several Renovate bumps of the same dependency into the last, at synthesis time",
+            commit: Some("4275423"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "disable rename detection in the changelog-fragment gate\'s diff",
+            commit: Some("75ad497"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "pin the self-dependency to an exact version, not a caret range",
+            commit: Some("bd4c9cf"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "stop bookkeep from bumping a same-named registry dependency\'s version, and refresh THIRDPARTY.md after the bump",
+            commit: Some("31468eb"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "tolerate the known-broken v0.2.3 baseline in release-level",
+            commit: Some("cf41cdc"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "track the released version in CITATION.cff, not the pre-bumped one",
+            commit: Some("13a1af7"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 3),
       released: Some("2026-09-11T23:18:08Z"),
       introduction: None,

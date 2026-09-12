@@ -25,6 +25,22 @@
   changes: {
     "Fixed": [
       (
+        text: "tolerate the known-broken v0.2.3 baseline in release-level",
+        commit: Some("cf41cdc"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
+        text: "track the released version in CITATION.cff, not the pre-bumped one",
+        commit: Some("13a1af7"),
+        aliases: [
+          "92332892+kevinmatthes@users.noreply.github.com",
+          "noreply@anthropic.com",
+        ],
+      ),
+      (
         text: "disable rename detection in the changelog-fragment gate\'s diff",
         commit: Some("75ad497"),
         aliases: [

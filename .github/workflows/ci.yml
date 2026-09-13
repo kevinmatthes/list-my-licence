@@ -198,7 +198,11 @@ jobs:
             esac
           }
 
-          LAST="$(git describe --tags --abbrev=0)"
+          LAST="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          if [ -z "$LAST" ]; then
+            echo "no baseline tag yet; nothing to measure against"
+            exit 0
+          fi
           BASE="${LAST#v}"
           echo "the baseline is $LAST"
 

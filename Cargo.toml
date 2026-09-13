@@ -21,6 +21,12 @@
 exclude = ["target"]
 members = ["xtask"]
 
+[workspace.metadata.release]
+publish = false
+tag = false
+push = false
+pre-release-commit-message = "Skip ::= pre-bump the manifest to {{version}}"
+
 [package]
 name = "list-my-licence"
 version = "0.2.6"
@@ -34,6 +40,20 @@ keywords = ["attribution", "compliance", "licence", "license", "spdx"]
 categories = ["development-tools::build-utils"]
 readme = "README.md"
 include = ["src/**", "README.md", "LICENCE", "THIRDPARTY.md"]
+
+[package.metadata.release]
+publish = false
+tag = false
+push = false
+shared-version = true
+pre-release-hook = ["cargo", "run", "-p", "xtask"]
+pre-release-commit-message = "Skip ::= pre-bump the manifest to {{version}}"
+
+[[package.metadata.release.pre-release-replacements]]
+file = "CITATION.cff"
+search = "^version: .*"
+replace = "version: {{version}}"
+exactly = 1
 
 [dependencies]
 cargo_metadata = { version = "0.23.1", optional = true }

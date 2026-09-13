@@ -217,7 +217,7 @@ jobs:
           for combo in "${combos[@]}"; do
             echo "::group::cargo-semver-checks $combo"
             read -ra flags <<< "$combo"
-            report="$(cargo semver-checks --baseline-rev "$LAST" \
+            report="$(env -u CI cargo semver-checks --baseline-rev "$LAST" \
                       --release-type patch "${flags[@]}" 2>&1 || true)"
             echo "$report"
             echo '::endgroup::'

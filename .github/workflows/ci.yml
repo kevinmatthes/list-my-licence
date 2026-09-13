@@ -243,18 +243,33 @@ jobs:
             raise minor
           fi
 
-          OLD_CLAP="$(git show "$LAST:Cargo.toml" |
-                      field '[dependencies.clap]' | cut -d. -f1 |
-                      tr -cd '0-9')"
-          NEW_CLAP="$(field '[dependencies.clap]' < Cargo.toml |
-                      cut -d. -f1 | tr -cd '0-9')"
+          OLD_TOML="$(git show "$LAST:Cargo.toml")"
+          NEW_TOML="$(cat Cargo.toml)"
 
-          if [ -n "$OLD_CLAP" ] && [ -n "$NEW_CLAP" ] &&
-             [ "$NEW_CLAP" -gt "$OLD_CLAP" ]
-          then
-            echo "clap is required at $NEW_CLAP, was $OLD_CLAP"
-            raise major
-          fi
+          major_of() {
+            local toml="$1" name="$2" v
+            v="$(printf '%s\n' "$toml" | field "[dependencies.$name]")"
+
+            if [ -z "$v" ]; then
+              v="$(printf '%s\n' "$toml" |
+                   awk -F'"' -v want="$name = " \
+                       'index($0, want) == 1 { print $2; exit }')"
+            fi
+
+            printf '%s\n' "$v" | cut -d. -f1 | tr -cd '0-9'
+          }
+
+          for dep in clap cargo_metadata; do
+            OLD_MAJOR="$(major_of "$OLD_TOML" "$dep")"
+            NEW_MAJOR="$(major_of "$NEW_TOML" "$dep")"
+
+            if [ -n "$OLD_MAJOR" ] && [ -n "$NEW_MAJOR" ] &&
+               [ "$NEW_MAJOR" -gt "$OLD_MAJOR" ]
+            then
+              echo "$dep is required at $NEW_MAJOR, was $OLD_MAJOR"
+              raise major
+            fi
+          done
 
           IFS=. read -r MAJ MIN PAT <<< "$BASE"
 

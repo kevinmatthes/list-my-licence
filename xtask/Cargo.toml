@@ -27,6 +27,9 @@ license = "GPL-3.0-or-later"
 authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
 publish = false
 
+[package.metadata.release]
+release = false
+
 [dependencies]
 list-my-licence = { path = "..", features = ["build"] }
 

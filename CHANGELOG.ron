@@ -69,6 +69,114 @@
   references: {},
   sections: [
     (
+      version: (0, 2, 6),
+      released: Some("2026-09-14T02:08:51.218207491Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "add a cargo-deny configuration for the permissive-licence dependency policy",
+            commit: Some("b9ac2ba"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "port git-harvest\'s Renovate THIRDPARTY refresh job for parity",
+            commit: Some("bdcea98"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "verify the crate builds against its declared minimum Rust toolchain",
+            commit: Some("a9bc5e2"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "wire cargo-deny into ci.yml\'s gate, tracked by Renovate",
+            commit: Some("63d7532"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "reinstate cargo-release for the manual mid-branch bump",
+            commit: Some("f994381"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "release-level self-corrects via cargo-release on same-repo PRs",
+            commit: Some("5f8f56b"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "rename Clippy configuration file",
+            commit: Some("5684a41"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+          (
+            text: "rename rustfmt configuration file",
+            commit: Some("faf9b32"),
+            aliases: [
+              "kevinmatthes",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "exit release-level early with no baseline tag yet",
+            commit: Some("e93b047"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "scope CI out of release-level\'s semver-checks baseline build",
+            commit: Some("635da75"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "select list-my-licence by name from cargo metadata",
+            commit: Some("162319a"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "watch cargo_metadata for a major bump alongside clap",
+            commit: Some("c80a77e"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 4),
       released: Some("2026-09-12T01:05:22.021979006Z"),
       introduction: None,

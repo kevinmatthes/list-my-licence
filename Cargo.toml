@@ -46,7 +46,7 @@ publish = false
 tag = false
 push = false
 shared-version = true
-pre-release-hook = ["cargo", "run", "-p", "xtask"]
+pre-release-hook = ["env", "-u", "CI", "cargo", "run", "-p", "xtask"]
 pre-release-commit-message = "Skip ::= pre-bump the manifest to {{version}}"
 
 [[package.metadata.release.pre-release-replacements]]

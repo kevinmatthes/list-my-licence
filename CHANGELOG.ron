@@ -69,6 +69,92 @@
   references: {},
   sections: [
     (
+      version: (0, 3, 0),
+      released: Some("2026-09-16T16:46:37.658980952Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "a --format selector and a build-time debian/copyright",
+            commit: Some("c5c67c0"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "attach the dependency graph\'s corresponding source to every tagged release",
+            commit: Some("80b0cf6"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "update Rust crate clap to 4.6.7",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.13",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "xtask\'s description also names debian/copyright",
+            commit: Some("b1f2687"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "renovate-licences also commits a refreshed debian/copyright",
+            commit: Some("ae796f0"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "renovate-licences never falls back to origin/$BASE on a fresh branch",
+            commit: Some("ded5f09"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "restore the 0.2.5 section to its correct descending-version position in CHANGELOG.ron",
+            commit: Some("035fc99"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "the licence-notices refresh survives a second Cargo.lock move under CI",
+            commit: Some("c08fbec"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 2, 6),
       released: Some("2026-09-14T02:08:51.218207491Z"),
       introduction: None,

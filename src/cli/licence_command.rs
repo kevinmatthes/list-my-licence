@@ -54,6 +54,10 @@
 pub enum LicenceCommand {
     /// Show the licences of this application and its dependencies.
     Licences {
+        /// How to render the licences.
+        #[arg(default_value = "text", long = "format", value_enum)]
+        format: crate::cli::Format,
+
         /// Show only this crate's licences.
         #[arg(value_name = "CRATE")]
         wanted: Option<String>,
@@ -68,18 +72,17 @@ impl LicenceCommand {
     /// answer rather than a failure.
     #[must_use]
     pub fn render(&self, attribution: &crate::Attribution) -> String {
-        let Self::Licences { wanted } = self;
+        let Self::Licences { format, wanted } = self;
 
         wanted.as_deref().map_or_else(
-            || attribution.to_string(),
+            || format.render(attribution),
             |name| {
                 attribution
                     .package(name)
                     .map_or_else(String::new, |package| {
-                        crate::Attribution {
+                        format.render(&crate::Attribution {
                             packages: std::slice::from_ref(package),
-                        }
-                        .to_string()
+                        })
                     })
             },
         )

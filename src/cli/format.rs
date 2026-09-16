@@ -17,21 +17,33 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Command line plumbing for applications built with clap.
-//!
-//! Deliberately additive.  These types contribute options and
-//! subcommands to whatever parser an application already has, rather
-//! than replacing the call that parses them:  a wrapper around
-//! `parse` does not compose with a derived `Parser`, and an
-//! application should not have to give up its own argument handling
-//! to gain a `--licences` option.
+/// Which shape licence reporting is rendered into.
+///
+/// `Text` is the default:  it is today's behaviour, the plain-text
+/// [`Display`](std::fmt::Display), so choosing this enum a default does not
+/// change what an existing caller sees.
+#[derive(Clone, Copy, Debug, clap::ValueEnum, Eq, PartialEq)]
+pub enum Format {
+    /// A machine-readable DEP-5 `debian/copyright`.
+    Dep5,
 
-mod format;
-mod licence_args;
-mod licence_command;
+    /// Markdown, with licence texts in fenced blocks.
+    Markdown,
 
-pub use crate::cli::{
-    format::Format, licence_args::LicenceArgs, licence_command::LicenceCommand,
-};
+    /// Plain text, for a terminal.
+    Text,
+}
+
+impl Format {
+    /// Renders the given attribution in this format.
+    #[must_use]
+    pub fn render(self, attribution: &crate::Attribution) -> String {
+        match self {
+            Self::Dep5 => attribution.dep5(),
+            Self::Markdown => attribution.markdown(),
+            Self::Text => attribution.to_string(),
+        }
+    }
+}
 
 /******************************************************************************/

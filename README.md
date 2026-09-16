@@ -51,10 +51,10 @@ the result and **has no dependencies at all**.
 
 ```toml
 [build-dependencies]
-list-my-licence = { version = "0.2", features = ["build"] }
+list-my-licence = { version = "0.3", features = ["build"] }
 
 [dependencies]
-list-my-licence = "0.2"
+list-my-licence = "0.3"
 ```
 
 A complete `build.rs`:
@@ -116,7 +116,7 @@ parser, rather than replacing the call that parses it — which is what lets it
 compose with a derived `Parser` instead of fighting it.
 
 ```toml
-list-my-licence = { version = "0.2", features = ["clap"] }
+list-my-licence = { version = "0.3", features = ["clap"] }
 ```
 
 ```rust
@@ -131,9 +131,13 @@ let arguments = Arguments::parse();
 arguments.licences.handle_and_exit(&LICENCES);
 ```
 
-That contributes `--licences` and `--licences <CRATE>`.  Applications
-preferring `myapp licences` can flatten `cli::LicenceCommand` into their own
-subcommand enumeration instead.
+That contributes `--licences`, `--licences <CRATE>` and `--licence-format
+<text|markdown|dep5>` (default `text`).  Applications preferring `myapp
+licences` can flatten `cli::LicenceCommand` into their own subcommand
+enumeration instead, which contributes `myapp licences [CRATE] --format
+<text|markdown|dep5>` — the shorter flag name, since a whole subcommand does
+not collide with a host application's own options the way a flattened flag
+might.
 
 The feature is additive and not default:  it costs the runtime half its empty
 dependency list.
@@ -145,7 +149,7 @@ on demand.  Licence texts compress well — they are long, English, and highly
 repetitive — so a binary shipping many of them carries considerably less.
 
 ```toml
-list-my-licence = { version = "0.2", features = ["compression"] }
+list-my-licence = { version = "0.3", features = ["compression"] }
 ```
 
 ```rust

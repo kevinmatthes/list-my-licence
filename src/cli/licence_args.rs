@@ -45,6 +45,14 @@
 /// ```
 #[derive(Clone, Debug, clap::Args)]
 pub struct LicenceArgs {
+    /// How to render the licences.
+    ///
+    /// Named `--licence-format` rather than `--format`, since this type is
+    /// flattened into a host application's own parser, which may already
+    /// have a `--format` of its own.
+    #[arg(default_value = "text", long = "licence-format", value_enum)]
+    licence_format: crate::cli::Format,
+
     /// Show the licences of this application and its dependencies.
     ///
     /// Given a crate name, only that crate's licences are shown.
@@ -85,17 +93,16 @@ impl LicenceArgs {
         let wanted = self.licences.as_deref()?;
 
         if wanted.is_empty() {
-            return Some(attribution.to_string());
+            return Some(self.licence_format.render(attribution));
         }
 
         Some(
             attribution
                 .package(wanted)
                 .map_or_else(String::new, |package| {
-                    crate::Attribution {
+                    self.licence_format.render(&crate::Attribution {
                         packages: std::slice::from_ref(package),
-                    }
-                    .to_string()
+                    })
                 }),
         )
     }

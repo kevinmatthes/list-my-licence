@@ -17,12 +17,49 @@
 |                                                                              |
 \******************************************************************************/
 
-//! Refreshes or checks the workspace's own committed `THIRDPARTY.md`.
+//! Refreshes or checks the workspace's own committed `THIRDPARTY.md` and
+//! `debian/copyright`.
 //!
 //! Run explicitly (`cargo run -p xtask`) rather than from a `build.rs`, so
 //! this crate never depends on itself to build.  `CI` set selects checking
-//! over rewriting, matching the committed file against the full,
+//! over rewriting, matching the committed files against the full,
 //! `--all-features` dependency graph.
+
+/// Refreshes or checks the committed `debian/copyright`.
+///
+/// The DEP-5 counterpart of what [`list_my_licence::build::Builder::run`]
+/// already does for `THIRDPARTY.md`, hand-rolled because
+/// [`list_my_licence::build::Emitter::check`] is markdown-specific — there
+/// is no DEP-5 equivalent to call instead.
+fn refresh_or_check_copyright(
+    root: &std::path::Path,
+    outcome: &list_my_licence::build::Outcome,
+    checking: bool,
+) -> std::io::Result<()> {
+    let packages: Vec<list_my_licence::build::Reproduced<'_>> = outcome
+        .packages
+        .iter()
+        .map(|(package, verdict)| (package, verdict))
+        .collect();
+    let expected = list_my_licence::build::Emitter::dep5(&packages);
+    let path = root.join("debian/copyright");
+
+    if !checking {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        return std::fs::write(&path, expected);
+    }
+
+    match std::fs::read_to_string(&path) {
+        Ok(found) if found == expected => Ok(()),
+        _ => Err(std::io::Error::other(format!(
+            "{} is missing or out of date",
+            path.display()
+        ))),
+    }
+}
 
 fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
@@ -45,13 +82,23 @@ fn simulate_build_script(root: &std::path::Path) {
 
 fn main() {
     let root = root();
+    let checking = std::env::var_os("CI").is_some();
+
     simulate_build_script(&root);
 
     let builder = list_my_licence::build::Builder::new()
-        .checking(std::env::var_os("CI").is_some())
+        .checking(checking)
         .publish(root.join("THIRDPARTY.md"));
 
-    if let Err(error) = builder.run() {
+    let outcome = match builder.run() {
+        Ok(outcome) => outcome,
+        Err(error) => {
+            eprintln!("{error}");
+            std::process::exit(1);
+        }
+    };
+
+    if let Err(error) = refresh_or_check_copyright(&root, &outcome, checking) {
         eprintln!("{error}");
         std::process::exit(1);
     }

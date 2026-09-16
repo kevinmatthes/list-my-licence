@@ -195,6 +195,89 @@ fn the_subcommand_form_accepts_a_crate() {
 }
 
 #[test]
+fn the_flag_form_defaults_to_plain_text() {
+    let rendered = parse(&["--licences"])
+        .licences
+        .render(&ATTRIBUTION)
+        .expect("licences were requested");
+
+    assert!(rendered.starts_with("first 1.0.0"), "{rendered}");
+}
+
+#[test]
+fn the_flag_form_renders_markdown() {
+    let rendered = parse(&["--licences", "--licence-format", "markdown"])
+        .licences
+        .render(&ATTRIBUTION)
+        .expect("licences were requested");
+
+    assert!(rendered.starts_with("# Third party licences"), "{rendered}");
+}
+
+#[test]
+fn the_flag_form_renders_dep5() {
+    let rendered = parse(&["--licences", "--licence-format", "dep5"])
+        .licences
+        .render(&ATTRIBUTION)
+        .expect("licences were requested");
+
+    assert!(rendered.starts_with("Format: "), "{rendered}");
+}
+
+#[test]
+fn an_unknown_crate_is_empty_in_every_format() {
+    let rendered = parse(&["--licences", "absent", "--licence-format", "dep5"])
+        .licences
+        .render(&ATTRIBUTION)
+        .expect("licences were requested");
+
+    assert!(rendered.is_empty(), "{rendered}");
+}
+
+#[test]
+fn the_subcommand_form_defaults_to_plain_text() {
+    let parsed = Commanded::try_parse_from(["myapp", "licences"])
+        .expect("the subcommand must parse");
+
+    let Command::Licence(licence) = parsed.command else {
+        panic!("the licences subcommand must be recognised");
+    };
+
+    assert!(licence.render(&ATTRIBUTION).starts_with("first 1.0.0"));
+}
+
+#[test]
+fn the_subcommand_form_renders_markdown() {
+    let parsed = Commanded::try_parse_from([
+        "myapp", "licences", "--format", "markdown",
+    ])
+    .expect("the subcommand must parse");
+
+    let Command::Licence(licence) = parsed.command else {
+        panic!("the licences subcommand must be recognised");
+    };
+
+    let rendered = licence.render(&ATTRIBUTION);
+
+    assert!(rendered.starts_with("# Third party licences"), "{rendered}");
+}
+
+#[test]
+fn the_subcommand_form_renders_dep5() {
+    let parsed =
+        Commanded::try_parse_from(["myapp", "licences", "--format", "dep5"])
+            .expect("the subcommand must parse");
+
+    let Command::Licence(licence) = parsed.command else {
+        panic!("the licences subcommand must be recognised");
+    };
+
+    let rendered = licence.render(&ATTRIBUTION);
+
+    assert!(rendered.starts_with("Format: "), "{rendered}");
+}
+
+#[test]
 fn the_applications_own_subcommand_still_works() {
     let parsed = Commanded::try_parse_from(["myapp", "run"])
         .expect("the subcommand must parse");

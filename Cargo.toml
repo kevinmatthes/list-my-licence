@@ -29,7 +29,7 @@ pre-release-commit-message = "Skip ::= pre-bump the manifest to {{version}}"
 
 [package]
 name = "list-my-licence"
-version = "0.2.7"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.98.1"
 description = "Embed verbatim dependency licences into a Rust binary."
@@ -39,7 +39,13 @@ authors = ["Kevin Matthes <aeruginous.rs@gmail.com>"]
 keywords = ["attribution", "compliance", "licence", "license", "spdx"]
 categories = ["development-tools::build-utils"]
 readme = "README.md"
-include = ["src/**", "README.md", "LICENCE", "THIRDPARTY.md"]
+include = [
+    "src/**",
+    "README.md",
+    "LICENCE",
+    "THIRDPARTY.md",
+    "debian/copyright",
+]
 
 [package.metadata.release]
 publish = false

@@ -69,6 +69,42 @@
   references: {},
   sections: [
     (
+      version: (0, 3, 1),
+      released: Some("2026-09-19T14:38:26.728712843Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "let Builder accept packages outside Cargo\'s own graph",
+            commit: Some("4beb4ff"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "update Rust crate license to 3.9.0",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.16",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 3, 0),
       released: Some("2026-09-16T16:46:37.658980952Z"),
       introduction: None,

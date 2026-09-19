@@ -33,6 +33,7 @@
 pub struct Builder {
     published: Option<std::path::PathBuf>,
     checking: bool,
+    extra: Vec<crate::build::ResolvedPackage>,
 }
 
 impl Builder {
@@ -45,6 +46,24 @@ impl Builder {
     #[must_use]
     pub const fn checking(mut self, checking: bool) -> Self {
         self.checking = checking;
+        self
+    }
+
+    /// Adds packages outside Cargo's own graph.
+    ///
+    /// A statically linked system library, say — `cargo metadata` never
+    /// sees it, so [`crate::build::Resolver`] cannot find it on its own.
+    /// Each entry is discovered, classified, surveyed and reproduced
+    /// exactly like any package [`crate::build::Resolver::resolve`] returns;
+    /// the caller supplies a [`crate::build::ResolvedPackage`] whose
+    /// `manifest_dir` points at wherever that dependency's own licence file
+    /// actually lives.
+    #[must_use]
+    pub fn extra(
+        mut self,
+        packages: impl IntoIterator<Item = crate::build::ResolvedPackage>,
+    ) -> Self {
+        self.extra.extend(packages);
         self
     }
 
@@ -74,7 +93,8 @@ impl Builder {
             .collect()
     }
 
-    /// Resolves, discovers, classifies and surveys one graph.
+    /// Resolves, discovers, classifies and surveys one graph, `extra`
+    /// unioned in and the whole sorted alongside it.
     ///
     /// # Errors
     ///
@@ -83,6 +103,7 @@ impl Builder {
     /// [`crate::build::Error::Resolve`] if the graph cannot be read.
     fn pass(
         resolver: &crate::build::Resolver,
+        extra: &[crate::build::ResolvedPackage],
     ) -> Result<crate::build::Outcome, crate::build::Error> {
         let discovery = crate::build::Discovery::new();
         let classifier = crate::build::Classifier::new();
@@ -91,7 +112,11 @@ impl Builder {
         let mut survey = crate::build::Copyleft::new().survey();
         let mut undischargeable = Vec::new();
 
-        for package in resolver.resolve()? {
+        let mut graph = resolver.resolve()?;
+        graph.extend(extra.iter().cloned());
+        graph.sort();
+
+        for package in graph {
             let evidence = discovery.search(&package);
             let verdict = classifier.classify(&package, &evidence);
 
@@ -144,7 +169,10 @@ impl Builder {
     pub fn run(&self) -> Result<crate::build::Outcome, crate::build::Error> {
         println!("cargo::rerun-if-changed=Cargo.lock");
 
-        let embedded = Self::pass(&crate::build::Resolver::from_build_env()?)?;
+        let embedded = Self::pass(
+            &crate::build::Resolver::from_build_env()?,
+            &self.extra,
+        )?;
 
         crate::build::Emitter::from_build_env()?
             .embed(&Self::borrow(&embedded.packages))?;
@@ -155,6 +183,7 @@ impl Builder {
 
         let published = Self::pass(
             &crate::build::Resolver::from_build_env()?.every_platform(),
+            &self.extra,
         )?;
         let borrowed = Self::borrow(&published.packages);
 

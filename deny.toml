@@ -26,20 +26,13 @@ ignore = []
 [licenses]
 allow = [
     "Apache-2.0",
-    "Apache-2.0 WITH LLVM-exception",
-    "BSD-3-Clause",
-    "CC0-1.0",
     "GPL-3.0-or-later",
     "MIT",
-    "MIT-0",
     "Unicode-3.0",
     "Unlicense",
     "Zlib",
 ]
 confidence-threshold = 0.8
-exceptions = [
-    { allow = ["MPL-2.0"], crate = "uluru" },
-]
 
 [licenses.private]
 ignore = false

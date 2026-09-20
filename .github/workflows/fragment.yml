@@ -26,7 +26,7 @@ permissions:
   contents: write
 
 env:
-  GIT_HARVEST_VERSION: "0.3.1"
+  GIT_HARVEST_VERSION: "0.3.3"
 
 jobs:
   fragment:
@@ -39,11 +39,18 @@ jobs:
 
       - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
 
+      - name: install git-harvest's precompiled .deb
+        run: |
+          set -euo pipefail
+          repo=https://github.com/kevinmatthes/git-harvest
+          deb="git-harvest_${GIT_HARVEST_VERSION}-1_amd64.deb"
+          curl -fsSLo git-harvest.deb \
+            "$repo/releases/download/v$GIT_HARVEST_VERSION/$deb"
+          sudo dpkg -i git-harvest.deb
+          rm git-harvest.deb
+
       - name: harvest this branch into a changelog fragment
         run: |
-          rustup update
-          cargo install git-harvest \
-            --version "$GIT_HARVEST_VERSION" --locked
           git harvest scan --base origin/main
           [ -d changelog.d ] || { echo 'nothing to harvest'; exit 0; }
           git add changelog.d/

@@ -343,11 +343,8 @@ jobs:
   changelog-fragment:
     runs-on: ubuntu-latest
     env:
-      GIT_HARVEST_VERSION: "0.3.1"
+      GIT_HARVEST_VERSION: "0.3.3"
     steps:
-      - if: github.event_name == 'pull_request'
-        run: rustup update
-
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -355,16 +352,15 @@ jobs:
           persist-credentials: false
 
       - if: github.event_name == 'pull_request'
-        id: cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cargo/bin/git-harvest
-          key: git-harvest-${{ env.GIT_HARVEST_VERSION }}-${{ runner.os }}
-
-      - if: >-
-          github.event_name == 'pull_request'
-          && steps.cache.outputs.cache-hit != 'true'
-        run: cargo install git-harvest --version "$GIT_HARVEST_VERSION" --locked
+        name: install git-harvest's precompiled .deb
+        run: |
+          set -euo pipefail
+          repo=https://github.com/kevinmatthes/git-harvest
+          deb="git-harvest_${GIT_HARVEST_VERSION}-1_amd64.deb"
+          curl -fsSLo git-harvest.deb \
+            "$repo/releases/download/v$GIT_HARVEST_VERSION/$deb"
+          sudo dpkg -i git-harvest.deb
+          rm git-harvest.deb
 
       - if: github.event_name == 'pull_request'
         name: a Bucket ::= commit is matched by a committed fragment

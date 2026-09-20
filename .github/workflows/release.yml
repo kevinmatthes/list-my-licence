@@ -129,7 +129,7 @@ jobs:
       contents: write
       id-token: write
     env:
-      GIT_HARVEST_VERSION: "0.3.1"
+      GIT_HARVEST_VERSION: "0.3.3"
     steps:
       - run: rustup update
 
@@ -137,7 +137,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - run: cargo install git-harvest --version "$GIT_HARVEST_VERSION" --locked
+      - name: install git-harvest's precompiled .deb
+        run: |
+          set -euo pipefail
+          repo=https://github.com/kevinmatthes/git-harvest
+          deb="git-harvest_${GIT_HARVEST_VERSION}-1_amd64.deb"
+          curl -fsSLo git-harvest.deb \
+            "$repo/releases/download/v$GIT_HARVEST_VERSION/$deb"
+          sudo dpkg -i git-harvest.deb
+          rm git-harvest.deb
 
       - name: assemble this version's notes from the CHANGELOG
         env:
@@ -199,7 +207,7 @@ jobs:
       contents: write
       pull-requests: write
     env:
-      GIT_HARVEST_VERSION: "0.3.1"
+      GIT_HARVEST_VERSION: "0.3.3"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -207,7 +215,15 @@ jobs:
 
       - run: rustup update
 
-      - run: cargo install git-harvest --version "$GIT_HARVEST_VERSION" --locked
+      - name: install git-harvest's precompiled .deb
+        run: |
+          set -euo pipefail
+          repo=https://github.com/kevinmatthes/git-harvest
+          deb="git-harvest_${GIT_HARVEST_VERSION}-1_amd64.deb"
+          curl -fsSLo git-harvest.deb \
+            "$repo/releases/download/v$GIT_HARVEST_VERSION/$deb"
+          sudo dpkg -i git-harvest.deb
+          rm git-harvest.deb
 
       - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
 

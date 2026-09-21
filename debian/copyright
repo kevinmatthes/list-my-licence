@@ -1400,7 +1400,7 @@ License: MIT and Apache-2.0
     See the License for the specific language governing permissions and
     limitations under the License.
 
-Files: camino-1.2.5/*
+Files: camino-1.2.6/*
 Copyright: Without Boats <saoirse@without.boats>
  Ashley Williams <ashley666ashley@gmail.com>
  Steve Klabnik <steve@steveklabnik.com>
@@ -2591,7 +2591,7 @@ License: MIT and Apache-2.0
     See the License for the specific language governing permissions and
     limitations under the License.
 
-Files: clap_lex-1.1.0/*
+Files: clap_lex-1.1.1/*
 Copyright: not stated in the package manifest
 License: MIT and Apache-2.0
  .
@@ -2807,7 +2807,7 @@ License: MIT and Apache-2.0
        same "printed page" as the copyright notice for easier
        identification within third-party archives.
  .
-    Copyright {yyyy} {name of copyright owner}
+    Copyright Individual contributors
  .
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -7331,7 +7331,7 @@ License: MIT
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
-Files: syn-3.0.5/*
+Files: syn-3.0.6/*
 Copyright: David Tolnay <dtolnay@gmail.com>
 License: MIT and Apache-2.0
  .
@@ -7958,7 +7958,7 @@ License: MIT and Apache-2.0
  .
  END OF TERMS AND CONDITIONS
 
-Files: unicode-ident-1.0.24/*
+Files: unicode-ident-1.0.26/*
 Copyright: David Tolnay <dtolnay@gmail.com>
 License: MIT and Apache-2.0 and Unicode-3.0
  .

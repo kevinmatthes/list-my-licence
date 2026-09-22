@@ -354,7 +354,7 @@ jobs:
   changelog-fragment:
     runs-on: ubuntu-latest
     env:
-      GIT_HARVEST_VERSION: "0.3.3"
+      GIT_HARVEST_VERSION: "0.4.0"
     steps:
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

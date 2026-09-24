@@ -44,6 +44,12 @@ const EXTENSIONS: [&str; 3] = ["", "txt", "md"];
 /// Directories holding licence files, by the REUSE convention.
 const DIRECTORIES: [&str; 2] = ["LICENSES", "licenses"];
 
+/// Directories whose every file is a notice to reproduce.
+///
+/// Some crates keep the notices of the code they inherited here and leave the
+/// top-level licence file as an index that only points at them.
+const NOTICE_DIRECTORIES: [&str; 3] = [".licences", ".licenses", "licences"];
+
 /// Names that are not SPDX identifiers but conventionally stand for one.
 ///
 /// Deliberately minimal.  `BSD`, `GPL` and `UNICODE` are *not* listed:  each
@@ -97,6 +103,23 @@ impl Discovery {
                 candidates.push(path);
             }
         }
+    }
+
+    /// Adds every file of a directory of notices to `candidates`.
+    fn collect_notices(
+        directory: &std::path::Path,
+        candidates: &mut Vec<std::path::PathBuf>,
+    ) {
+        let Ok(entries) = std::fs::read_dir(directory) else {
+            return;
+        };
+
+        candidates.extend(
+            entries
+                .flatten()
+                .map(|entry| entry.path())
+                .filter(|path| path.is_file()),
+        );
     }
 
     /// Adds the licence files of a REUSE `LICENSES` directory.
@@ -167,6 +190,14 @@ impl Discovery {
         Self::split_name(path).is_some()
     }
 
+    /// Whether a path sits inside a directory of notices.
+    fn is_notice_directory(path: &std::path::Path) -> bool {
+        path.parent()
+            .and_then(std::path::Path::file_name)
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| NOTICE_DIRECTORIES.contains(&name))
+    }
+
     /// Whether a path sits inside a REUSE `LICENSES` directory.
     fn is_reuse(path: &std::path::Path) -> bool {
         path.parent()
@@ -207,10 +238,11 @@ impl Discovery {
             .or_else(|| Self::expression(&base.replace('_', " ")))
     }
 
-    /// What part a file plays, judged by its name.
+    /// What part a file plays, judged by its name and its directory.
     fn role(path: &std::path::Path) -> crate::build::Role {
         match Self::split_name(path) {
             Some(("notice", _)) => crate::build::Role::Notice,
+            _ if Self::is_notice_directory(path) => crate::build::Role::Notice,
             _ => crate::build::Role::Licence,
         }
     }
@@ -219,7 +251,9 @@ impl Discovery {
     ///
     /// The search covers the directory holding the manifest, the `LICENSES`
     /// directory beside it where the REUSE convention puts them, and whatever
-    /// the manifest's own `license-file` key points at.  It does **not**
+    /// the manifest's own `license-file` key points at.  Every file of a
+    /// hidden `.licenses` or `licences` directory beside it is taken as a
+    /// notice, without guessing which licence each belongs to.  It does **not**
     /// recurse:  a full walk would pick up the licence fixtures that many
     /// projects keep under `tests/`, and attribute another project's licence to
     /// this one.
@@ -235,6 +269,13 @@ impl Discovery {
 
         for directory in DIRECTORIES {
             Self::collect_reuse(
+                &package.manifest_dir.join(directory),
+                &mut candidates,
+            );
+        }
+
+        for directory in NOTICE_DIRECTORIES {
+            Self::collect_notices(
                 &package.manifest_dir.join(directory),
                 &mut candidates,
             );

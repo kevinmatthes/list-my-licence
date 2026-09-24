@@ -368,4 +368,49 @@ fn both_spellings_of_the_stem_are_found() {
     assert_eq!(evidence.found[0].identifier, other.found[0].identifier);
 }
 
+#[test]
+fn takes_every_file_of_a_hidden_notice_directory() {
+    let directory = fixture(&[
+        "LICENSE",
+        ".licenses/ChenYuheng-Apache",
+        ".licenses/ChenYuheng-MIT",
+        ".licenses/Ethiraric-Apache",
+        ".licenses/Ethiraric-MIT",
+    ]);
+    let evidence = Discovery::new().search(&package(directory.path()));
+
+    assert_eq!(
+        evidence.notices().count(),
+        4,
+        "a licence file that only indexes its neighbours must not hide them"
+    );
+    assert_eq!(evidence.licences().count(), 1, "the index stays a licence");
+    assert!(
+        evidence.notices().all(|file| file.identifier.is_none()),
+        "a holder and an identifier in one name must not be guessed apart"
+    );
+}
+
+#[test]
+fn reads_both_spellings_of_the_notice_directory() {
+    let directory = fixture(&["licences/first", ".licences/second"]);
+
+    assert_eq!(
+        names(directory.path()),
+        vec![".licences/second".to_owned(), "licences/first".to_owned()],
+        "British and American spellings are both in use"
+    );
+}
+
+#[test]
+fn does_not_recurse_into_a_notice_directory() {
+    let directory = fixture(&[".licenses/first", ".licenses/nested/second"]);
+
+    assert_eq!(
+        names(directory.path()),
+        vec![".licenses/first".to_owned()],
+        "a notice directory is read one level deep, like every other"
+    );
+}
+
 /******************************************************************************/

@@ -3990,7 +3990,7 @@ SOFTWARE.
    limitations under the License.
 ```
 
-## list-my-licence 0.3.2
+## list-my-licence 0.3.3
 
 ### GPL-3.0-or-later (as distributed, in LICENCE)
 

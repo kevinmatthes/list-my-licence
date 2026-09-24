@@ -69,6 +69,100 @@
   references: {},
   sections: [
     (
+      version: (0, 3, 2),
+      released: Some("2026-09-24T16:10:12.166721095Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "a cargo package --locked check to CI",
+            commit: Some("c4384a5"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "install git-harvest\'s precompiled .deb instead of polling crates.io",
+            commit: Some("d44f5e6"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "lock file maintenance",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency git-harvest to 0.4.0",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.20",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "deny.toml\'s allow list to only licences a dependency actually uses",
+            commit: Some("0535820"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "release.yml captures cargo vendor\'s [source] replace-with stanza",
+            commit: Some("06a5042"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "reproduce the notices a package keeps in a hidden notice directory",
+            commit: Some("5886bc8"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "reproduce the notices a package keeps in a licenses directory",
+            commit: Some("dcd267d"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "stop cargo-release from bumping CITATION.cff\'s version ahead of publication",
+            commit: Some("77d3338"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 3, 1),
       released: Some("2026-09-19T14:38:26.728712843Z"),
       introduction: None,

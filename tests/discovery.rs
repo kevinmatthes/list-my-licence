@@ -413,4 +413,26 @@ fn does_not_recurse_into_a_notice_directory() {
     );
 }
 
+#[test]
+fn an_american_notice_directory_keeps_its_reuse_licences() {
+    let directory = fixture(&["licenses/MIT.txt", "licenses/holder-note"]);
+    let evidence = Discovery::new().search(&package(directory.path()));
+
+    assert_eq!(
+        evidence.licences().count(),
+        1,
+        "a file named after its identifier is a licence, not a notice"
+    );
+    assert_eq!(
+        evidence.licences().next().unwrap().identifier,
+        Some("MIT".to_owned()),
+        "and keeps the identifier its name states"
+    );
+    assert_eq!(
+        evidence.notices().count(),
+        1,
+        "any other file of the directory is a notice to reproduce"
+    );
+}
+
 /******************************************************************************/

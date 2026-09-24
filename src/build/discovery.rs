@@ -47,8 +47,10 @@ const DIRECTORIES: [&str; 2] = ["LICENSES", "licenses"];
 /// Directories whose every file is a notice to reproduce.
 ///
 /// Some crates keep the notices of the code they inherited here and leave the
-/// top-level licence file as an index that only points at them.
-const NOTICE_DIRECTORIES: [&str; 3] = [".licences", ".licenses", "licences"];
+/// top-level licence file as an index that only points at them.  A REUSE file
+/// named after its identifier stays a licence wherever it sits.
+const NOTICE_DIRECTORIES: [&str; 4] =
+    [".licences", ".licenses", "licences", "licenses"];
 
 /// Names that are not SPDX identifiers but conventionally stand for one.
 ///
@@ -206,6 +208,11 @@ impl Discovery {
             .is_some_and(|name| DIRECTORIES.contains(&name))
     }
 
+    /// Whether a path is a REUSE file named after its SPDX identifier.
+    fn is_reuse_licence(path: &std::path::Path) -> bool {
+        Self::is_reuse(path) && Self::reuse_identifier(path).is_some()
+    }
+
     /// A discovery with the default settings.
     #[must_use]
     pub const fn new() -> Self {
@@ -242,7 +249,11 @@ impl Discovery {
     fn role(path: &std::path::Path) -> crate::build::Role {
         match Self::split_name(path) {
             Some(("notice", _)) => crate::build::Role::Notice,
-            _ if Self::is_notice_directory(path) => crate::build::Role::Notice,
+            _ if Self::is_notice_directory(path)
+                && !Self::is_reuse_licence(path) =>
+            {
+                crate::build::Role::Notice
+            }
             _ => crate::build::Role::Licence,
         }
     }

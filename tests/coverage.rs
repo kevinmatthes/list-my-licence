@@ -438,4 +438,30 @@ fn an_unparsable_declaration_is_fatal() {
     );
 }
 
+#[test]
+fn hidden_notices_are_carried_beside_a_general_index() {
+    let directory = tempfile::tempdir().expect("a temporary directory");
+    let notices = directory.path().join(".licenses");
+
+    fs::create_dir(&notices).expect("a notice directory");
+    fs::write(directory.path().join("LICENSE"), "An index.\n")
+        .expect("a fixture file");
+    fs::write(notices.join("Holder-One-MIT"), "Held by Holder One.\n")
+        .expect("a fixture file");
+    fs::write(notices.join("Holder-Two-MIT"), "Held by Holder Two.\n")
+        .expect("a fixture file");
+
+    let described = package(directory.path(), Some("MIT OR Apache-2.0"));
+    let evidence = Discovery::new().search(&described);
+    let verdict = Classifier::new().classify(&described, &evidence);
+
+    assert_eq!(verdict.notices.len(), 2, "both holders must be reproduced");
+    assert_eq!(
+        verdict.coverage,
+        Coverage::Combined,
+        "the index is still one general file shared by both terms"
+    );
+    assert!(verdict.problems.is_empty(), "{:?}", verdict.problems);
+}
+
 /******************************************************************************/

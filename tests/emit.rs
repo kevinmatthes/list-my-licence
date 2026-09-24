@@ -410,4 +410,26 @@ fn the_dep5_output_is_deterministic() {
     );
 }
 
+#[test]
+fn hidden_notices_reach_both_renderings() {
+    let work = tempfile::tempdir().expect("a temporary directory");
+    let notices = work.path().join(".licenses");
+
+    fs::create_dir(&notices).expect("a notice directory");
+    fs::write(notices.join("Holder-MIT"), "Held by Holder One.\n")
+        .expect("a fixture file");
+
+    let (described, verdict) = reproduced(work.path(), &["LICENSE"], "MIT");
+    let packages: Vec<Reproduced<'_>> = vec![(&described, &verdict)];
+
+    assert!(
+        Emitter::markdown(&packages).contains("Held by Holder One."),
+        "the Markdown must carry the holder's own notice"
+    );
+    assert!(
+        Emitter::dep5(&packages).contains(" Held by Holder One.\n"),
+        "and so must the DEP-5 file, folded as a continuation"
+    );
+}
+
 /******************************************************************************/

@@ -26,6 +26,7 @@ pub enum Role {
     /// An Apache-2.0 §4(d) `NOTICE`, whose attribution notices must be carried
     /// into every distributed derivative work.  Cargo models no such concept,
     /// so a `NOTICE` is invisible to anything that reads only the manifest.
+    /// Every file of a hidden notice directory is one as well.
     Notice,
 }
 

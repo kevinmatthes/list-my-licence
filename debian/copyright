@@ -6855,7 +6855,7 @@ License: MIT and Apache-2.0
  .
  END OF TERMS AND CONDITIONS
 
-Files: smallvec-1.16.1/*
+Files: smallvec-1.16.2/*
 Copyright: The Servo Project Developers
 License: MIT and Apache-2.0
  .
@@ -7540,7 +7540,7 @@ License: MIT and Apache-2.0
  .
  END OF TERMS AND CONDITIONS
 
-Files: thiserror-2.0.20/*
+Files: thiserror-2.0.21/*
 Copyright: David Tolnay <dtolnay@gmail.com>
 License: MIT and Apache-2.0
  .
@@ -7749,7 +7749,7 @@ License: MIT and Apache-2.0
  .
  END OF TERMS AND CONDITIONS
 
-Files: thiserror-impl-2.0.20/*
+Files: thiserror-impl-2.0.21/*
 Copyright: David Tolnay <dtolnay@gmail.com>
 License: MIT and Apache-2.0
  .

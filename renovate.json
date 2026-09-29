@@ -55,7 +55,8 @@
       "matchStrings": [
         "cargo-deny@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "packageNameTemplate": "cargo-deny"
+      "packageNameTemplate": "cargo-deny",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -69,7 +70,8 @@
       "matchStrings": [
         "GIT_HARVEST_VERSION: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "packageNameTemplate": "git-harvest"
+      "packageNameTemplate": "git-harvest",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -81,7 +83,8 @@
       "matchStrings": [
         "cargo-semver-checks@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "packageNameTemplate": "cargo-semver-checks"
+      "packageNameTemplate": "cargo-semver-checks",
+      "versioningTemplate": "semver"
     }
   ],
   "dependencyDashboard": true,

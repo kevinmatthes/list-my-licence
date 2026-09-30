@@ -85,6 +85,19 @@
       ],
       "packageNameTemplate": "cargo-semver-checks",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "crate",
+      "depNameTemplate": "cargo-release",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "cargo-release@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "packageNameTemplate": "cargo-release",
+      "versioningTemplate": "semver"
     }
   ],
   "dependencyDashboard": true,
@@ -161,6 +174,7 @@
       ],
       "matchDepNames": [
         "cargo-deny",
+        "cargo-release",
         "cargo-semver-checks"
       ],
       "matchManagers": [

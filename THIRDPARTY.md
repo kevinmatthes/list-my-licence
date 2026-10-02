@@ -7141,7 +7141,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-## spdx 0.13.5
+## spdx 0.13.6
 
 ### Apache-2.0 (as distributed, in LICENSE-APACHE)
 

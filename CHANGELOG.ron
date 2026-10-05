@@ -20,6 +20,7 @@
         "Claude",
         "Claude Sonnet 5",
         "Claude Opus 5",
+        "Claude Sonnet 5.5",
       ],
       emails: [
         "noreply@anthropic.com",
@@ -68,6 +69,92 @@
   introduction: None,
   references: {},
   sections: [
+    (
+      version: (0, 3, 3),
+      released: Some("2026-10-05T02:48:08.673742330Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Added": [
+          (
+            text: "track the pinned cargo-release version with Renovate",
+            commit: Some("90f08fa"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+        "Changed": [
+          (
+            text: "lock file maintenance",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update Rust crate spdx to 0.13.6",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency cargo-release to v1.1.6",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency git-harvest to v0.4.1",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency rust to v1.99.0",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.22",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+        "Fixed": [
+          (
+            text: "Renovate raises every release of an exactly pinned tool",
+            commit: Some("93eb9cf"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+          (
+            text: "track the renamed clippy.toml so msrv follows rust-version",
+            commit: Some("b6a7b7b"),
+            aliases: [
+              "kevinmatthes",
+              "claude",
+            ],
+          ),
+        ],
+      },
+    ),
     (
       version: (0, 3, 2),
       released: Some("2026-09-24T16:10:12.166721095Z"),

@@ -70,6 +70,48 @@
   references: {},
   sections: [
     (
+      version: (0, 3, 4),
+      released: Some("2026-10-12T03:02:52.454343033Z"),
+      introduction: None,
+      references: {},
+      changes: {
+        "Changed": [
+          (
+            text: "lock file maintenance",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency cargo-semver-checks to v0.51.0",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update dependency git-harvest to v0.4.2",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+          (
+            text: "update taiki-e/install-action action to v2.87.26",
+            commit: None,
+            aliases: [
+              "renovate",
+              "github-actions",
+            ],
+          ),
+        ],
+      },
+    ),
+    (
       version: (0, 3, 3),
       released: Some("2026-10-05T02:48:08.673742330Z"),
       introduction: None,

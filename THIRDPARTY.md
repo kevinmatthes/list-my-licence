@@ -1915,7 +1915,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 ```
 
-## clap 4.6.7
+## clap 4.6.8
 
 ### MIT (as distributed, in LICENSE-MIT)
 
@@ -2379,7 +2379,7 @@ SOFTWARE.
    limitations under the License.
 ```
 
-## clap_derive 4.6.7
+## clap_derive 4.6.8
 
 ### MIT (as distributed, in LICENSE-MIT)
 
@@ -3990,7 +3990,7 @@ SOFTWARE.
    limitations under the License.
 ```
 
-## list-my-licence 0.3.4
+## list-my-licence 0.3.5
 
 ### GPL-3.0-or-later (as distributed, in LICENCE)
 
@@ -7379,7 +7379,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## syn 3.0.6
+## syn 3.0.10
 
 ### MIT (as distributed, in LICENSE-MIT)
 
